@@ -1,0 +1,317 @@
+/* 核心工具：DOM、儲存、剪貼簿、下載、提示詞產生器 */
+(function () {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  Object.assign(SS, { $, $$, esc, pick, shuffle, uid });
+
+  /* ---------- Toast ---------- */
+  SS.toast = function (msg, ms = 2200) {
+    let box = $('#toast');
+    box.textContent = msg;
+    box.classList.add('show');
+    clearTimeout(SS._toastT);
+    SS._toastT = setTimeout(() => box.classList.remove('show'), ms);
+  };
+
+  /* ---------- Modal ---------- */
+  SS.modal = function (html, { onOpen } = {}) {
+    const wrap = $('#modal');
+    $('#modal-body').innerHTML = html;
+    wrap.hidden = false;
+    requestAnimationFrame(() => wrap.classList.add('open'));
+    if (onOpen) onOpen($('#modal-body'));
+  };
+  SS.closeModal = function () {
+    const wrap = $('#modal');
+    wrap.classList.remove('open');
+    setTimeout(() => { wrap.hidden = true; $('#modal-body').innerHTML = ''; }, 180);
+  };
+
+  /* ---------- LocalStorage（小型設定） ---------- */
+  SS.ls = {
+    get(k, d) { try { const v = localStorage.getItem('ss_' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('ss_' + k, JSON.stringify(v)); return true; } catch (e) { SS.toast('儲存空間不足或瀏覽器不允許儲存'); return false; } }
+  };
+
+  /* ---------- IndexedDB（圖片收藏） ---------- */
+  let dbp = null;
+  function db() {
+    if (dbp) return dbp;
+    dbp = new Promise((res, rej) => {
+      if (!('indexedDB' in window)) return rej(new Error('此瀏覽器不支援 IndexedDB'));
+      const r = indexedDB.open('sticker-studio', 1);
+      r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains('stickers')) d.createObjectStore('stickers', { keyPath: 'id' }); };
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+    return dbp;
+  }
+  function tx(mode, fn) {
+    return db().then((d) => new Promise((res, rej) => {
+      const t = d.transaction('stickers', mode); const st = t.objectStore('stickers');
+      const out = fn(st);
+      t.oncomplete = () => res(out && out.result !== undefined ? out.result : out);
+      t.onerror = () => rej(t.error);
+    }));
+  }
+  SS.idb = {
+    put: (item) => tx('readwrite', (s) => s.put(item)),
+    del: (id) => tx('readwrite', (s) => s.delete(id)),
+    all: () => tx('readonly', (s) => s.getAll()).then((r) => (r || []).sort((a, b) => b.created - a.created)),
+    get: (id) => tx('readonly', (s) => s.get(id))
+  };
+  SS.saveSticker = async function (blob, name, category = '未分類') {
+    const item = { id: uid(), name: name || '我的貼圖', category, blob, type: blob.type, created: Date.now() };
+    await SS.idb.put(item);
+    return item;
+  };
+
+  /* ---------- 角色設定 ---------- */
+  SS.chars = {
+    list: () => SS.ls.get('characters', []),
+    save(c) { const l = SS.chars.list(); const i = l.findIndex((x) => x.id === c.id); if (i >= 0) l[i] = c; else l.unshift(c); SS.ls.set('characters', l); },
+    remove(id) { SS.ls.set('characters', SS.chars.list().filter((x) => x.id !== id)); }
+  };
+  /* 目前草稿（跨頁共用） */
+  SS.draft = {
+    get: () => Object.assign(SS.defaultDraft(), SS.ls.get('draft', {})),
+    set(patch) { SS.ls.set('draft', Object.assign(SS.draft.get(), patch)); }
+  };
+  SS.defaultDraft = () => ({
+    name: '', charType: '貓咪', customType: '', appearance: '', hair: '', outfit: '', colors: '奶油白＋蜜桃橘',
+    personality: '元氣滿滿', expression: '開心大笑', action: '揮手打招呼', prop: '無',
+    style: 'qban', customStyle: '', text: '早安', noText: false, aiText: true, transparent: true
+  });
+
+  /* ---------- 剪貼簿 ---------- */
+  SS.copy = async function (text, okMsg = '已複製到剪貼簿') {
+    try {
+      if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); SS.toast(okMsg); return true; }
+    } catch (e) { /* fallback */ }
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove();
+    SS.toast(ok ? okMsg : '無法自動複製，請長按文字手動複製');
+    return ok;
+  };
+
+  /* ---------- 下載 ---------- */
+  SS.download = function (blobOrUrl, filename) {
+    const url = typeof blobOrUrl === 'string' ? blobOrUrl : URL.createObjectURL(blobOrUrl);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    if (typeof blobOrUrl !== 'string') setTimeout(() => URL.revokeObjectURL(url), 4000);
+  };
+  SS.downloadText = (text, filename, type = 'text/plain') => SS.download(new Blob(['﻿' + text], { type: type + ';charset=utf-8' }), filename);
+
+  /* 分享圖片（不支援時改下載） */
+  SS.shareBlob = async function (blob, filename) {
+    try {
+      const file = new File([blob], filename, { type: blob.type || 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: '今天貼什麼？貼圖' });
+        return;
+      }
+    } catch (e) { if (e && e.name === 'AbortError') return; }
+    SS.download(blob, filename);
+    SS.toast('此裝置不支援直接分享，已改為下載圖片');
+  };
+
+  /* ---------- 圖片工具 ---------- */
+  SS.fileToImage = function (file) {
+    return new Promise((res, rej) => {
+      if (!file || !/^image\//.test(file.type)) return rej(new Error('請選擇圖片檔（JPG、PNG、WebP）'));
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => res({ img, url });
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('圖片讀取失敗，格式可能不支援')); };
+      img.src = url;
+    });
+  };
+  SS.canvasToBlob = (cv, type = 'image/png') => new Promise((res) => cv.toBlob(res, type));
+  SS.fmtBytes = (n) => n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(1) + ' KB' : (n / 1048576).toFixed(2) + ' MB';
+  SS.ts = () => { const d = new Date(); const p = (x) => String(x).padStart(2, '0'); return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`; };
+
+  /* ---------- 提示詞產生器 ---------- */
+  SS.styleOf = (id) => SS.STYLES.find((s) => s.id === id);
+  SS.styleText = (d) => d.style === 'custom' ? (d.customStyle || '使用者自訂畫風') : (SS.styleOf(d.style) || SS.STYLES[0]).prompt;
+  SS.styleName = (d) => d.style === 'custom' ? '自訂：' + (d.customStyle || '未填寫') : (SS.styleOf(d.style) || SS.STYLES[0]).name;
+
+  SS.charSummary = function (d) {
+    const type = d.charType === '自訂角色' ? (d.customType || '原創角色') : d.charType;
+    const parts = [`角色類型：${type}`];
+    if (d.name) parts.push(`角色名稱：${d.name}`);
+    if (d.appearance) parts.push(`外貌特徵：${d.appearance}`);
+    if (d.hair) parts.push(`髮型／毛色：${d.hair}`);
+    if (d.outfit) parts.push(`服裝：${d.outfit}`);
+    if (d.colors) parts.push(`主要配色：${d.colors}`);
+    if (d.personality) parts.push(`個性：${d.personality}`);
+    return parts;
+  };
+
+  /**
+   * 產生單張貼圖提示詞
+   * d: 角色與畫面設定；opt: { source:'photo'|'character', subject, keepNotes, index, total, series, composition }
+   */
+  SS.buildPrompt = function (d, opt = {}) {
+    const L = [];
+    const head = opt.total > 1 ? `（第 ${opt.index} / ${opt.total} 張${opt.series ? '・' + opt.series : ''}）` : '';
+    L.push(`請幫我畫一張聊天用的貼圖${head}。`);
+    L.push('');
+    if (opt.source === 'photo') {
+      L.push('【參考照片使用說明】');
+      L.push(`我會上傳一張${opt.subject || '人物'}的照片，請以照片中的主角為角色原型。`);
+      L.push('請保留可辨識的特徵：臉型、髮型或毛色花紋、膚色或毛色、配件與整體氣質，再轉換成下方指定的畫風。');
+      if (opt.keepNotes) L.push(`特別保留：${opt.keepNotes}`);
+      L.push('只參考主角本身，不要沿用照片背景，也不要加入照片中的其他人物。');
+      L.push('');
+    }
+    L.push('【角色設定】');
+    SS.charSummary(d).forEach((p) => L.push('・' + p));
+    L.push('');
+    L.push('【畫風與配色】');
+    L.push(`・畫風：${SS.styleText(d)}`);
+    if (d.colors) L.push(`・配色以「${d.colors}」為主，色彩和諧、對比清楚，縮小後依然好辨識。`);
+    L.push('');
+    L.push('【表情與動作】');
+    L.push(`・表情：${d.expression || '開心'}`);
+    L.push(`・動作：${d.action || '自然站姿'}`);
+    if (d.prop && d.prop !== '無') L.push(`・道具：${d.prop}`);
+    L.push('・表情與肢體要誇張、一眼看懂情緒。');
+    L.push('');
+    L.push('【貼圖文字】');
+    if (d.noText || !d.text) {
+      L.push('・這張貼圖不放任何文字。');
+    } else if (d.aiText) {
+      L.push(`・在畫面中加入繁體中文文字「${d.text}」，字數與字形必須完全正確，不可出現錯字、簡體字或亂碼。`);
+      L.push('・文字使用粗圓、可愛的手寫字感，搭配白色外框，放在不遮住臉的位置。');
+    } else {
+      L.push(`・這張貼圖之後會另外加上文字「${d.text}」，請不要在圖中畫任何文字，並在角色上方或旁邊預留放字的空間。`);
+    }
+    L.push('');
+    L.push('【構圖與留白】');
+    L.push(`・構圖：${opt.composition || '角色置中、全身或半身'}`);
+    L.push('・單一角色、單一畫面，不要做成多格漫畫。');
+    L.push('・角色與文字四周保留約 10px 以上的留白，不要被裁切到。');
+    L.push('・畫面比例接近 370 × 320（橫式略寬）或正方形。');
+    L.push('');
+    L.push('【背景】');
+    if (d.transparent) {
+      L.push('・請輸出透明背景 PNG。若無法輸出透明背景，請改用純白色、無陰影、無漸層的單色背景，方便後續去背。');
+    } else {
+      L.push('・使用乾淨簡單的淺色背景。');
+    }
+    L.push('');
+    L.push('【角色一致性】');
+    L.push('・若這是同系列貼圖，角色的臉型、比例、配色、服裝與畫風必須與前面每一張保持一致。');
+    L.push('');
+    L.push('【原創與避免侵權】');
+    L.push('・請設計原創角色與畫面，不要模仿任何知名動漫角色、吉祥物、品牌商標或特定藝術家的作品。');
+    return L.join('\n');
+  };
+
+  /* 宮格合併提示詞（一次畫出多張，之後用切圖工具分割） */
+  SS.buildGridPrompt = function (d, items, rows, cols, opt = {}) {
+    const L = [];
+    L.push(`請幫我畫一張 ${rows}×${cols} 宮格的貼圖總表，共 ${items.length} 格${opt.series ? '（' + opt.series + '）' : ''}。`);
+    L.push('每一格都是同一個角色的獨立貼圖，格與格之間保留明顯的等寬空白間距，方便之後平均切割。');
+    L.push('');
+    if (opt.source === 'photo') {
+      L.push('【參考照片】我會上傳主角照片，請保留臉型、髮型或毛色、配件等可辨識特徵。');
+      L.push('');
+    }
+    L.push('【角色設定】');
+    SS.charSummary(d).forEach((p) => L.push('・' + p));
+    L.push(`・畫風：${SS.styleText(d)}`);
+    L.push('');
+    L.push('【各格內容】（由左到右、由上到下）');
+    items.forEach((it, i) => {
+      const txt = it.noText || !it.text ? '無文字' : (d.aiText ? `文字「${it.text}」` : `不畫字（預留「${it.text}」的空間）`);
+      L.push(`${i + 1}. ${it.expression}・${it.action}${it.prop && it.prop !== '無' ? '・道具：' + it.prop : ''}・${txt}`);
+    });
+    L.push('');
+    L.push('【要求】');
+    L.push('・所有格子的角色外貌、比例、配色、畫風完全一致。');
+    if (d.aiText) L.push('・文字一律使用繁體中文，字形正確、不可亂碼，加白色外框。');
+    L.push(d.transparent ? '・背景使用純白色、無陰影、無格線，方便去背與切割。' : '・背景使用乾淨單色。');
+    L.push('・每格角色置中，四周留白，不要超出格子。');
+    L.push('・原創設計，不模仿任何知名角色或品牌。');
+    return L.join('\n');
+  };
+
+  /* ---------- 共用 UI 元件 ---------- */
+  SS.selectHTML = (id, list, val) => `<select id="${id}">${list.map((x) => `<option ${x === val ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select>`;
+
+  SS.stylePickerHTML = function (cur) {
+    const items = SS.STYLES.map((s) => ({ id: s.id, name: s.name, desc: s.desc })).concat([{ id: 'custom', name: '自訂畫風', desc: '輸入你想要的風格' }]);
+    return `<div class="style-grid" role="radiogroup" aria-label="畫風">${items.map((s) => `
+      <button type="button" class="style-card ${s.id === cur ? 'on' : ''}" data-style="${s.id}" role="radio" aria-checked="${s.id === cur}">
+        <span class="style-ic">${SS.STYLE_ICONS[s.id]}</span><b>${s.name}</b><small>${s.desc}</small>
+      </button>`).join('')}</div>`;
+  };
+  SS.bindStylePicker = function (root, onChange) {
+    $$('.style-card', root).forEach((b) => b.addEventListener('click', () => {
+      $$('.style-card', root).forEach((x) => { x.classList.remove('on'); x.setAttribute('aria-checked', 'false'); });
+      b.classList.add('on'); b.setAttribute('aria-checked', 'true');
+      onChange(b.dataset.style);
+    }));
+  };
+
+  /* 用語挑選對話框 */
+  SS.pickPhrase = function (onPick) {
+    const cats = Object.keys(SS.PHRASES);
+    SS.modal(`<h3>挑一句生活用語</h3>
+      <div class="chips cat-tabs">${cats.map((c, i) => `<button class="chip ${i ? '' : 'on'}" data-cat="${c}">${c}</button>`).join('')}</div>
+      <div class="chips phrase-list" id="pp-list"></div>
+      <div class="row gap"><button class="btn ghost" id="pp-rand">🎲 隨機一句</button><button class="btn ghost" id="pp-none">無文字</button></div>`, {
+      onOpen(b) {
+        const render = (c) => { $('#pp-list', b).innerHTML = SS.PHRASES[c].map((p) => `<button class="chip big" data-p="${esc(p)}">${esc(p)}</button>`).join(''); };
+        render(cats[0]);
+        b.addEventListener('click', (e) => {
+          const t = e.target.closest('button'); if (!t) return;
+          if (t.dataset.cat) { $$('.cat-tabs .chip', b).forEach((x) => x.classList.toggle('on', x === t)); render(t.dataset.cat); }
+          else if (t.dataset.p) { onPick(t.dataset.p); SS.closeModal(); }
+          else if (t.id === 'pp-rand') { onPick(pick(SS.ALL_PHRASES)); SS.closeModal(); }
+          else if (t.id === 'pp-none') { onPick(''); SS.closeModal(); }
+        });
+      }
+    });
+  };
+
+  /* 提示詞輸出區塊 */
+  SS.promptBoxHTML = (id = 'prompt-out') => `
+    <div class="prompt-box">
+      <div class="prompt-head"><b>🪄 AI 生圖提示詞</b><span class="muted small" id="${id}-len"></span></div>
+      <textarea id="${id}" class="prompt-text" rows="10" aria-label="AI 生圖提示詞"></textarea>
+      <div class="btn-row">
+        <button class="btn primary" data-act="copy">📋 複製提示詞</button>
+        <button class="btn" data-act="gpt">複製並開啟 ChatGPT</button>
+        <button class="btn" data-act="gemini">複製並開啟 Gemini</button>
+        <button class="btn ghost" data-act="dl">⬇️ 下載 TXT</button>
+      </div>
+      <p class="note">ℹ️ 本 App 不會直接生成圖片。請把提示詞貼到 ChatGPT 或 Gemini（需登入該服務，額度與收費依各服務規定）。生成後可回到「✂️ 貼圖加工室」加工。<br>💡 AI 畫中文字常出錯；若字不對，可改選「之後在加工室加字」。</p>
+    </div>`;
+  SS.bindPromptBox = function (root, id = 'prompt-out', fname = 'sticker-prompt') {
+    const ta = $('#' + id, root);
+    const upd = () => { const n = $('#' + id + '-len', root); if (n) n.textContent = ta.value.length + ' 字'; };
+    ta.addEventListener('input', upd);
+    root.addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-act]'); if (!b || !b.closest('.prompt-box')) return;
+      const a = b.dataset.act;
+      if (a === 'copy') SS.copy(ta.value, '提示詞已複製');
+      if (a === 'gpt' || a === 'gemini') {
+        // 先啟動複製（保留使用者手勢），再開新視窗
+        SS.copy(ta.value, '已複製，請在新視窗貼上提示詞');
+        window.open(a === 'gpt' ? SS.LINKS.chatgpt : SS.LINKS.gemini, '_blank', 'noopener');
+      }
+      if (a === 'dl') SS.downloadText(ta.value, `${fname}-${SS.ts()}.txt`);
+    });
+    return { set(v) { ta.value = v; upd(); }, get: () => ta.value };
+  };
+})();

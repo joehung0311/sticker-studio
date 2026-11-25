@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>今天貼什麼？｜AI 貼圖製造機 Sticker Studio</title>
+<meta name="description" content="生活有百種心情，貼圖不必只有一種。免註冊、免 API Key 的繁體中文 AI 貼圖製造機：規劃角色、產生生圖提示詞、裁切加字、切成 LINE 貼圖。">
+<meta name="theme-color" content="#FFF8EE">
+<meta property="og:title" content="今天貼什麼？AI 貼圖製造機">
+<meta property="og:description" content="生活有百種心情，貼圖不必只有一種。">
+<meta property="og:image" content="assets/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="今天貼什麼">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip" href="#view">跳到主要內容</a>
+<header id="topbar" class="topbar" hidden>
+  <button id="back-btn" class="icon-btn" aria-label="返回首頁">‹</button>
+  <h1 id="topbar-title"></h1>
+  <a href="#/" class="topbar-logo" aria-label="首頁"><img src="assets/icons/icon-48.png" width="32" height="32" alt=""></a>
+</header>
+<main id="view" class="view" tabindex="-1"></main>
+<footer class="footer">
+  <p>今天貼什麼？ Sticker Studio v1.0.0</p>
+  <p>Made by baihua・<a href="#/privacy">隱私權</a>・<a href="#/about">關於</a></p>
+</footer>
+<div id="update-bar" class="update-bar" hidden>有新版本 🎉 <button id="update-btn" class="btn sm primary">立即更新</button></div>
+<div id="modal" class="modal" hidden role="dialog" aria-modal="true"><div class="modal-card"><button class="modal-close" aria-label="關閉">✕</button><div id="modal-body"></div></div></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<noscript><p style="padding:2rem;text-align:center">請開啟 JavaScript 才能使用本 App。</p></noscript>
+<script src="vendor/jszip.min.js"></script>
+<script src="vendor/qrcode.js"></script>
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/views.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/linetool.js"></script>
+<script src="js/collection.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
