@@ -156,8 +156,10 @@
       ['rows', 'cols'].forEach((k) => $('#sp-' + k, el).addEventListener('input', (e) => { const v = Math.max(1, Math.min(10, Math.round(+e.target.value || 1))); if (k === 'rows') rows = v; else cols = v; drawPreview(); }));
       ['t', 'b', 'l', 'r', 'g'].forEach((k) => $('#sp-' + k, el).addEventListener('input', (e) => { P[k] = +e.target.value; $(`[data-v="${k}"]`, el).textContent = P[k]; drawPreview(); }));
 
+      let splitting = false;
       $('#sp-go', el).addEventListener('click', async () => {
-        if (!src) return;
+        if (!src || splitting) return; splitting = true; $('#sp-go', el).disabled = true;
+        try {
         const cs = cells(); if (!cs.length) return SS.toast('切割範圍太小，請調整邊界');
         const toLine = $('#sp-line', el).checked, rm = $('#sp-rm', el).checked;
         tiles = [];
@@ -170,6 +172,7 @@
           tiles.push({ name: String(i + 1).padStart(2, '0') + '.png', blob, canvas: t });
         }
         renderTiles();
+        } finally { splitting = false; $('#sp-go', el).disabled = false; }
       });
       function renderTiles() {
         $('#sp-out', el).hidden = false;
@@ -203,10 +206,15 @@
         const cv = await blobToCanvas(f.blob);
         return { name: f.name, blob: f.blob, canvas: cv, w: cv.width, h: cv.height, size: f.blob.size, png: f.blob.type === 'image/png' || /\.png$/i.test(f.name), alpha: hasAlpha(cv) };
       }
-      async function addCheck(files) {
+      /* 所有清單操作排隊執行，避免手機連點造成重複或遺漏 */
+      let queue = Promise.resolve();
+      const serial = (fn) => { queue = queue.then(fn, fn); return queue; };
+      const busy = (on) => $$('#ck-actions .btn', el).forEach((b) => { b.disabled = on; });
+      async function addCheckNow(files) {
         for (const f of files) { try { items.push(await inspect(f)); } catch (e) { SS.toast(f.name + ' 讀取失敗'); } }
         renderCheck();
       }
+      const addCheck = (files) => serial(() => addCheckNow(files));
       function verdict(it, kind = 'sticker') {
         const s = SPEC[kind] || SPEC.sticker; const issues = [];
         if (!it.png) issues.push('不是 PNG');
@@ -237,7 +245,7 @@
         if (r) { items.splice(+r.dataset.rm, 1); renderCheck(); }
       });
       const stickerItems = () => items.filter((i) => !/^(main|tab)\.png$/.test(i.name));
-      $('#ck-fix', el).addEventListener('click', async () => {
+      $('#ck-fix', el).addEventListener('click', () => serial(async () => { busy(true); try {
         const trim = $('#ck-trim', el).checked; let up = 0;
         const out = [];
         for (const [n, it] of stickerItems().entries()) {
@@ -245,16 +253,16 @@
           out.push({ name: String(n + 1).padStart(2, '0') + '.png', blob: await SS.canvasToBlob(r.canvas) });
         }
         const keep = items.filter((i) => /^(main|tab)\.png$/.test(i.name)).map((i) => ({ name: i.name, blob: i.blob }));
-        items = []; await addCheck(out.concat(keep));
+        items = []; await addCheckNow(out.concat(keep));
         SS.toast(up ? `已調整，其中 ${up} 張原圖較小被放大，可能略模糊` : '已全部調整為 370×320');
-      });
-      const makeExtra = async (kind) => {
+      } finally { busy(false); } }));
+      const makeExtra = (kind) => serial(async () => {
         const first = stickerItems()[0]; if (!first) return SS.toast('請先加入貼圖');
         const s = SPEC[kind]; const r = SS.fitInto(first.canvas, s.w, s.h, kind === 'main' ? 10 : 2, $('#ck-trim', el).checked);
         items = items.filter((i) => i.name !== kind + '.png');
-        await addCheck([{ name: kind + '.png', blob: await SS.canvasToBlob(r.canvas) }]);
+        await addCheckNow([{ name: kind + '.png', blob: await SS.canvasToBlob(r.canvas) }]);
         SS.toast(kind === 'main' ? '主圖 240×240 已加入' : '標籤圖 96×74 已加入');
-      };
+      });
       $('#ck-main', el).addEventListener('click', () => makeExtra('main'));
       $('#ck-tab', el).addEventListener('click', () => makeExtra('tab'));
       $('#ck-zip', el).addEventListener('click', async () => {

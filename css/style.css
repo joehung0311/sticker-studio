@@ -316,3 +316,4 @@ details p { margin: 4px 0 10px; color: var(--brown-l); }
 .tg-sheet .picked-text { font-size: 1.4rem; margin: 0; }
 .tg-sheet p { margin: 4px 0; }
 @media (min-width: 640px) { #tg-cats { flex-wrap: wrap; overflow: visible; } }
+.btn:disabled { opacity: .5; pointer-events: none; }
