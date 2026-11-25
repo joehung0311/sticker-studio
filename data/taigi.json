@@ -1,0 +1,1556 @@
+{
+ "version": "1.0.0",
+ "updated": "2026-11-25",
+ "about": "台語貼圖專區用語資料。台語正字依教育部《臺灣台語常用詞辭典》推薦用字撰寫；趣味諧音為網路常見寫法，非標準台語。",
+ "reference": {
+  "name": "教育部臺灣台語常用詞辭典",
+  "url": "https://sutian.moe.edu.tw/",
+  "checkedWith": "g0v/moedict-data-twblg（教育部臺灣閩南語常用詞辭典開放資料，CC BY-ND 3.0 TW）"
+ },
+ "checkLevels": {
+  "headword": "整句為辭典詞目或俗諺條目",
+  "example": "整句見於辭典例句",
+  "words": "每個詞都是辭典詞目（整句為常用口語組合）",
+  "manual": "含辭典未收字詞，需人工確認"
+ },
+ "modes": {
+  "hanji": "台語正字",
+  "pun": "趣味諧音",
+  "zh": "華語",
+  "mix": "台華混搭"
+ },
+ "categories": [
+  {
+   "id": "c01",
+   "name": "日常問候",
+   "emoji": "👋",
+   "expressions": [
+    "甜甜微笑",
+    "開心大笑"
+   ],
+   "actions": [
+    "揮手打招呼",
+    "鞠躬"
+   ]
+  },
+  {
+   "id": "c02",
+   "name": "日常回覆",
+   "emoji": "💬",
+   "expressions": [
+    "甜甜微笑",
+    "認真",
+    "眨眼"
+   ],
+   "actions": [
+    "比讚",
+    "敬禮",
+    "指向前方"
+   ]
+  },
+  {
+   "id": "c03",
+   "name": "驚訝傻眼",
+   "emoji": "😳",
+   "expressions": [
+    "驚訝",
+    "傻眼",
+    "心虛冒汗"
+   ],
+   "actions": [
+    "雙手捧臉",
+    "抱頭",
+    "開心跳起來"
+   ]
+  },
+  {
+   "id": "c04",
+   "name": "搞笑吐槽",
+   "emoji": "🤣",
+   "expressions": [
+    "無言",
+    "得意",
+    "傻眼"
+   ],
+   "actions": [
+    "指向前方",
+    "雙手叉腰",
+    "拍手"
+   ]
+  },
+  {
+   "id": "c05",
+   "name": "上班族崩潰",
+   "emoji": "💼",
+   "expressions": [
+    "疲累",
+    "崩潰吶喊",
+    "想睡"
+   ],
+   "actions": [
+    "趴在地上",
+    "抱頭",
+    "躺平"
+   ]
+  },
+  {
+   "id": "c06",
+   "name": "生氣不爽",
+   "emoji": "😤",
+   "expressions": [
+    "生氣鼓臉",
+    "無言"
+   ],
+   "actions": [
+    "雙手叉腰",
+    "舉牌",
+    "轉圈圈"
+   ]
+  },
+  {
+   "id": "c07",
+   "name": "撒嬌可愛",
+   "emoji": "🥺",
+   "expressions": [
+    "害羞臉紅",
+    "愛心眼",
+    "哭哭"
+   ],
+   "actions": [
+    "比愛心",
+    "張開雙手抱抱",
+    "雙手捧臉"
+   ]
+  },
+  {
+   "id": "c08",
+   "name": "鼓勵安慰",
+   "emoji": "💪",
+   "expressions": [
+    "甜甜微笑",
+    "認真",
+    "崇拜發光"
+   ],
+   "actions": [
+    "比讚",
+    "張開雙手抱抱",
+    "拍手"
+   ]
+  },
+  {
+   "id": "c09",
+   "name": "感謝道歉",
+   "emoji": "🙏",
+   "expressions": [
+    "感動落淚",
+    "害羞臉紅",
+    "心虛冒汗"
+   ],
+   "actions": [
+    "鞠躬",
+    "雙手合十"
+   ]
+  },
+  {
+   "id": "c10",
+   "name": "吃喝玩樂",
+   "emoji": "🍜",
+   "expressions": [
+    "愛心眼",
+    "開心大笑"
+   ],
+   "actions": [
+    "雙手捧臉",
+    "開心跳起來",
+    "指向前方"
+   ]
+  },
+  {
+   "id": "c11",
+   "name": "耍廢躺平",
+   "emoji": "🛋️",
+   "expressions": [
+    "想睡",
+    "疲累",
+    "無言"
+   ],
+   "actions": [
+    "躺平",
+    "趴在地上"
+   ]
+  },
+  {
+   "id": "c12",
+   "name": "長輩問候",
+   "emoji": "🌸",
+   "expressions": [
+    "甜甜微笑",
+    "開心大笑"
+   ],
+   "actions": [
+    "揮手打招呼",
+    "雙手合十",
+    "撒花"
+   ]
+  },
+  {
+   "id": "c13",
+   "name": "節日祝福",
+   "emoji": "🧧",
+   "expressions": [
+    "開心大笑",
+    "甜甜微笑"
+   ],
+   "actions": [
+    "撒花",
+    "鞠躬",
+    "拍手"
+   ]
+  },
+  {
+   "id": "c14",
+   "name": "台灣在地流行用語",
+   "emoji": "🧋",
+   "expressions": [
+    "得意",
+    "眨眼",
+    "開心大笑"
+   ],
+   "actions": [
+    "比讚",
+    "指向前方",
+    "舉牌"
+   ]
+  },
+  {
+   "id": "c15",
+   "name": "台灣俗語金句",
+   "emoji": "📜",
+   "expressions": [
+    "認真",
+    "得意",
+    "甜甜微笑"
+   ],
+   "actions": [
+    "舉牌",
+    "指向前方",
+    "雙手叉腰"
+   ]
+  }
+ ],
+ "phrases": [
+  {
+   "id": "t001",
+   "cat": "c01",
+   "hanji": "食飽未？",
+   "zh": "吃飽了嗎？",
+   "check": "words",
+   "pun": "呷飽沒？",
+   "mix": "你吃飽未？"
+  },
+  {
+   "id": "t002",
+   "cat": "c01",
+   "hanji": "你好",
+   "zh": "你好",
+   "check": "words",
+   "pun": "哩賀"
+  },
+  {
+   "id": "t003",
+   "cat": "c01",
+   "hanji": "早安",
+   "zh": "早安",
+   "check": "words"
+  },
+  {
+   "id": "t004",
+   "cat": "c01",
+   "hanji": "暗安",
+   "zh": "晚安",
+   "check": "headword",
+   "tl": "àm-an"
+  },
+  {
+   "id": "t005",
+   "cat": "c01",
+   "hanji": "好久無看著",
+   "zh": "好久不見",
+   "check": "words",
+   "mix": "好久無看著你"
+  },
+  {
+   "id": "t006",
+   "cat": "c01",
+   "hanji": "你近來好無？",
+   "zh": "你最近好嗎？",
+   "check": "words",
+   "mix": "最近好無？"
+  },
+  {
+   "id": "t007",
+   "cat": "c01",
+   "hanji": "欲去佗位？",
+   "zh": "要去哪裡？",
+   "check": "example",
+   "mix": "你要去佗位？"
+  },
+  {
+   "id": "t008",
+   "cat": "c01",
+   "hanji": "我轉來矣",
+   "zh": "我回來了",
+   "check": "words",
+   "mix": "我回來矣"
+  },
+  {
+   "id": "t009",
+   "cat": "c01",
+   "hanji": "好好仔睏",
+   "zh": "好好睡",
+   "check": "words",
+   "mix": "晚安好好仔睏"
+  },
+  {
+   "id": "t010",
+   "cat": "c02",
+   "hanji": "好啦",
+   "zh": "好啦",
+   "check": "words",
+   "pun": "吼啦"
+  },
+  {
+   "id": "t011",
+   "cat": "c02",
+   "hanji": "是啦",
+   "zh": "是啦",
+   "check": "words"
+  },
+  {
+   "id": "t012",
+   "cat": "c02",
+   "hanji": "無問題",
+   "zh": "沒問題",
+   "check": "words",
+   "pun": "謀問題"
+  },
+  {
+   "id": "t013",
+   "cat": "c02",
+   "hanji": "我知矣",
+   "zh": "我知道了",
+   "check": "words",
+   "pun": "哇災啊",
+   "mix": "好，我知矣"
+  },
+  {
+   "id": "t014",
+   "cat": "c02",
+   "hanji": "我毋知",
+   "zh": "我不知道",
+   "check": "words",
+   "pun": "哇母災",
+   "mix": "我真的毋知"
+  },
+  {
+   "id": "t015",
+   "cat": "c02",
+   "hanji": "免客氣",
+   "zh": "不用客氣",
+   "check": "words"
+  },
+  {
+   "id": "t016",
+   "cat": "c02",
+   "hanji": "隨來",
+   "zh": "馬上來",
+   "check": "words"
+  },
+  {
+   "id": "t017",
+   "cat": "c02",
+   "hanji": "等一下",
+   "zh": "等一下",
+   "check": "headword",
+   "tl": "tán--tsi̍t-ē"
+  },
+  {
+   "id": "t018",
+   "cat": "c02",
+   "hanji": "有影",
+   "zh": "真的",
+   "check": "headword",
+   "mix": "有影喔",
+   "tl": "ū-iánn"
+  },
+  {
+   "id": "t019",
+   "cat": "c02",
+   "hanji": "看覓咧",
+   "zh": "試試看",
+   "check": "words",
+   "mix": "我試看覓咧"
+  },
+  {
+   "id": "t020",
+   "cat": "c03",
+   "hanji": "敢按呢？",
+   "zh": "真的嗎？",
+   "check": "words",
+   "pun": "甘安捏？",
+   "mix": "真的敢按呢？"
+  },
+  {
+   "id": "t021",
+   "cat": "c03",
+   "hanji": "啥物？",
+   "zh": "什麼？",
+   "check": "headword",
+   "pun": "蝦咪？",
+   "mix": "你說啥物？",
+   "tl": "siánn-mih"
+  },
+  {
+   "id": "t022",
+   "cat": "c03",
+   "hanji": "驚死人",
+   "zh": "嚇死人",
+   "check": "headword",
+   "pun": "驚死郎",
+   "mix": "真的驚死人",
+   "tl": "kiann-sí-lâng"
+  },
+  {
+   "id": "t023",
+   "cat": "c03",
+   "hanji": "哪會按呢？",
+   "zh": "怎麼會這樣？",
+   "check": "example",
+   "pun": "哪ㄟ安捏？",
+   "mix": "怎麼會按呢？",
+   "tl": "Ná ē án-ne?"
+  },
+  {
+   "id": "t024",
+   "cat": "c03",
+   "hanji": "有影無影？",
+   "zh": "真的假的？",
+   "check": "words",
+   "mix": "真的有影無影？"
+  },
+  {
+   "id": "t025",
+   "cat": "c03",
+   "hanji": "害矣",
+   "zh": "糟了",
+   "check": "words",
+   "pun": "害啊",
+   "mix": "完了害矣"
+  },
+  {
+   "id": "t026",
+   "cat": "c03",
+   "hanji": "我煞袂記得",
+   "zh": "我竟然忘了",
+   "check": "words",
+   "mix": "我竟然袂記得"
+  },
+  {
+   "id": "t027",
+   "cat": "c03",
+   "hanji": "袂輸咧眠夢",
+   "zh": "好像在做夢",
+   "check": "words",
+   "mix": "好像咧眠夢"
+  },
+  {
+   "id": "t028",
+   "cat": "c03",
+   "hanji": "毋是啦",
+   "zh": "不是啦",
+   "check": "words",
+   "pun": "母係啦"
+  },
+  {
+   "id": "t029",
+   "cat": "c04",
+   "hanji": "你咧講啥？",
+   "zh": "你在說什麼？",
+   "check": "words",
+   "pun": "哩咧共蝦？",
+   "mix": "你在講啥？"
+  },
+  {
+   "id": "t030",
+   "cat": "c04",
+   "hanji": "頭殼歹去",
+   "zh": "腦袋壞掉",
+   "check": "words",
+   "pun": "頭殼壞去",
+   "mix": "你頭殼歹去喔"
+  },
+  {
+   "id": "t031",
+   "cat": "c04",
+   "hanji": "莫鬧",
+   "zh": "別鬧",
+   "check": "words",
+   "pun": "麥鬧"
+  },
+  {
+   "id": "t032",
+   "cat": "c04",
+   "hanji": "烏白講",
+   "zh": "亂講",
+   "check": "words",
+   "pun": "黑白講",
+   "mix": "你又烏白講"
+  },
+  {
+   "id": "t033",
+   "cat": "c04",
+   "hanji": "臭彈",
+   "zh": "吹牛",
+   "check": "headword",
+   "mix": "又在臭彈",
+   "tl": "tshàu-tuānn"
+  },
+  {
+   "id": "t034",
+   "cat": "c04",
+   "hanji": "想傷濟",
+   "zh": "想太多",
+   "check": "words",
+   "mix": "你想傷濟啦"
+  },
+  {
+   "id": "t035",
+   "cat": "c04",
+   "hanji": "莫閣講矣",
+   "zh": "別再說了",
+   "check": "words",
+   "pun": "麥夠共啊",
+   "mix": "拜託莫閣講矣"
+  },
+  {
+   "id": "t036",
+   "cat": "c04",
+   "hanji": "莫按呢",
+   "zh": "別這樣",
+   "check": "words",
+   "pun": "麥安捏",
+   "mix": "你不要按呢"
+  },
+  {
+   "id": "t037",
+   "cat": "c04",
+   "hanji": "起痟",
+   "zh": "發瘋",
+   "check": "headword",
+   "pun": "起肖",
+   "mix": "你起痟喔",
+   "tl": "khí-siáu"
+  },
+  {
+   "id": "t038",
+   "cat": "c05",
+   "hanji": "足忝",
+   "zh": "好累",
+   "check": "words",
+   "pun": "揪甜",
+   "mix": "今天足忝"
+  },
+  {
+   "id": "t039",
+   "cat": "c05",
+   "hanji": "閣愛加班",
+   "zh": "又要加班",
+   "check": "words"
+  },
+  {
+   "id": "t040",
+   "cat": "c05",
+   "hanji": "欲落班矣",
+   "zh": "要下班了",
+   "check": "words",
+   "mix": "終於欲落班矣"
+  },
+  {
+   "id": "t041",
+   "cat": "c05",
+   "hanji": "頭殼疼",
+   "zh": "頭痛",
+   "check": "words",
+   "mix": "老闆讓我頭殼疼"
+  },
+  {
+   "id": "t042",
+   "cat": "c05",
+   "hanji": "做袂了",
+   "zh": "做不完",
+   "check": "words",
+   "mix": "工作做袂了"
+  },
+  {
+   "id": "t043",
+   "cat": "c05",
+   "hanji": "拍拚趁錢",
+   "zh": "努力賺錢",
+   "check": "words",
+   "mix": "為了生活拍拚趁錢"
+  },
+  {
+   "id": "t044",
+   "cat": "c05",
+   "hanji": "歇睏一下",
+   "zh": "休息一下",
+   "check": "words",
+   "mix": "先歇睏一下"
+  },
+  {
+   "id": "t045",
+   "cat": "c05",
+   "hanji": "我欲辭頭路",
+   "zh": "我要辭職",
+   "check": "words",
+   "mix": "我要辭頭路"
+  },
+  {
+   "id": "t046",
+   "cat": "c05",
+   "hanji": "薪水傷少",
+   "zh": "薪水太少",
+   "check": "words",
+   "mix": "薪水真的傷少"
+  },
+  {
+   "id": "t047",
+   "cat": "c06",
+   "hanji": "氣死我",
+   "zh": "氣死我了",
+   "check": "words",
+   "mix": "真的氣死我"
+  },
+  {
+   "id": "t048",
+   "cat": "c06",
+   "hanji": "毋插你",
+   "zh": "不理你",
+   "check": "words",
+   "pun": "母插哩",
+   "mix": "哼，毋插你"
+  },
+  {
+   "id": "t049",
+   "cat": "c06",
+   "hanji": "真受氣",
+   "zh": "很生氣",
+   "check": "words",
+   "mix": "我真的真受氣"
+  },
+  {
+   "id": "t050",
+   "cat": "c06",
+   "hanji": "鬱卒",
+   "zh": "鬱悶",
+   "check": "headword",
+   "mix": "心情足鬱卒",
+   "tl": "ut-tsut"
+  },
+  {
+   "id": "t051",
+   "cat": "c06",
+   "hanji": "足煩",
+   "zh": "好煩",
+   "check": "words",
+   "pun": "揪煩",
+   "mix": "真的足煩"
+  },
+  {
+   "id": "t052",
+   "cat": "c06",
+   "hanji": "好膽莫走",
+   "zh": "有種別跑",
+   "check": "example",
+   "pun": "厚膽麥走",
+   "tl": "Hó-tánn mài tsáu!"
+  },
+  {
+   "id": "t053",
+   "cat": "c06",
+   "hanji": "冤家",
+   "zh": "吵架",
+   "check": "headword",
+   "mix": "又在冤家",
+   "tl": "uan-ke"
+  },
+  {
+   "id": "t054",
+   "cat": "c06",
+   "hanji": "你閣按呢",
+   "zh": "你又這樣",
+   "check": "words",
+   "mix": "你又按呢"
+  },
+  {
+   "id": "t055",
+   "cat": "c06",
+   "hanji": "莫插我",
+   "zh": "別管我",
+   "check": "words",
+   "pun": "麥插哇",
+   "mix": "先別插我"
+  },
+  {
+   "id": "t056",
+   "cat": "c07",
+   "hanji": "足古錐",
+   "zh": "好可愛",
+   "check": "words",
+   "pun": "金勾錐",
+   "mix": "真的足古錐"
+  },
+  {
+   "id": "t057",
+   "cat": "c07",
+   "hanji": "愛你",
+   "zh": "愛你",
+   "check": "words",
+   "mix": "最愛你"
+  },
+  {
+   "id": "t058",
+   "cat": "c07",
+   "hanji": "抱一下",
+   "zh": "抱一下",
+   "check": "words",
+   "mix": "來抱一下"
+  },
+  {
+   "id": "t059",
+   "cat": "c07",
+   "hanji": "陪我啦",
+   "zh": "陪我啦",
+   "check": "words"
+  },
+  {
+   "id": "t060",
+   "cat": "c07",
+   "hanji": "毋管啦",
+   "zh": "我不管啦",
+   "check": "words",
+   "pun": "母管啦"
+  },
+  {
+   "id": "t061",
+   "cat": "c07",
+   "hanji": "你上好",
+   "zh": "你最好了",
+   "check": "words"
+  },
+  {
+   "id": "t062",
+   "cat": "c07",
+   "hanji": "想你矣",
+   "zh": "想你了",
+   "check": "words",
+   "mix": "好想你矣"
+  },
+  {
+   "id": "t063",
+   "cat": "c07",
+   "hanji": "好啦好啦",
+   "zh": "好啦好啦",
+   "check": "words",
+   "pun": "吼啦吼啦"
+  },
+  {
+   "id": "t064",
+   "cat": "c07",
+   "hanji": "我欲食",
+   "zh": "我要吃",
+   "check": "words",
+   "pun": "哇欲呷",
+   "mix": "我要食"
+  },
+  {
+   "id": "t065",
+   "cat": "c08",
+   "hanji": "莫煩惱",
+   "zh": "別擔心",
+   "check": "words",
+   "pun": "麥煩惱",
+   "mix": "不要煩惱"
+  },
+  {
+   "id": "t066",
+   "cat": "c08",
+   "hanji": "你上讚",
+   "zh": "你最棒",
+   "check": "words"
+  },
+  {
+   "id": "t067",
+   "cat": "c08",
+   "hanji": "慢慢仔來",
+   "zh": "慢慢來",
+   "check": "example"
+  },
+  {
+   "id": "t068",
+   "cat": "c08",
+   "hanji": "無要緊",
+   "zh": "沒關係",
+   "check": "headword",
+   "mix": "沒事無要緊",
+   "tl": "bô iàu-kín"
+  },
+  {
+   "id": "t069",
+   "cat": "c08",
+   "hanji": "我陪你",
+   "zh": "我陪你",
+   "check": "words"
+  },
+  {
+   "id": "t070",
+   "cat": "c08",
+   "hanji": "一定會好",
+   "zh": "一定會好",
+   "check": "words"
+  },
+  {
+   "id": "t071",
+   "cat": "c08",
+   "hanji": "你做會到",
+   "zh": "你做得到",
+   "check": "words"
+  },
+  {
+   "id": "t072",
+   "cat": "c08",
+   "hanji": "莫驚",
+   "zh": "別怕",
+   "check": "words",
+   "pun": "麥驚",
+   "mix": "不要驚"
+  },
+  {
+   "id": "t073",
+   "cat": "c08",
+   "hanji": "拍拚喔",
+   "zh": "加油喔",
+   "check": "words"
+  },
+  {
+   "id": "t074",
+   "cat": "c08",
+   "hanji": "照顧家己",
+   "zh": "照顧自己",
+   "check": "words",
+   "mix": "要照顧家己"
+  },
+  {
+   "id": "t075",
+   "cat": "c09",
+   "hanji": "多謝",
+   "zh": "謝謝",
+   "check": "headword",
+   "mix": "多謝你喔",
+   "tl": "to-siā"
+  },
+  {
+   "id": "t076",
+   "cat": "c09",
+   "hanji": "感謝",
+   "zh": "感謝",
+   "check": "headword",
+   "tl": "kám-siā"
+  },
+  {
+   "id": "t077",
+   "cat": "c09",
+   "hanji": "歹勢啦",
+   "zh": "不好意思",
+   "check": "words",
+   "pun": "拍謝啦",
+   "mix": "真的歹勢啦"
+  },
+  {
+   "id": "t078",
+   "cat": "c09",
+   "hanji": "失禮",
+   "zh": "失禮了；對不起",
+   "check": "headword",
+   "mix": "真失禮",
+   "tl": "sit-lé"
+  },
+  {
+   "id": "t079",
+   "cat": "c09",
+   "hanji": "勞力",
+   "zh": "謝謝（勞駕）",
+   "check": "headword",
+   "mix": "勞力喔",
+   "tl": "lóo-la̍t"
+  },
+  {
+   "id": "t080",
+   "cat": "c09",
+   "hanji": "予你費氣",
+   "zh": "麻煩你了",
+   "check": "words"
+  },
+  {
+   "id": "t081",
+   "cat": "c09",
+   "hanji": "足感心",
+   "zh": "好感動",
+   "check": "words",
+   "pun": "揪甘心",
+   "mix": "真的足感心"
+  },
+  {
+   "id": "t082",
+   "cat": "c09",
+   "hanji": "毋是故意的",
+   "zh": "不是故意的",
+   "check": "words",
+   "pun": "母係故意ㄟ"
+  },
+  {
+   "id": "t083",
+   "cat": "c09",
+   "hanji": "請原諒",
+   "zh": "請原諒",
+   "check": "words"
+  },
+  {
+   "id": "t084",
+   "cat": "c10",
+   "hanji": "好食",
+   "zh": "好吃",
+   "check": "words",
+   "pun": "厚呷",
+   "mix": "真的好食"
+  },
+  {
+   "id": "t085",
+   "cat": "c10",
+   "hanji": "足好食",
+   "zh": "超好吃",
+   "check": "words",
+   "pun": "揪厚呷",
+   "mix": "超級足好食"
+  },
+  {
+   "id": "t086",
+   "cat": "c10",
+   "hanji": "來去食",
+   "zh": "去吃吧",
+   "check": "words",
+   "pun": "來企呷",
+   "mix": "走，來去食"
+  },
+  {
+   "id": "t087",
+   "cat": "c10",
+   "hanji": "食飯囉",
+   "zh": "吃飯囉",
+   "check": "words",
+   "pun": "呷崩囉"
+  },
+  {
+   "id": "t088",
+   "cat": "c10",
+   "hanji": "腹肚枵",
+   "zh": "肚子餓",
+   "check": "headword",
+   "mix": "我腹肚枵矣",
+   "tl": "pak-tóo-iau"
+  },
+  {
+   "id": "t089",
+   "cat": "c10",
+   "hanji": "食飽矣",
+   "zh": "吃飽了",
+   "check": "words"
+  },
+  {
+   "id": "t090",
+   "cat": "c10",
+   "hanji": "閣一碗",
+   "zh": "再一碗",
+   "check": "words",
+   "mix": "老闆閣一碗"
+  },
+  {
+   "id": "t091",
+   "cat": "c10",
+   "hanji": "啉茶",
+   "zh": "喝茶",
+   "check": "headword",
+   "mix": "來啉茶",
+   "tl": "lim tê"
+  },
+  {
+   "id": "t092",
+   "cat": "c10",
+   "hanji": "來去夜市",
+   "zh": "去夜市",
+   "check": "words"
+  },
+  {
+   "id": "t093",
+   "cat": "c10",
+   "hanji": "出去耍",
+   "zh": "出去玩",
+   "check": "words",
+   "mix": "週末出去耍"
+  },
+  {
+   "id": "t094",
+   "cat": "c10",
+   "hanji": "來去菜市仔",
+   "zh": "去菜市場",
+   "check": "words"
+  },
+  {
+   "id": "t095",
+   "cat": "c10",
+   "hanji": "頭家，算較俗咧",
+   "zh": "老闆，算便宜一點",
+   "check": "words",
+   "mix": "老闆，算較俗咧"
+  },
+  {
+   "id": "t096",
+   "cat": "c10",
+   "hanji": "一斤偌濟？",
+   "zh": "一斤多少錢？",
+   "check": "words"
+  },
+  {
+   "id": "t097",
+   "cat": "c10",
+   "hanji": "俗閣大碗",
+   "zh": "便宜又大碗",
+   "check": "words",
+   "pun": "俗擱大碗"
+  },
+  {
+   "id": "t098",
+   "cat": "c11",
+   "hanji": "我欲睏矣",
+   "zh": "我要睡了",
+   "check": "words",
+   "pun": "哇欲睏啊"
+  },
+  {
+   "id": "t099",
+   "cat": "c11",
+   "hanji": "懶屍",
+   "zh": "懶散",
+   "check": "headword",
+   "mix": "今天足懶屍",
+   "tl": "lán-si"
+  },
+  {
+   "id": "t100",
+   "cat": "c11",
+   "hanji": "無愛振動",
+   "zh": "不想動",
+   "check": "words",
+   "mix": "我就是無愛振動"
+  },
+  {
+   "id": "t101",
+   "cat": "c11",
+   "hanji": "今仔日毋做",
+   "zh": "今天不做",
+   "check": "words",
+   "mix": "今天毋做"
+  },
+  {
+   "id": "t102",
+   "cat": "c11",
+   "hanji": "免啦",
+   "zh": "不用了啦",
+   "check": "example",
+   "tl": "Bián--lah!"
+  },
+  {
+   "id": "t103",
+   "cat": "c11",
+   "hanji": "規工倒咧",
+   "zh": "整天躺著",
+   "check": "words",
+   "mix": "週末規工倒咧"
+  },
+  {
+   "id": "t104",
+   "cat": "c11",
+   "hanji": "睏飽才講",
+   "zh": "睡飽再說",
+   "check": "words"
+  },
+  {
+   "id": "t105",
+   "cat": "c11",
+   "hanji": "戇神",
+   "zh": "放空發呆",
+   "check": "headword",
+   "mix": "我先戇神一下",
+   "tl": "gōng-sîn"
+  },
+  {
+   "id": "t106",
+   "cat": "c11",
+   "hanji": "莫吵我",
+   "zh": "別吵我",
+   "check": "words",
+   "pun": "麥吵哇"
+  },
+  {
+   "id": "t107",
+   "cat": "c12",
+   "hanji": "平安",
+   "zh": "平安",
+   "check": "headword",
+   "tl": "pîng-an"
+  },
+  {
+   "id": "t108",
+   "cat": "c12",
+   "hanji": "身體勇健",
+   "zh": "身體健康",
+   "check": "words",
+   "mix": "祝你身體勇健"
+  },
+  {
+   "id": "t109",
+   "cat": "c12",
+   "hanji": "食百二",
+   "zh": "長命百歲",
+   "check": "words",
+   "pun": "呷百二",
+   "mix": "祝你食百二"
+  },
+  {
+   "id": "t110",
+   "cat": "c12",
+   "hanji": "出門愛細膩",
+   "zh": "出門要小心",
+   "check": "words"
+  },
+  {
+   "id": "t111",
+   "cat": "c12",
+   "hanji": "天寒愛穿衫",
+   "zh": "天冷要穿衣",
+   "check": "words",
+   "mix": "天冷愛穿衫"
+  },
+  {
+   "id": "t112",
+   "cat": "c12",
+   "hanji": "愛食較濟咧",
+   "zh": "要多吃一點",
+   "check": "words"
+  },
+  {
+   "id": "t113",
+   "cat": "c12",
+   "hanji": "早睏",
+   "zh": "早點睡",
+   "check": "headword",
+   "mix": "早點睏",
+   "tl": "tsá-khùn"
+  },
+  {
+   "id": "t114",
+   "cat": "c12",
+   "hanji": "歡喜就好",
+   "zh": "開心就好",
+   "check": "words"
+  },
+  {
+   "id": "t115",
+   "cat": "c12",
+   "hanji": "好天",
+   "zh": "好天氣",
+   "check": "headword",
+   "mix": "今天好天",
+   "tl": "hó-thinn"
+  },
+  {
+   "id": "t116",
+   "cat": "c12",
+   "hanji": "呵咾",
+   "zh": "稱讚",
+   "check": "headword",
+   "mix": "給你呵咾",
+   "tl": "o-ló"
+  },
+  {
+   "id": "t117",
+   "cat": "c13",
+   "hanji": "新年快樂",
+   "zh": "新年快樂",
+   "check": "words"
+  },
+  {
+   "id": "t118",
+   "cat": "c13",
+   "hanji": "恭喜發財",
+   "zh": "恭喜發財",
+   "check": "words"
+  },
+  {
+   "id": "t119",
+   "cat": "c13",
+   "hanji": "新正如意",
+   "zh": "新春如意",
+   "check": "words"
+  },
+  {
+   "id": "t120",
+   "cat": "c13",
+   "hanji": "年年有賰",
+   "zh": "年年有餘",
+   "check": "words"
+  },
+  {
+   "id": "t121",
+   "cat": "c13",
+   "hanji": "大趁錢",
+   "zh": "賺大錢",
+   "check": "headword",
+   "mix": "祝你大趁錢",
+   "tl": "tuā-thàn-tsînn"
+  },
+  {
+   "id": "t122",
+   "cat": "c13",
+   "hanji": "平安順序",
+   "zh": "平安順利",
+   "check": "words"
+  },
+  {
+   "id": "t123",
+   "cat": "c13",
+   "hanji": "好年冬",
+   "zh": "豐收好年",
+   "check": "headword",
+   "tl": "hó-nî-tang"
+  },
+  {
+   "id": "t124",
+   "cat": "c13",
+   "hanji": "生日快樂",
+   "zh": "生日快樂",
+   "check": "words"
+  },
+  {
+   "id": "t125",
+   "cat": "c13",
+   "hanji": "中秋節快樂",
+   "zh": "中秋節快樂",
+   "check": "words"
+  },
+  {
+   "id": "t126",
+   "cat": "c13",
+   "hanji": "萬事如意",
+   "zh": "萬事如意",
+   "check": "words"
+  },
+  {
+   "id": "t127",
+   "cat": "c14",
+   "hanji": "足龜毛",
+   "zh": "很龜毛",
+   "check": "words",
+   "pun": "揪龜毛",
+   "mix": "你真的足龜毛"
+  },
+  {
+   "id": "t128",
+   "cat": "c14",
+   "hanji": "起毛䆀",
+   "zh": "不爽",
+   "check": "headword",
+   "mix": "今天起毛䆀",
+   "tl": "khí-moo bái"
+  },
+  {
+   "id": "t129",
+   "cat": "c14",
+   "hanji": "白目",
+   "zh": "白目；不識相",
+   "check": "headword",
+   "tl": "pe̍h-ba̍k"
+  },
+  {
+   "id": "t130",
+   "cat": "c14",
+   "hanji": "毋通",
+   "zh": "不行；不可以",
+   "check": "headword",
+   "pun": "母湯",
+   "mix": "這樣毋通啦",
+   "tl": "m̄-thang"
+  },
+  {
+   "id": "t131",
+   "cat": "c14",
+   "hanji": "烏白來",
+   "zh": "亂來",
+   "check": "headword",
+   "pun": "歐北來",
+   "mix": "不要烏白來",
+   "tl": "oo-pe̍h-lâi"
+  },
+  {
+   "id": "t132",
+   "cat": "c14",
+   "hanji": "媠",
+   "zh": "漂亮",
+   "check": "headword",
+   "pun": "水",
+   "mix": "今天真媠",
+   "tl": "suí"
+  },
+  {
+   "id": "t133",
+   "cat": "c14",
+   "hanji": "足讚",
+   "zh": "超讚",
+   "check": "words",
+   "pun": "揪讚",
+   "mix": "真的足讚"
+  },
+  {
+   "id": "t134",
+   "cat": "c14",
+   "hanji": "真的抑假的",
+   "zh": "真的假的",
+   "check": "words",
+   "pun": "真ㄟ假ㄟ"
+  },
+  {
+   "id": "t135",
+   "cat": "c14",
+   "hanji": "拚矣",
+   "zh": "拚了",
+   "check": "words",
+   "pun": "拚啊",
+   "mix": "衝啦拚矣"
+  },
+  {
+   "id": "t136",
+   "cat": "c14",
+   "hanji": "有夠衰",
+   "zh": "有夠倒楣",
+   "check": "words",
+   "mix": "今天有夠衰"
+  },
+  {
+   "id": "t137",
+   "cat": "c14",
+   "hanji": "厚工",
+   "zh": "費工；麻煩",
+   "check": "headword",
+   "mix": "真的厚工",
+   "tl": "kāu-kang"
+  },
+  {
+   "id": "t138",
+   "cat": "c14",
+   "hanji": "鬥陣",
+   "zh": "一起；作伴",
+   "check": "headword",
+   "mix": "我們鬥陣",
+   "tl": "tàu-tīn"
+  },
+  {
+   "id": "t139",
+   "cat": "c14",
+   "hanji": "臺灣上讚",
+   "zh": "台灣最棒",
+   "check": "manual",
+   "mix": "台灣上讚",
+   "note": "「臺」為教育部推薦用字；比對用的開放資料未單獨收錄此字，已人工確認。"
+  },
+  {
+   "id": "t140",
+   "cat": "c15",
+   "hanji": "食果子拜樹頭",
+   "zh": "飲水思源，不忘本",
+   "check": "words"
+  },
+  {
+   "id": "t141",
+   "cat": "c15",
+   "hanji": "歹竹出好筍。",
+   "zh": "環境不好也能成材",
+   "check": "headword",
+   "tl": "Pháinn tik tshut hó sún. "
+  },
+  {
+   "id": "t142",
+   "cat": "c15",
+   "hanji": "人兩跤，錢四跤。",
+   "zh": "賺錢辛苦不容易",
+   "check": "headword",
+   "tl": "Lâng nn̄g kha, tsînn sì kha. "
+  },
+  {
+   "id": "t143",
+   "cat": "c15",
+   "hanji": "一兼二顧，摸蜊仔兼洗褲。",
+   "zh": "一舉兩得",
+   "check": "headword",
+   "tl": "It kiam jī kòo, bong lâ-á kiam sé khòo. "
+  },
+  {
+   "id": "t144",
+   "cat": "c15",
+   "hanji": "食米毋知米價。",
+   "zh": "只會享受不知疾苦",
+   "check": "headword",
+   "tl": "Tsia̍h bí m̄ tsai bí kè. "
+  },
+  {
+   "id": "t145",
+   "cat": "c15",
+   "hanji": "天公疼戇人。",
+   "zh": "老天爺疼老實人",
+   "check": "headword",
+   "tl": "Thinn-kong thiànn gōng-lâng. "
+  },
+  {
+   "id": "t146",
+   "cat": "c15",
+   "hanji": "戲棚跤徛久就是你的。",
+   "zh": "堅持久了就會成功",
+   "check": "headword",
+   "tl": "Hì-pênn kha khiā kú tō sī lí ê. "
+  },
+  {
+   "id": "t147",
+   "cat": "c15",
+   "hanji": "食好鬥相報。",
+   "zh": "好東西要分享",
+   "check": "headword",
+   "tl": "Tsia̍h hó tàu sio-pò. "
+  },
+  {
+   "id": "t148",
+   "cat": "c15",
+   "hanji": "臺灣錢淹跤目。",
+   "zh": "台灣遍地是機會",
+   "check": "headword",
+   "tl": "Tâi-uân tsînn, im kha-ba̍k. "
+  },
+  {
+   "id": "t149",
+   "cat": "c15",
+   "hanji": "做牛著拖，做人著磨。",
+   "zh": "做人就得吃苦磨練",
+   "check": "headword",
+   "tl": "Tsò gû tio̍h thua, tsò-lâng tio̍h buâ. "
+  },
+  {
+   "id": "t150",
+   "cat": "c15",
+   "hanji": "毋通食緊挵破碗",
+   "zh": "欲速則不達",
+   "check": "example"
+  },
+  {
+   "id": "t151",
+   "cat": "c15",
+   "hanji": "輸人毋輸陣",
+   "zh": "輸人不能輸氣勢",
+   "check": "example"
+  }
+ ],
+ "themes": [
+  {
+   "name": "阿嬤的日常問候",
+   "desc": "溫暖的阿嬤式關心",
+   "cats": [
+    "c01",
+    "c12"
+   ]
+  },
+  {
+   "name": "台灣上班族崩潰日記",
+   "desc": "上班族的日常崩潰",
+   "cats": [
+    "c05",
+    "c11",
+    "c06"
+   ]
+  },
+  {
+   "name": "台味搞笑吐槽",
+   "desc": "朋友間的台味吐槽",
+   "cats": [
+    "c04",
+    "c03",
+    "c14"
+   ]
+  },
+  {
+   "name": "台語撒嬌大全",
+   "desc": "撒嬌討拍專用",
+   "cats": [
+    "c07",
+    "c09"
+   ]
+  },
+  {
+   "name": "台灣菜市場人生",
+   "desc": "菜市場、小吃與夜市",
+   "cats": [
+    "c10"
+   ]
+  },
+  {
+   "name": "台語長輩祝福",
+   "desc": "節慶與長輩祝福",
+   "cats": [
+    "c12",
+    "c13"
+   ]
+  },
+  {
+   "name": "台灣人聊天必備",
+   "desc": "每天都用得到",
+   "cats": [
+    "c02",
+    "c01",
+    "c03"
+   ]
+  },
+  {
+   "name": "台味厭世人生",
+   "desc": "厭世但還是要活下去",
+   "cats": [
+    "c11",
+    "c05",
+    "c06"
+   ]
+  },
+  {
+   "name": "台語金句系列",
+   "desc": "台灣俗語金句",
+   "cats": [
+    "c15",
+    "c08"
+   ]
+  }
+ ]
+}

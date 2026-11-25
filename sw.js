@@ -1,9 +1,9 @@
 /* 今天貼什麼？ Service Worker — 更新版本時請修改 VERSION */
-const VERSION = 'v1.0.0';
+const VERSION = 'v1.1.0';
 const CACHE = 'sticker-studio-' + VERSION;
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './css/style.css',
-  './js/data.js', './js/core.js', './js/views.js', './js/editor.js', './js/linetool.js', './js/collection.js', './js/app.js',
+  './js/data.js', './js/core.js', './js/taigi.js', './data/taigi.json', './js/views.js', './js/editor.js', './js/linetool.js', './js/collection.js', './js/app.js',
   './vendor/jszip.min.js', './vendor/qrcode.js',
   './assets/icons/icon-32.png', './assets/icons/icon-48.png', './assets/icons/icon-96.png', './assets/icons/icon-192.png',
   './assets/icons/icon-512.png', './assets/icons/maskable-512.png', './assets/icons/apple-touch-icon.png'

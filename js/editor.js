@@ -67,7 +67,8 @@
         </div>
 
         <div class="card tab-panel" data-panel="text" hidden>
-          <label>文字內容（可換行）<div class="row gap"><textarea id="ed-text" rows="2" placeholder="例如：早安" maxlength="40"></textarea><button class="btn ghost nowrap" id="ed-pick">💬</button></div></label>
+          <label>文字內容（可換行，支援台語漢字）<div class="row gap"><textarea id="ed-text" rows="2" placeholder="例如：早安、食飽未？" maxlength="40"></textarea><button class="btn ghost nowrap" id="ed-pick" aria-label="挑用語">💬</button></div></label>
+          <p class="warn small" id="ed-textwarn" hidden></p>
           <div class="grid2">
             <label>字型<select id="ed-font"><option value="round">圓體感</option><option value="sans">黑體</option><option value="serif">明體</option></select></label>
             <label class="ck inline"><input type="checkbox" id="ed-bold" checked> 粗體</label>
@@ -188,7 +189,7 @@
         S.scale = fitScale(false);
         rmColor = Array.from(srcCanvas.getContext('2d').getImageData(0, 0, 1, 1).data.slice(0, 3)); updSwatch();
         $('#ed-empty', el).hidden = true; $('#ed-main', el).hidden = false;
-        syncUI(); draw();
+        syncUI(); draw(); checkText();
       }
       async function loadFile(f) {
         try { const { img, url } = await SS.fileToImage(f); loadSource(img); URL.revokeObjectURL(url); $('#ed-name', el).value = (f.name || 'my-sticker').replace(/\.[^.]+$/, '').slice(0, 40); SS.toast('圖片已載入（僅在本機）'); }
@@ -198,8 +199,8 @@
       fileIn.addEventListener('change', () => { if (fileIn.files[0]) loadFile(fileIn.files[0]); fileIn.value = ''; });
       $('#ed-change', el).addEventListener('click', () => fileIn.click());
       $('#ed-blank', el).addEventListener('click', () => {
-        work = null; srcCanvas = null; S = defaultState(); S.frame = 'line'; S.text.content = SS.ls.get('pendingText', '') || '早安'; S.text.y = 0.5; S.text.color = '#F59E6C'; S.text.stroke = '#ffffff';
-        $('#ed-empty', el).hidden = true; $('#ed-main', el).hidden = false; syncUI(); draw(); switchTab('text');
+        const keepTxt = S.text.content; work = null; srcCanvas = null; S = defaultState(); S.frame = 'line'; S.text.content = keepTxt || '早安'; S.text.y = 0.5; S.text.color = '#F59E6C'; S.text.stroke = '#ffffff';
+        $('#ed-empty', el).hidden = true; $('#ed-main', el).hidden = false; syncUI(); draw(); checkText(); switchTab('text');
       });
 
       /* ---------- 頁籤 ---------- */
@@ -220,7 +221,17 @@
       $('#ed-reset', el).addEventListener('click', () => { if (!work && !S.text.content) return; push(); work = srcCanvas; S = defaultState(); if (work) S.scale = fitScale(false); syncUI(); draw(); SS.toast('已重設（可按還原復原）'); });
 
       /* ---------- 文字 ---------- */
-      const T = (k, v) => { S.text[k] = v; draw(); };
+      const T = (k, v) => { S.text[k] = v; draw(); if (k === 'content' || k === 'font' || k === 'bold') checkText(); };
+      /* 檢查缺字與疑似簡體字 */
+      function checkText() {
+        const w = $('#ed-textwarn', el); const t = S.text.content || '';
+        const miss = SS.findMissingGlyphs ? SS.findMissingGlyphs(t, `${S.text.bold ? '900' : '400'} 40px ${FONTS[S.text.font]}`) : [];
+        const simp = SS.findSimplified ? SS.findSimplified(t) : [];
+        const msg = [];
+        if (miss.length) msg.push(`⚠️ 這台裝置的字型可能畫不出：${miss.join(' ')}（會變成方塊）。可換字型，或改用常用寫法。`);
+        if (simp.length) msg.push(`⚠️ 疑似簡體字：${simp.join(' ')}，請確認是否要改成繁體。`);
+        w.hidden = !msg.length; w.textContent = msg.join(' ');
+      }
       $('#ed-text', el).addEventListener('focus', push);
       $('#ed-text', el).addEventListener('input', (e) => T('content', e.target.value));
       $('#ed-pick', el).addEventListener('click', () => SS.pickPhrase((p) => { push(); $('#ed-text', el).value = p; T('content', p); }));
@@ -293,6 +304,7 @@
       /* 來自其他頁面的交接 */
       const pend = SS.ls.get('pendingText', '');
       if (pend) { S.text.content = pend; SS.ls.set('pendingText', ''); }
+      SS._edCheck = () => checkText();
       if (SS.handoffEditor) {
         const b = SS.handoffEditor; SS.handoffEditor = null;
         const img = new Image(); const u = URL.createObjectURL(b.blob);

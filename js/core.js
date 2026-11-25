@@ -211,10 +211,12 @@
     if (d.noText || !d.text) {
       L.push('・這張貼圖不放任何文字。');
     } else if (d.aiText) {
-      L.push(`・在畫面中加入繁體中文文字「${d.text}」，字數與字形必須完全正確，不可出現錯字、簡體字或亂碼。`);
+      L.push(`・在畫面中加入${d.textLang === 'taigi' ? '台語漢字（教育部推薦用字）' : '繁體中文'}文字「${d.text}」，字數與字形必須完全正確，不可出現錯字、簡體字或亂碼。`);
+      if (d.textLang === 'taigi') L.push('・這是台語用字，請逐字照抄，不要改寫成華語用詞、同音字或簡體字。如果無法保證每個字都正確，請改為不畫文字並預留空間。');
       L.push('・文字使用粗圓、可愛的手寫字感，搭配白色外框，放在不遮住臉的位置。');
     } else {
-      L.push(`・這張貼圖之後會另外加上文字「${d.text}」，請不要在圖中畫任何文字，並在角色上方或旁邊預留放字的空間。`);
+      L.push(`・這張貼圖之後會另外加上${d.textLang === 'taigi' ? '台語' : ''}文字「${d.text}」，請不要在圖中畫任何文字，並在角色上方或旁邊預留放字的空間。`);
+      L.push(`・畫面情境要能表達這句話的意思${d.textLang === 'taigi' && d.textZh ? '（意思是：' + d.textZh + '）' : ''}。`);
     }
     L.push('');
     L.push('【構圖與留白】');
@@ -254,13 +256,14 @@
     L.push('');
     L.push('【各格內容】（由左到右、由上到下）');
     items.forEach((it, i) => {
-      const txt = it.noText || !it.text ? '無文字' : (d.aiText ? `文字「${it.text}」` : `不畫字（預留「${it.text}」的空間）`);
+      const tg = it.lang === 'taigi' ? `（台語，意思是「${it.zh || ''}」）` : '';
+      const txt = it.noText || !it.text ? '無文字' : (d.aiText ? `文字「${it.text}」${tg}` : `不畫字（預留「${it.text}」的空間${tg}）`);
       L.push(`${i + 1}. ${it.expression}・${it.action}${it.prop && it.prop !== '無' ? '・道具：' + it.prop : ''}・${txt}`);
     });
     L.push('');
     L.push('【要求】');
     L.push('・所有格子的角色外貌、比例、配色、畫風完全一致。');
-    if (d.aiText) L.push('・文字一律使用繁體中文，字形正確、不可亂碼，加白色外框。');
+    if (d.aiText) L.push(d.textLang === 'taigi' ? '・文字為台語漢字，請逐字照抄，不可改成華語、同音字或簡體字，加白色外框。' : '・文字一律使用繁體中文，字形正確、不可亂碼，加白色外框。');
     L.push(d.transparent ? '・背景使用純白色、無陰影、無格線，方便去背與切割。' : '・背景使用乾淨單色。');
     L.push('・每格角色置中，四周留白，不要超出格子。');
     L.push('・原創設計，不模仿任何知名角色或品牌。');
@@ -285,22 +288,44 @@
     }));
   };
 
-  /* 用語挑選對話框 */
+  /* 用語挑選對話框：華語／台語；onPick(text, meta) */
   SS.pickPhrase = function (onPick) {
     const cats = Object.keys(SS.PHRASES);
+    const lang = SS.ls.get('pickLang', 'zh');
     SS.modal(`<h3>挑一句生活用語</h3>
-      <div class="chips cat-tabs">${cats.map((c, i) => `<button class="chip ${i ? '' : 'on'}" data-cat="${c}">${c}</button>`).join('')}</div>
-      <div class="chips phrase-list" id="pp-list"></div>
-      <div class="row gap"><button class="btn ghost" id="pp-rand">🎲 隨機一句</button><button class="btn ghost" id="pp-none">無文字</button></div>`, {
+      <div class="seg lang-seg" role="radiogroup" aria-label="語言"><label><input type="radio" name="pplang" value="zh" ${lang === 'zh' ? 'checked' : ''}><span>華語</span></label><label><input type="radio" name="pplang" value="taigi" ${lang === 'taigi' ? 'checked' : ''}><span>🧋 台語</span></label></div>
+      <div id="pp-zh" ${lang === 'zh' ? '' : 'hidden'}>
+        <div class="chips cat-tabs mt">${cats.map((c, i) => `<button class="chip ${i ? '' : 'on'}" data-cat="${c}">${c}</button>`).join('')}</div>
+        <div class="chips phrase-list" id="pp-list"></div>
+        <div class="row gap mt"><button class="btn ghost" id="pp-rand">🎲 隨機一句</button><button class="btn ghost" id="pp-none">無文字</button></div>
+      </div>
+      <div id="pp-tg" ${lang === 'taigi' ? '' : 'hidden'}><p class="muted small">載入中…</p></div>`, {
       onOpen(b) {
         const render = (c) => { $('#pp-list', b).innerHTML = SS.PHRASES[c].map((p) => `<button class="chip big" data-p="${esc(p)}">${esc(p)}</button>`).join(''); };
         render(cats[0]);
-        b.addEventListener('click', (e) => {
+        let tgReady = false;
+        const loadTg = () => {
+          if (tgReady || !SS.taigi) return; tgReady = true;
+          SS.taigi.load().then((d) => {
+            const box = $('#pp-tg', b); box.innerHTML = SS.taigiPickerHTML(d);
+            SS.bindTaigiPicker(box, (p) => {
+              const m = SS.taigi.mode(); const t = SS.taigi.text(p, m === 'custom' ? 'hanji' : m);
+              onPick(t.text, { lang: t.kind === 'zh' ? 'zh' : 'taigi', id: p.id, kind: t.kind }); SS.closeModal();
+            });
+          }).catch((e) => { $('#pp-tg', b).innerHTML = `<p class="warn">${esc(e.message)}</p>`; });
+        };
+        if (lang === 'taigi') loadTg();
+        b.addEventListener('change', (e) => {
+          if (e.target.name !== 'pplang') return;
+          const v = e.target.value; SS.ls.set('pickLang', v);
+          $('#pp-zh', b).hidden = v !== 'zh'; $('#pp-tg', b).hidden = v !== 'taigi'; if (v === 'taigi') loadTg();
+        });
+        $('#pp-zh', b).addEventListener('click', (e) => {
           const t = e.target.closest('button'); if (!t) return;
-          if (t.dataset.cat) { $$('.cat-tabs .chip', b).forEach((x) => x.classList.toggle('on', x === t)); render(t.dataset.cat); }
-          else if (t.dataset.p) { onPick(t.dataset.p); SS.closeModal(); }
-          else if (t.id === 'pp-rand') { onPick(pick(SS.ALL_PHRASES)); SS.closeModal(); }
-          else if (t.id === 'pp-none') { onPick(''); SS.closeModal(); }
+          if (t.dataset.cat) { $$('#pp-zh .cat-tabs .chip', b).forEach((x) => x.classList.toggle('on', x === t)); render(t.dataset.cat); }
+          else if (t.dataset.p) { onPick(t.dataset.p, { lang: 'zh' }); SS.closeModal(); }
+          else if (t.id === 'pp-rand') { onPick(pick(SS.ALL_PHRASES), { lang: 'zh' }); SS.closeModal(); }
+          else if (t.id === 'pp-none') { onPick('', { lang: 'zh' }); SS.closeModal(); }
         });
       }
     });

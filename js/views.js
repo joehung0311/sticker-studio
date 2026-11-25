@@ -1,13 +1,13 @@
 /* 頁面：首頁、照片變貼圖、角色、用語庫、盲盒、整套企劃、說明頁 */
 (function () {
   const { $, $$, esc, pick, shuffle } = SS;
-  SS.views = {};
+  SS.views = SS.views || {};
 
   /* ================= 首頁 ================= */
   const HOME_CARDS = [
     ['photo', '📸', '照片變貼圖', '用自己或毛孩的照片', 'peach'],
     ['character', '🎨', '創造新角色', '不用照片也能做', 'sage'],
-    ['phrases', '💬', '生活用語庫', '64 句常用語', 'lav'],
+    ['phrases', '💬', '生活用語庫', '華語＋台語用語', 'lav'],
     ['blindbox', '🎁', '貼圖盲盒', '不知道貼什麼就抽', 'peach'],
     ['plan', '🪄', '整套貼圖企劃', '1～40 張一次規劃', 'sage'],
     ['editor', '✂️', '貼圖加工室', '裁切・加字・去背', 'lav'],
@@ -29,6 +29,7 @@
       <div class="flow" aria-label="創作流程">
         <span>① 設計角色</span><i>→</i><span>② 產生提示詞</span><i>→</i><span>③ AI 生圖</span><i>→</i><span>④ 加工下載</span>
       </div>
+      <a class="tg-banner" href="#taigi"><span class="tg-b-ic">🧋</span><span><b>台語貼圖專區</b><small>超過 150 句台語生活用語・正字／諧音／華語／台華混搭</small></span><i>→</i></a>
       <nav class="home-grid">
         ${HOME_CARDS.map(([r, ic, t, s, c]) => `<a class="home-card ${c}" href="#${r}"><span class="hc-ic">${ic}</span><b>${t}</b><small>${s}</small></a>`).join('')}
       </nav>
@@ -64,7 +65,7 @@
       </div>
       ${dl('dl-exp', SS.EXPRESSIONS)}${dl('dl-act', SS.ACTIONS)}${dl('dl-prop', SS.PROPS)}${dl('dl-col', SS.PALETTES)}
       <p class="muted small">可直接輸入，或點欄位從建議清單挑選。</p>
-      <label>貼圖文字
+      <label>貼圖文字 ${d.textLang === 'taigi' ? '<i class="tag">🧋 台語</i>' : ''}
         <div class="row gap"><input id="f-text" value="${esc(d.text)}" placeholder="例如：早安" maxlength="20" ${d.noText ? 'disabled' : ''}><button type="button" class="btn ghost nowrap" id="f-pick">💬 挑用語</button><button type="button" class="btn ghost nowrap" id="f-rand" aria-label="隨機用語">🎲</button></div>
       </label>
       <div class="checks">
@@ -108,9 +109,15 @@
       $$('.chip', types).forEach((x) => x.classList.toggle('on', x === b));
       d.charType = b.dataset.type; $('#f-customType-wrap', root).hidden = d.charType !== '自訂角色'; fire();
     });
-    const setText = (p) => { const t = $('#f-text', root); const n = $('#f-noText', root); t.value = p; n.checked = !p; fire(); };
+    const setText = (p, meta = { lang: 'zh' }) => {
+      const t = $('#f-text', root); const n = $('#f-noText', root); t.value = p; n.checked = !p;
+      d.textLang = meta.lang || 'zh'; d.textZh = meta.lang === 'taigi' && meta.id && SS.taigi.data ? SS.taigi.data.byId[meta.id].zh : '';
+      if (d.textLang === 'taigi') { const r = $('input[name=aitext][value="0"]', root); if (r) r.checked = true; SS.toast('台語字容易被 AI 寫錯，已改為「之後在加工室加字」'); }
+      fire();
+    };
     $('#f-pick', root).addEventListener('click', () => SS.pickPhrase(setText));
     $('#f-rand', root).addEventListener('click', () => setText(pick(SS.ALL_PHRASES)));
+    $('#f-text', root).addEventListener('input', () => { if (!$('#f-text', root).value) { d.textLang = 'zh'; d.textZh = ''; } });
   }
   function styleSectionHTML(d) {
     return `<div class="field-label">畫風</div>${SS.stylePickerHTML(d.style)}
@@ -217,6 +224,7 @@
     title: '💬 生活用語庫',
     render(el) {
       el.innerHTML = `
+      <a class="tg-banner" href="#taigi"><span class="tg-b-ic">🧋</span><span><b>想講台語？到台語貼圖專區</b><small>正字、趣味諧音、華語、台華混搭一鍵切換</small></span><i>→</i></a>
       <div class="card">
         <div class="row gap wrap"><button class="btn primary" id="pr-rand">🎲 隨機抽一句</button>
         <div class="row gap grow"><input id="pr-custom" placeholder="或輸入自己的句子" maxlength="20"><button class="btn" id="pr-use">使用</button></div></div>
@@ -253,18 +261,21 @@
       ];
       const st = SS.ls.get('blindbox', null) || {};
       const locks = SS.ls.get('blindboxLocks', {});
+      let lang = SS.ls.get('blindboxLang', 'zh');
+      const tgRoll = () => { const d = SS.taigi.data; const p = pick(d.phrases); const m = SS.taigi.mode(); const t = SS.taigi.text(p, m === 'custom' ? 'hanji' : m); return { label: t.text, lang: t.kind === 'zh' ? 'zh' : 'taigi', id: p.id }; };
       const roll = (k) => {
         if (k === 'char') { const saved = SS.chars.list(); if (saved.length && Math.random() < 0.4) { const c = pick(saved); return { label: c.name || '我的角色', data: c }; } const t = pick(SS.CHAR_TYPES.slice(0, 5)); const col = pick(SS.PALETTES); return { label: `${col}的${t}`, data: { charType: t, colors: col, personality: pick(SS.PERSONALITIES) } }; }
         if (k === 'style') { const s = pick(SS.STYLES); return { label: s.name, data: s.id }; }
         if (k === 'expression') return { label: pick(SS.EXPRESSIONS) };
         if (k === 'action') return { label: pick(SS.ACTIONS) };
         if (k === 'prop') return { label: pick(SS.PROPS) };
-        if (k === 'text') return { label: pick(SS.ALL_PHRASES) };
+        if (k === 'text') return lang === 'taigi' && SS.taigi.data ? tgRoll() : { label: pick(SS.ALL_PHRASES), lang: 'zh' };
       };
       slots.forEach(([k]) => { if (!st[k]) st[k] = roll(k); });
       el.innerHTML = `
       <div class="card center">
         <p class="muted">按下按鈕隨機組合一張貼圖點子。<br>喜歡的項目點 🔓 鎖住，再抽只會換其他項目。</p>
+        <div class="seg lang-seg narrow" role="radiogroup" aria-label="用語語言"><label><input type="radio" name="bblang" value="zh" ${lang === 'zh' ? 'checked' : ''}><span>華語用語</span></label><label><input type="radio" name="bblang" value="taigi" ${lang === 'taigi' ? 'checked' : ''}><span>🧋 台語用語</span></label></div>
         <button class="btn primary big-btn" id="bb-go">🎁 抽一個！</button>
       </div>
       <div class="bb-grid" id="bb-grid"></div>
@@ -276,8 +287,10 @@
         const base = SS.draft.get();
         const c = st.char.data || {};
         const d = Object.assign({}, base, { name: '', appearance: '', hair: '', outfit: '', customType: '' }, c, {
-          style: st.style.data, expression: st.expression.label, action: st.action.label, prop: st.prop.label, text: st.text.label, noText: false
+          style: st.style.data, expression: st.expression.label, action: st.action.label, prop: st.prop.label, text: st.text.label, noText: false,
+          textLang: st.text.lang || 'zh', textZh: st.text.lang === 'taigi' && st.text.id && SS.taigi.data ? SS.taigi.data.byId[st.text.id].zh : ''
         });
+        if (d.textLang === 'taigi') d.aiText = false;
         delete d.id;
         return d;
       };
@@ -285,7 +298,7 @@
         $('#bb-grid', el).innerHTML = slots.map(([k, n, ic]) => `
           <div class="bb-slot ${locks[k] ? 'locked' : ''} ${anim && !locks[k] ? 'pop' : ''}">
             <div class="bb-top"><span>${ic} ${n}</span><button class="lock" data-lock="${k}" aria-label="${locks[k] ? '解鎖' : '鎖定'}${n}">${locks[k] ? '🔒' : '🔓'}</button></div>
-            <b>${esc(st[k].label)}</b></div>`).join('');
+            <b>${esc(st[k].label)}</b>${k === 'text' && st.text.lang === 'taigi' ? '<i class="tag">🧋 台語</i>' : ''}</div>`).join('');
         const d = toDraft();
         $('#bb-idea', el).textContent = `一隻「${st.char.label}」，用${st.style.label}畫風，${st.expression.label}地${st.action.label}${st.prop.label !== '無' ? '，拿著' + st.prop.label : ''}，說：「${st.text.label}」`;
         pb.set(SS.buildPrompt(d, { source: 'character' }));
@@ -298,6 +311,13 @@
         const btn = $('#bb-go', el); btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
         render(true);
       });
+      el.addEventListener('change', (e) => {
+        if (e.target.name !== 'bblang') return;
+        lang = e.target.value; SS.ls.set('blindboxLang', lang);
+        if (lang === 'taigi') SS.taigi.load().then(() => { if (!locks.text) { st.text = roll('text'); render(true); } }).catch((er) => SS.toast(er.message));
+        else if (!locks.text) { st.text = roll('text'); render(true); }
+      });
+      if (lang === 'taigi') SS.taigi.load().then(() => render(false)).catch(() => {});
       $('#bb-apply', el).addEventListener('click', () => { SS.draft.set(toDraft()); location.hash = '#character'; });
       render(false);
     }
@@ -324,6 +344,27 @@
   }
   SS.makePlan = makePlan;
 
+  /* 台語主題企劃：依主題情境抽用語，表情動作依情境搭配，不足張數時從其他情境補齊 */
+  function makeTaigiPlan(themeName, count, mode) {
+    const d = SS.taigi.data; const th = d.themes.find((t) => t.name === themeName);
+    const main = shuffle(d.phrases.filter((p) => th.cats.includes(p.cat)));
+    const rest = shuffle(d.phrases.filter((p) => !th.cats.includes(p.cat)));
+    const pool = main.concat(rest).slice(0, count);
+    const used = {};
+    return pool.map((p, i) => {
+      const c = d.catById[p.cat]; const t = SS.taigi.text(p, mode);
+      const k = c.id; used[k] = (used[k] || 0) + 1;
+      return {
+        text: t.text, lang: t.kind === 'zh' ? 'zh' : 'taigi', kind: t.kind, taigiId: p.id, hanji: p.hanji, zh: p.zh,
+        expression: c.expressions[(used[k] - 1) % c.expressions.length],
+        action: c.actions[(used[k] + i) % c.actions.length],
+        prop: Math.random() < 0.3 ? pick(SS.PROPS.slice(1)) : '無',
+        composition: SS.COMPOSITIONS[i % SS.COMPOSITIONS.length]
+      };
+    });
+  }
+  SS.makeTaigiPlan = makeTaigiPlan;
+
   SS.views.plan = {
     title: '🪄 整套貼圖企劃',
     render(el) {
@@ -331,6 +372,11 @@
       const saved = SS.ls.get('plan', null);
       const st = saved || { theme: '日常聊天系列', count: 8, keywords: '', items: [] };
       const chars = SS.chars.list();
+      if (!st.tgMode) st.tgMode = 'hanji';
+      const tg = SS.taigi.data;
+      if (!tg) { SS.taigi.load().then(() => SS.router.rerender()).catch(() => {}); }
+      const tgThemes = tg ? tg.themes : [];
+      const isTg = () => tgThemes.some((t) => t.name === st.theme);
       el.innerHTML = `
       <div class="card">
         <h2 class="step"><span>1</span>角色</h2>
@@ -340,7 +386,12 @@
       </div>
       <div class="card">
         <h2 class="step"><span>2</span>主題與張數</h2>
-        <label>企劃主題${SS.selectHTML('pl-theme', SS.THEME_NAMES, st.theme)}</label>
+        <label>企劃主題<select id="pl-theme"><optgroup label="華語主題">${SS.THEME_NAMES.map((n) => `<option ${n === st.theme ? 'selected' : ''}>${esc(n)}</option>`).join('')}</optgroup>${tgThemes.length ? `<optgroup label="🧋 台語主題">${tgThemes.map((t) => `<option ${t.name === st.theme ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</optgroup>` : ''}</select></label>
+        <div id="pl-tg" ${isTg() ? '' : 'hidden'}>
+          <label>台語文字模式<select id="pl-tgmode">${SS.TAIGI_MODES.filter(([k]) => k !== 'custom').map(([k, n]) => `<option value="${k}" ${k === st.tgMode ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+          <label class="ck"><input type="checkbox" id="pl-tgai" ${st.tgAi ? 'checked' : ''}> 讓 AI 直接畫台語字（容易寫錯，不建議）</label>
+          <p class="note small">建議：AI 只畫角色，台語字之後用「✂️ 貼圖加工室」加上，字形最正確。趣味諧音是網路寫法，不是標準台語。</p>
+        </div>
         <label id="pl-kw-wrap" ${st.theme === '自訂主題' ? '' : 'hidden'}>自訂主題關鍵字（用逗號分隔，會變成貼圖文字）<input id="pl-kw" value="${esc(st.keywords)}" placeholder="例如：考試加油, 我讀不完, 放榜了"></label>
         <div class="field-label">張數</div>
         <div class="chips" id="pl-count">${SS.PLAN_COUNTS.map((n) => `<button class="chip ${n === st.count ? 'on' : ''}" data-n="${n}">${n === 1 ? '單張' : n + ' 張'}${SS.LINE_SPEC.counts.includes(n) ? '<i class="line-ok">LINE</i>' : ''}</button>`).join('')}</div>
@@ -354,9 +405,10 @@
       };
       const renderSum = () => { const b = baseChar(); $('#pl-sum', el).innerHTML = SS.charSummary(b).concat(['畫風：' + SS.styleName(b)]).map((x) => `<span>${esc(x)}</span>`).join(''); };
       const save = () => SS.ls.set('plan', st);
+      const itemD = (it, b) => Object.assign({}, b, { expression: it.expression, action: it.action, prop: it.prop, text: it.text, noText: !it.text, textLang: it.lang || 'zh', textZh: it.zh || '' }, it.lang === 'taigi' ? { aiText: !!st.tgAi } : {});
       const itemPrompt = (i) => {
         const it = st.items[i]; const b = baseChar();
-        return SS.buildPrompt(Object.assign({}, b, { expression: it.expression, action: it.action, prop: it.prop, text: it.text, noText: !it.text }), { source: 'character', index: i + 1, total: st.items.length, series: st.theme, composition: it.composition });
+        return SS.buildPrompt(itemD(it, b), { source: 'character', index: i + 1, total: st.items.length, series: st.theme, composition: it.composition });
       };
       const allPrompts = () => {
         const b = baseChar();
@@ -385,6 +437,7 @@
                 <label>動作<input data-f="action" list="dl-act" value="${esc(it.action)}"></label>
                 <label>道具<input data-f="prop" list="dl-prop" value="${esc(it.prop)}"></label>
               </div>
+              ${it.lang === 'taigi' ? `<p class="muted small tg-hint">🧋 正字：${esc(it.hanji)}・華語：${esc(it.zh)}${it.kind === 'pun' ? '・<b>諧音寫法</b>' : ''}</p>` : ''}
               <label>構圖${SS.selectHTML('', SS.COMPOSITIONS, it.composition).replace('<select id=""', '<select data-f="composition"')}</label>
             </div>`).join('')}</div>
           ${dl('dl-exp', SS.EXPRESSIONS)}${dl('dl-act', SS.ACTIONS)}${dl('dl-prop', SS.PROPS)}
@@ -392,12 +445,14 @@
       };
       renderSum(); renderResult();
       $('#pl-char', el).addEventListener('change', renderSum);
-      $('#pl-theme', el).addEventListener('change', (e) => { st.theme = e.target.value; $('#pl-kw-wrap', el).hidden = st.theme !== '自訂主題'; save(); });
+      $('#pl-theme', el).addEventListener('change', (e) => { st.theme = e.target.value; $('#pl-kw-wrap', el).hidden = st.theme !== '自訂主題'; $('#pl-tg', el).hidden = !isTg(); save(); });
+      $('#pl-tgmode', el) && $('#pl-tgmode', el).addEventListener('change', (e) => { st.tgMode = e.target.value; save(); });
+      $('#pl-tgai', el) && $('#pl-tgai', el).addEventListener('change', (e) => { st.tgAi = e.target.checked; save(); });
       $('#pl-kw', el).addEventListener('input', (e) => { st.keywords = e.target.value; save(); });
       $('#pl-count', el).addEventListener('click', (e) => { const b = e.target.closest('[data-n]'); if (!b) return; st.count = +b.dataset.n; $$('#pl-count .chip', el).forEach((x) => x.classList.toggle('on', x === b)); save(); });
       $('#pl-gen', el).addEventListener('click', () => {
         if (st.theme === '自訂主題' && !st.keywords.trim()) SS.toast('沒有填關鍵字，將以生活用語庫補齊');
-        st.items = makePlan(st.theme, st.count, st.keywords); save(); renderResult();
+        st.items = isTg() ? makeTaigiPlan(st.theme, st.count, st.tgMode) : makePlan(st.theme, st.count, st.keywords); save(); renderResult();
         SS.toast(`已規劃 ${st.items.length} 張`);
         $('#pl-result', el).scrollIntoView({ behavior: 'smooth' });
       });
@@ -413,6 +468,7 @@
         if (x === 're') {
           const i = +b.dataset.i; const texts = new Set(st.items.map((t) => t.text));
           const cand = SS.ALL_PHRASES.filter((p) => !texts.has(p));
+          if (isTg()) { const one = makeTaigiPlan(st.theme, 40, st.tgMode).find((x) => !texts.has(x.text)); if (one) { st.items[i] = one; save(); renderResult(); } return; }
           st.items[i] = { text: pick(cand.length ? cand : SS.ALL_PHRASES), expression: pick(SS.EXPRESSIONS), action: pick(SS.ACTIONS), prop: pick(SS.PROPS), composition: pick(SS.COMPOSITIONS) };
           save(); renderResult();
         }
@@ -421,14 +477,15 @@
         if (x === 'json') SS.downloadText(JSON.stringify({ app: 'Sticker Studio', version: SS.VERSION, theme: st.theme, character: baseChar(), items: st.items }, null, 2), name + '.json', 'application/json');
         if (x === 'csv') {
           const q = (s) => '"' + String(s ?? '').replace(/"/g, '""') + '"';
-          const rows = [['編號', '文字', '表情', '動作', '道具', '構圖']].concat(st.items.map((it, i) => [i + 1, it.text, it.expression, it.action, it.prop, it.composition]));
+          const rows = [['編號', '文字', '語言', '台語正字', '華語意思', '表情', '動作', '道具', '構圖']].concat(st.items.map((it, i) => [i + 1, it.text, it.lang === 'taigi' ? '台語' : '華語', it.hanji || '', it.zh || '', it.expression, it.action, it.prop, it.composition]));
           SS.downloadText(rows.map((r) => r.map(q).join(',')).join('\r\n'), name + '.csv', 'text/csv');
         }
         if (x === 'grid') {
           const n = +$('#pl-grid', el).value, per = n * n, b2 = baseChar(); const parts = [];
           for (let s = 0; s < st.items.length; s += per) {
             const chunk = st.items.slice(s, s + per);
-            parts.push(`==================== 第 ${s / per + 1} 批（第 ${s + 1}～${s + chunk.length} 張）====================\n` + SS.buildGridPrompt(b2, chunk, n, n, { series: st.theme }));
+            const gb = isTg() ? Object.assign({}, b2, { textLang: 'taigi', aiText: !!st.tgAi }) : b2;
+            parts.push(`==================== 第 ${s / per + 1} 批（第 ${s + 1}～${s + chunk.length} 張）====================\n` + SS.buildGridPrompt(gb, chunk, n, n, { series: st.theme }));
           }
           SS.copy(parts.join('\n\n'), `已複製 ${parts.length} 批宮格提示詞`);
         }
