@@ -27,9 +27,24 @@
   };
   SS.closeModal = function () {
     const wrap = $('#modal');
+    if (SS._modalCancel) { const c = SS._modalCancel; SS._modalCancel = null; c(); }
     wrap.classList.remove('open');
     setTimeout(() => { wrap.hidden = true; $('#modal-body').innerHTML = ''; }, 180);
   };
+
+  /* 頁內確認框（取代 confirm/prompt，手機與嵌入環境都能用） */
+  SS.confirmBox = (msg) => new Promise((res) => {
+    let done = false; const fin = (v) => { if (!done) { done = true; res(v); SS.closeModal(); } };
+    SS.modal(`<h3>${esc(msg)}</h3><div class="btn-row"><button class="btn danger" id="cb-ok">確定</button><button class="btn ghost" id="cb-no">取消</button></div>`, {
+      onOpen(b) { $('#cb-ok', b).onclick = () => fin(true); $('#cb-no', b).onclick = () => fin(false); SS._modalCancel = () => { if (!done) { done = true; res(false); } }; }
+    });
+  });
+  SS.askText = (msg, def = '') => new Promise((res) => {
+    let done = false; const fin = (v) => { if (!done) { done = true; res(v); SS.closeModal(); } };
+    SS.modal(`<h3>${esc(msg)}</h3><input id="at-in" value="${esc(def)}" maxlength="20"><div class="btn-row"><button class="btn primary" id="at-ok">確定</button><button class="btn ghost" id="at-no">取消</button></div>`, {
+      onOpen(b) { $('#at-ok', b).onclick = () => fin($('#at-in', b).value.trim()); $('#at-no', b).onclick = () => fin(null); SS._modalCancel = () => { if (!done) { done = true; res(null); } }; }
+    });
+  });
 
   /* ---------- LocalStorage（小型設定） ---------- */
   SS.ls = {
@@ -102,7 +117,14 @@
   };
 
   /* ---------- 下載 ---------- */
+  /* 在 Claude 預覽環境中改用 downloads 能力；一般網站用 <a download> */
+  SS._dlNs = null;
+  try { if (window.claude && typeof window.claude.use === 'function') window.claude.use('downloads').then((ns) => { SS._dlNs = ns; }).catch(() => {}); } catch (e) { /* 一般網站 */ }
   SS.download = function (blobOrUrl, filename) {
+    if (SS._dlNs && typeof blobOrUrl !== 'string') {
+      SS._dlNs.save({ filename, data: blobOrUrl }).catch((e) => { if (e && e.code !== 'declined') SS.toast('無法下載：' + (e.message || e.code)); });
+      return;
+    }
     const url = typeof blobOrUrl === 'string' ? blobOrUrl : URL.createObjectURL(blobOrUrl);
     const a = document.createElement('a');
     a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
@@ -291,8 +313,8 @@
       <textarea id="${id}" class="prompt-text" rows="10" aria-label="AI 生圖提示詞"></textarea>
       <div class="btn-row">
         <button class="btn primary" data-act="copy">📋 複製提示詞</button>
-        <button class="btn" data-act="gpt">複製並開啟 ChatGPT</button>
-        <button class="btn" data-act="gemini">複製並開啟 Gemini</button>
+        <a class="btn" data-act="gpt" href="https://chatgpt.com/" target="_blank" rel="noopener">複製並開啟 ChatGPT</a>
+        <a class="btn" data-act="gemini" href="https://gemini.google.com/app" target="_blank" rel="noopener">複製並開啟 Gemini</a>
         <button class="btn ghost" data-act="dl">⬇️ 下載 TXT</button>
       </div>
       <p class="note">ℹ️ 本 App 不會直接生成圖片。請把提示詞貼到 ChatGPT 或 Gemini（需登入該服務，額度與收費依各服務規定）。生成後可回到「✂️ 貼圖加工室」加工。<br>💡 AI 畫中文字常出錯；若字不對，可改選「之後在加工室加字」。</p>
@@ -306,9 +328,8 @@
       const a = b.dataset.act;
       if (a === 'copy') SS.copy(ta.value, '提示詞已複製');
       if (a === 'gpt' || a === 'gemini') {
-        // 先啟動複製（保留使用者手勢），再開新視窗
-        SS.copy(ta.value, '已複製，請在新視窗貼上提示詞');
-        window.open(a === 'gpt' ? SS.LINKS.chatgpt : SS.LINKS.gemini, '_blank', 'noopener');
+        // 連結本身會開新分頁；這裡只負責同時複製
+        SS.copy(ta.value, '已複製，請在新分頁貼上提示詞');
       }
       if (a === 'dl') SS.downloadText(ta.value, `${fname}-${SS.ts()}.txt`);
     });

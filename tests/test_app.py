@@ -163,7 +163,7 @@ def run(p, label, viewport, mobile):
     page.click('.coll-item .tile'); page.fill('#m-name', '改名貼圖'); page.click('#m-save'); page.wait_for_timeout(500)
     check(P + '收藏改名', '改名貼圖' in page.inner_text('#co-grid'))
     page.on('dialog', lambda dlg: dlg.accept())
-    page.click('.coll-item .tile'); page.click('#m-del'); page.wait_for_timeout(500)
+    page.click('.coll-item .tile'); page.click('#m-del'); page.click('#cb-ok'); page.wait_for_timeout(500)
     check(P + '收藏刪除', page.locator('.coll-item').count() == 0)
     page.set_input_files('#co-import', d.value.path()); page.wait_for_timeout(800)
     check(P + '匯入備份還原', page.locator('.coll-item').count() == 1)

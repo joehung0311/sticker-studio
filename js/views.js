@@ -30,15 +30,15 @@
         <span>① 設計角色</span><i>→</i><span>② 產生提示詞</span><i>→</i><span>③ AI 生圖</span><i>→</i><span>④ 加工下載</span>
       </div>
       <nav class="home-grid">
-        ${HOME_CARDS.map(([r, ic, t, s, c]) => `<a class="home-card ${c}" href="#/${r}"><span class="hc-ic">${ic}</span><b>${t}</b><small>${s}</small></a>`).join('')}
+        ${HOME_CARDS.map(([r, ic, t, s, c]) => `<a class="home-card ${c}" href="#${r}"><span class="hc-ic">${ic}</span><b>${t}</b><small>${s}</small></a>`).join('')}
       </nav>
       <section class="more-links">
-        <a href="#/guide">📘 新手使用教學</a>
-        <a href="#/share">🔗 分享給朋友</a>
-        <a href="#/install">📲 安裝至手機主畫面</a>
-        <a href="#/privacy">🔒 隱私權與使用說明</a>
-        <a href="#/about">🐾 關於本 App</a>
-        <a href="#/version">🏷️ 版本資訊 v${SS.VERSION}</a>
+        <a href="#guide">📘 新手使用教學</a>
+        <a href="#share">🔗 分享給朋友</a>
+        <a href="#install">📲 安裝至手機主畫面</a>
+        <a href="#privacy">🔒 隱私權與使用說明</a>
+        <a href="#about">🐾 關於本 App</a>
+        <a href="#version">🏷️ 版本資訊 v${SS.VERSION}</a>
       </section>`;
       if (!SS.ls.get('welcomed', false)) {
         SS.ls.set('welcomed', true);
@@ -147,7 +147,7 @@
       <div class="card"><h2 class="step"><span>4</span>複製提示詞去生圖</h2>
         <div class="warn">⚠️ 到 ChatGPT 或 Gemini 時，請<b>重新上傳同一張照片</b>，再貼上提示詞。本 App 無法替你把照片傳過去。</div>
         ${SS.promptBoxHTML()}
-        <a class="btn block soft" href="#/editor">✂️ 生成好了？到加工室處理圖片 →</a>
+        <a class="btn block soft" href="#editor">✂️ 生成好了？到加工室處理圖片 →</a>
       </div>`;
       const pb = SS.bindPromptBox(el, 'prompt-out', 'photo-sticker-prompt');
       const update = () => {
@@ -186,7 +186,7 @@
       <div class="card"><h2 class="step"><span>2</span>畫風</h2>${styleSectionHTML(d)}</div>
       <div class="card"><h2 class="step"><span>3</span>這張貼圖的表情、動作與文字</h2>${sceneFieldsHTML(d)}</div>
       <div class="card"><h2 class="step"><span>4</span>提示詞</h2>${SS.promptBoxHTML()}
-        <div class="btn-row"><a class="btn soft" href="#/plan">🪄 用這個角色做整套貼圖</a><a class="btn soft" href="#/editor">✂️ 到加工室</a></div></div>`;
+        <div class="btn-row"><a class="btn soft" href="#plan">🪄 用這個角色做整套貼圖</a><a class="btn soft" href="#editor">✂️ 到加工室</a></div></div>`;
       const pb = SS.bindPromptBox(el, 'prompt-out', 'character-prompt');
       const update = () => { SS.draft.set(d); pb.set(SS.buildPrompt(d, { source: 'character' })); };
       bindForm(el, d, update); bindStyle(el, d, update);
@@ -200,7 +200,7 @@
       $('#saved-chars', el).addEventListener('click', (e) => {
         const l = e.target.closest('[data-load]'), r = e.target.closest('[data-del]');
         if (l) { const c = SS.chars.list().find((x) => x.id === l.dataset.load); if (c) { const keep = { text: d.text, expression: d.expression, action: d.action, prop: d.prop, noText: d.noText }; SS.draft.set(Object.assign({}, c, keep, { charId: c.id })); SS.toast('已套用角色：' + (c.name || '未命名')); SS.router.rerender(); } }
-        if (r && confirm('確定刪除這個角色設定？')) { SS.chars.remove(r.dataset.del); renderSaved(); SS.toast('已刪除'); }
+        if (r) SS.confirmBox('確定刪除這個角色設定？').then((ok) => { if (ok) { SS.chars.remove(r.dataset.del); renderSaved(); SS.toast('已刪除'); } });
       });
       $('#ch-save', el).addEventListener('click', () => {
         readForm(el, d);
@@ -235,8 +235,8 @@
         const g = e.target.closest('[data-go]'); if (!g) return;
         const p = $('#pr-picked', el).dataset.p;
         if (g.dataset.go === 'copy') SS.copy(p);
-        if (g.dataset.go === 'character') { SS.draft.set({ text: p, noText: false }); location.hash = '#/character'; }
-        if (g.dataset.go === 'editor') { SS.ls.set('pendingText', p); location.hash = '#/editor'; }
+        if (g.dataset.go === 'character') { SS.draft.set({ text: p, noText: false }); location.hash = '#character'; }
+        if (g.dataset.go === 'editor') { SS.ls.set('pendingText', p); location.hash = '#editor'; }
       });
       $('#pr-rand', el).addEventListener('click', () => show(pick(SS.ALL_PHRASES)));
       $('#pr-use', el).addEventListener('click', () => { const v = $('#pr-custom', el).value.trim(); if (v) show(v); else SS.toast('請先輸入句子'); });
@@ -298,7 +298,7 @@
         const btn = $('#bb-go', el); btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
         render(true);
       });
-      $('#bb-apply', el).addEventListener('click', () => { SS.draft.set(toDraft()); location.hash = '#/character'; });
+      $('#bb-apply', el).addEventListener('click', () => { SS.draft.set(toDraft()); location.hash = '#character'; });
       render(false);
     }
   };
@@ -336,7 +336,7 @@
         <h2 class="step"><span>1</span>角色</h2>
         <label>使用角色<select id="pl-char"><option value="">目前編輯中的角色</option>${chars.map((c) => `<option value="${c.id}" ${d.charId === c.id ? 'selected' : ''}>${esc(c.name || '未命名角色')}</option>`).join('')}</select></label>
         <div class="summary" id="pl-sum"></div>
-        <a class="btn ghost sm" href="#/character">✏️ 修改角色設定</a>
+        <a class="btn ghost sm" href="#character">✏️ 修改角色設定</a>
       </div>
       <div class="card">
         <h2 class="step"><span>2</span>主題與張數</h2>

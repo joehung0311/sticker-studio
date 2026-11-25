@@ -191,7 +191,7 @@
         zipAndDownload(files, `stickers-${SS.ts()}.zip`);
       });
       $('#sp-save', el).addEventListener('click', async () => {
-        const cat = prompt('收藏分類名稱', '宮格切圖') || '宮格切圖';
+        const cat = (await SS.askText('收藏分類名稱', '宮格切圖')) || '宮格切圖';
         for (const t of tiles) await SS.saveSticker(t.blob, t.name.replace('.png', ''), cat);
         SS.toast(`已存 ${tiles.length} 張到收藏`);
       });

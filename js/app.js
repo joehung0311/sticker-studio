@@ -21,7 +21,7 @@
   SS.router = { rerender: route };
   window.addEventListener('hashchange', route);
 
-  $('#back-btn').addEventListener('click', () => { location.hash = '#/'; });
+  $('#back-btn').addEventListener('click', () => { location.hash = '#home'; });
   $('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal' || e.target.closest('.modal-close')) SS.closeModal(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#modal').hidden) SS.closeModal(); });
 

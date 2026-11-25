@@ -12,7 +12,7 @@
       <div class="warn">💾 收藏只存在<b>目前這個瀏覽器</b>。清除瀏覽器資料、無痕模式或換裝置都可能遺失，請定期「匯出備份」。</div>
       <div class="card">
         <div class="row gap wrap"><input id="co-q" type="search" placeholder="🔍 搜尋名稱" class="grow"><select id="co-cat"></select></div>
-        <div class="row gap wrap mt"><label class="btn ghost sm">📥 匯入備份<input type="file" id="co-import" accept=".json,application/json" hidden></label><button class="btn ghost sm" id="co-export">📤 匯出備份</button><a class="btn sm" href="#/editor">＋ 新增貼圖</a></div>
+        <div class="row gap wrap mt"><label class="btn ghost sm">📥 匯入備份<input type="file" id="co-import" accept=".json,application/json" hidden></label><button class="btn ghost sm" id="co-export">📤 匯出備份</button><a class="btn sm" href="#editor">＋ 新增貼圖</a></div>
         <p class="muted small" id="co-usage"></p>
       </div>
       <div class="tiles coll" id="co-grid"></div>
@@ -51,15 +51,15 @@
             $('#m-save', b).onclick = async () => { x.name = $('#m-name', b).value.trim() || '我的貼圖'; x.category = $('#m-cat', b).value.trim() || '未分類'; await SS.idb.put(x); SS.closeModal(); SS.toast('已更新'); load(); };
             $('#m-dl', b).onclick = () => SS.download(x.blob, fn());
             $('#m-share', b).onclick = () => SS.shareBlob(x.blob, fn());
-            $('#m-edit', b).onclick = () => { SS.handoffEditor = { blob: x.blob, name: fn() }; SS.closeModal(); location.hash = '#/editor'; };
-            $('#m-del', b).onclick = async () => { if (!confirm('確定刪除這張貼圖？刪除後無法復原。')) return; await SS.idb.del(x.id); SS.closeModal(); SS.toast('已刪除'); load(); };
+            $('#m-edit', b).onclick = () => { SS.handoffEditor = { blob: x.blob, name: fn() }; SS.closeModal(); location.hash = '#editor'; };
+            $('#m-del', b).onclick = async () => { if (!(await SS.confirmBox('確定刪除這張貼圖？刪除後無法復原。'))) return; await SS.idb.del(x.id); SS.closeModal(); SS.toast('已刪除'); load(); };
           }
         });
       }
       el.addEventListener('click', (e) => {
         const o = e.target.closest('[data-open]'); if (o) return openItem(o.dataset.open);
-        const u = e.target.closest('[data-usechar]'); if (u) { const c = SS.chars.list().find((x) => x.id === u.dataset.usechar); SS.draft.set(Object.assign({}, c, { charId: c.id })); location.hash = '#/character'; }
-        const d = e.target.closest('[data-delchar]'); if (d && confirm('確定刪除這個角色設定？')) { SS.chars.remove(d.dataset.delchar); render(); }
+        const u = e.target.closest('[data-usechar]'); if (u) { const c = SS.chars.list().find((x) => x.id === u.dataset.usechar); SS.draft.set(Object.assign({}, c, { charId: c.id })); location.hash = '#character'; }
+        const d = e.target.closest('[data-delchar]'); if (d) SS.confirmBox('確定刪除這個角色設定？').then((ok) => { if (ok) { SS.chars.remove(d.dataset.delchar); render(); } });
       });
       $('#co-q', el).addEventListener('input', render);
       $('#co-cat', el).addEventListener('change', render);

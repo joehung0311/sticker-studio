@@ -288,7 +288,7 @@
         try { await SS.saveSticker(await exportBlob(), $('#ed-name', el).value.trim() || '我的貼圖'); SS.toast('已存到「我的貼圖收藏」💗'); }
         catch (e) { SS.toast('儲存失敗：' + e.message); }
       });
-      $('#ed-toline', el).addEventListener('click', async () => { SS.handoff = { blob: await exportBlob(), name: fname() }; location.hash = '#/line'; });
+      $('#ed-toline', el).addEventListener('click', async () => { SS.handoff = { blob: await exportBlob(), name: fname() }; location.hash = '#line'; });
 
       /* 來自其他頁面的交接 */
       const pend = SS.ls.get('pendingText', '');
