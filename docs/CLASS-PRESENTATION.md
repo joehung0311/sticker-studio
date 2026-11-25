@@ -45,7 +45,7 @@ HTML、CSS、JavaScript（無框架）、HTML Canvas、IndexedDB、LocalStorage�
 - 收藏只存在使用者自己的瀏覽器，不同使用者互不相通
 
 ## 公開網站網址與 QR Code
-- 網址：`（部署完成後填入）`
+- 網址：https://joehung0311.github.io/sticker-studio/
 - QR Code：網站內「🔗 分享給朋友」頁面即時產生，可下載 PNG
 
 ## 未來可擴充方向
