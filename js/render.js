@@ -120,11 +120,12 @@
     return layers;
   }
   /* 繪成一張 canvas；回傳 Promise（等字型與裝飾圖載入） */
-  async function renderToCanvas(w, h, layers, bg) {
+  async function renderToCanvas(w, h, layers, bg, base) {
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const ctx = cv.getContext('2d');
     if (document.fonts) await Promise.all(layers.filter((l) => l.type === 'text' && l.content).map((l) => document.fonts.load(fontStr(l, 40), l.content).catch(() => {})));
     await Promise.all(layers.filter((l) => l.type === 'deco').map((l) => new Promise((res) => { const d = SS.decoById[l.kind]; if (SS.decoImage(l.kind, d.colorable ? l.color : '', res)) res(); })));
     if (bg) { ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h); }
+    if (base) ctx.drawImage(base, 0, 0, w, h);
     layers.forEach((l) => draw(ctx, l, w, h));
     return cv;
   }

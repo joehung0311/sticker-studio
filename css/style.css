@@ -448,3 +448,30 @@ body { padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom)); }
 @media (max-width: 380px) { .type-opt small { display: none; } }
 /* 加工室：畫布捲動定位時預留底部導覽列高度 */
 body[data-view="editor"] #ed-wrap, body[data-view="textsticker"] #ed-wrap { scroll-margin-bottom: calc(var(--nav-h) + 20px); scroll-margin-top: 70px; }
+
+/* ===== v1.4 上架包、批次佇列 ===== */
+.progress { height: 10px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--sage, #8FA77F); transition: width .3s; }
+.row.between { justify-content: space-between; align-items: center; }
+.pack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 10px 0; }
+.pk-item { border: 1.5px solid var(--line); border-radius: 14px; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+.pk-item.over { opacity: .45; }
+.pk-thumb { position: relative; border-radius: 10px; }
+.pk-thumb img { width: 100%; aspect-ratio: 37 / 32; object-fit: contain; display: block; }
+.pk-no { position: absolute; left: 4px; top: 4px; background: rgba(255,255,255,.9); border-radius: 6px; padding: 0 5px; font-size: .75rem; }
+.pk-warn { font-size: .72rem; min-height: 1em; }
+.pk-acts { display: flex; flex-wrap: wrap; gap: 4px; }
+.pk-acts .btn.xs { min-height: 30px; padding: 2px 7px; }
+.pk-fig { margin: 0; text-align: center; font-size: .75rem; }
+.pk-fig .checker { display: inline-block; border-radius: 10px; padding: 4px; }
+.pk-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; max-height: 55vh; overflow: auto; margin: 8px 0; }
+.pk-pick .tile { position: relative; }
+.pk-pick .tile.on { border-color: var(--peach); box-shadow: 0 0 0 2px var(--peach); }
+.pk-ord { position: absolute; right: 4px; top: 4px; font-style: normal; font-weight: 700; color: #fff; background: var(--peach); border-radius: 99px; min-width: 20px; font-size: .75rem; }
+.pk-ord:empty { display: none; }
+.ed-queue { display: flex; gap: 6px; overflow-x: auto; padding: 6px 2px; }
+.ed-queue button { flex: 0 0 64px; height: 64px; border: 2px solid var(--line); border-radius: 10px; padding: 2px; background: #fff; position: relative; cursor: pointer; }
+.ed-queue button img { width: 100%; height: 100%; object-fit: contain; }
+.ed-queue button.cur { border-color: var(--peach); }
+.ed-queue button.done::after { content: '✓'; position: absolute; right: 2px; bottom: 0; color: var(--sage-d, #5f7a4f); font-weight: 700; }
+.ed-queue button.skip { opacity: .4; }

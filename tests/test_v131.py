@@ -43,10 +43,10 @@ with sync_playwright() as p:
     check('STEP5 自訂關鍵字變成貼圖文字', all(k in texts for k in ['考試加油', '我讀不完', '放榜了']), texts)
     check('STEP5 每張有「重抽」與「構圖」', pg.locator('#mk-items [data-reroll]').count() == len(texts) and pg.locator('#mk-items select[data-f=composition]').count() == len(texts))
     before = pg.evaluate("JSON.parse(localStorage.getItem('ss_make')).items")
-    pg.click('#mk-items [data-reroll="1"]'); pg.wait_for_timeout(200)
+    pg.click('#mk-items [data-reroll="6"]'); pg.wait_for_timeout(200)
     after = pg.evaluate("JSON.parse(localStorage.getItem('ss_make')).items")
-    others_same = all(before[i]['text'] == after[i]['text'] for i in range(len(before)) if i != 1)
-    check('STEP5 重抽只換那一張、不重複', after[1]['text'] != before[1]['text'] and others_same and len({x['text'] for x in after}) == len(after), (before[1]['text'], after[1]['text']))
+    others_same = all(before[i]['text'] == after[i]['text'] for i in range(len(before)) if i != 6)
+    check('STEP5 重抽只換那一張、不重複', after[6]['text'] != before[6]['text'] and others_same and len({x['text'] for x in after}) == len(after), (before[6]['text'], after[6]['text']))
     comp = pg.evaluate("SS.COMPOSITIONS")[-1]
     pg.select_option('#mk-items .plan-item[data-i="0"] select[data-f=composition]', comp); pg.wait_for_timeout(150)
     check('STEP5 構圖修改會儲存', pg.evaluate("JSON.parse(localStorage.getItem('ss_make')).items[0].composition") == comp)
@@ -54,7 +54,7 @@ with sync_playwright() as p:
     for ex in ['txt', 'csv', 'json']:
         with pg.expect_download() as dl: pg.click(f'#mk-exports [data-ex="{ex}"]')
         got[ex] = open(dl.value.path(), encoding='utf-8-sig').read()
-    check('STEP5 匯出 TXT（完整提示詞）', '考試加油' in got['txt'] and len(got['txt']) > 300)
+    check('STEP5 匯出 TXT（完整提示詞）', '考試加油' in got['txt'] and len(got['txt']) > 300, got['txt'][:300])
     check('STEP5 匯出 CSV 含構圖欄', got['csv'].splitlines()[0].startswith('"編號"') and '構圖' in got['csv'].splitlines()[0] and comp in got['csv'])
     j = json.loads(got['json'])
     check('STEP5 匯出 JSON 含角色與企劃', j['character']['name'] == '麻糬' and len(j['items']) == len(texts))

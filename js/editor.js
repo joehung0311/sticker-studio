@@ -31,12 +31,26 @@
     ${opts.textMode ? `<div class="card tx-intro"><b>🔤 純文字貼圖</b><p class="muted small">不用上傳圖片、也不用 AI 生圖：輸入文字、選字體和裝飾，就能直接下載 PNG。</p></div>` : ''}
     <div class="card" id="ed-empty" ${opts.textMode ? 'hidden' : ''}>
       <label class="drop">
-        <input type="file" id="ed-file" accept="image/png,image/jpeg,image/webp,image/*" hidden>
-        <div><div class="drop-ic">🖼️</div><b>匯入 AI 生成的圖片或照片</b><small>JPG、PNG、WebP・只在本機處理</small></div>
+        <input type="file" id="ed-file" accept="image/png,image/jpeg,image/webp,image/*" multiple hidden>
+        <div><div class="drop-ic">🖼️</div><b>匯入 AI 生成的圖片或照片</b><small>可一次選多張・JPG、PNG、WebP・只在本機處理</small></div>
       </label>
       <button class="btn ghost block" id="ed-blank">或從空白透明畫布開始（純文字貼圖）</button>
     </div>
     <div id="ed-main" hidden>
+      <div class="card" id="ed-qbox" hidden>
+        <div class="row between"><b id="ed-qtitle">批次加工</b><small class="muted" id="ed-qinfo"></small></div>
+        <div class="ed-queue" id="ed-queue" aria-label="待加工的圖片"></div>
+        <div class="btn-row">
+          <button class="btn primary sm" id="ed-qpack">📦 加入上架包，下一張</button>
+          <button class="btn sage sm" id="ed-qsave">💗 存到收藏，下一張</button>
+          <button class="btn ghost sm" id="ed-qskip">⏭ 跳過</button>
+        </div>
+        <details class="mt"><summary class="small">⚡ 剩下的全部自動處理</summary>
+          <p class="muted small">剩下尚未處理的圖片會自動：去掉多餘空白、等比縮放成 LINE 370×320 並留白 10px（不做手動裁切）。</p>
+          <label class="ck"><input type="checkbox" id="ed-qrm"> 自動去除白色背景</label>
+          <div class="btn-row"><button class="btn sm" id="ed-qauto-pack">📦 全部加入上架包</button><button class="btn sm ghost" id="ed-qauto-save">💗 全部存到收藏</button></div>
+        </details>
+      </div>
       <div class="canvas-wrap checker" id="ed-wrap"><canvas id="ed-cv" aria-label="貼圖編輯畫布"></canvas></div>
       <div class="canvas-info"><span id="ed-size"></span>
         <span class="zoom-btns"><button class="btn xs on" data-zoom="1">1×</button><button class="btn xs" data-zoom="2">2×</button><button class="btn xs" data-zoom="3">3×</button><button class="btn xs" id="ed-panview" hidden>✋ 移動畫面</button></span></div>
@@ -153,7 +167,9 @@
           <button class="btn sage" id="ed-save">💗 存到收藏</button>
           <button class="btn" id="ed-share">📤 分享</button>
           <button class="btn ghost" id="ed-toline">📱 送到 LINE 工具</button>
+          <button class="btn" id="ed-topack">📦 加入上架包</button>
         </div>
+        <p class="small"><a href="#pack">📦 查看上架包 →</a></p>
         <p class="muted small" id="ed-outinfo"></p>
       </div>
     </div>`;
@@ -290,7 +306,81 @@
       catch (e) { SS.toast(e.message); }
     }
     const fileIn = $('#ed-file', el);
-    fileIn.addEventListener('change', () => { if (fileIn.files[0]) loadFile(fileIn.files[0]); fileIn.value = ''; });
+    fileIn.addEventListener('change', () => { const fs = Array.from(fileIn.files); fileIn.value = ''; if (fs.length > 1) setQueue(fs.map((f) => ({ blob: f, name: f.name }))); else if (fs[0]) { if (queue.length) addToQueue([{ blob: fs[0], name: fs[0].name }]); else loadFile(fs[0]); } });
+
+    /* ================= 批次佇列：一次匯入多張，逐張加工 ================= */
+    let queue = [], qi = -1, qOpts = null; const qUrls = [];
+    function renderQueue() {
+      $('#ed-qbox', el).hidden = !queue.length;
+      if (!queue.length) return;
+      const done = queue.filter((q) => q.state === 'done').length;
+      $('#ed-qtitle', el).textContent = `批次加工：第 ${qi + 1}／${queue.length} 張`;
+      $('#ed-qinfo', el).textContent = `已完成 ${done} 張`;
+      $('#ed-queue', el).innerHTML = queue.map((q, i) => `<button type="button" class="${i === qi ? 'cur' : ''} ${q.state || ''}" data-qi="${i}" aria-label="第 ${i + 1} 張${q.state === 'done' ? '（已完成）' : ''}"><img src="${q.url}" alt=""></button>`).join('');
+      const left = queue.some((q, i) => i !== qi && !q.state);
+      $('#ed-qpack', el).textContent = left ? '📦 加入上架包，下一張' : '📦 加入上架包（最後一張）';
+      $('#ed-qsave', el).textContent = left ? '💗 存到收藏，下一張' : '💗 存到收藏（最後一張）';
+    }
+    function textLayerFor(text) {
+      if (!text || !qOpts) return [];
+      const f = FRAMES[S.frame] || FRAMES.line; const w = f.w || work.width, h = f.h || work.height;
+      return SS.R.buildTextLayers(cv.getContext('2d'), w, h, Object.assign({}, qOpts, { text }));
+    }
+    function loadQueueItem(i) {
+      const q = queue[i]; if (!q) return; qi = i; const frame = S.frame;
+      const img = new Image();
+      img.onload = () => {
+        S.layers = []; loadSource(img); S.frame = frame; S.scale = fitScale(false);
+        if (q.text) { S.layers = textLayerFor(q.text).map((l) => Object.assign({}, l, { id: S.nid++ })); }
+        $('#ed-name', el).value = (q.name || `sticker-${i + 1}`).replace(/\.[^.]+$/, '').slice(0, 40);
+        clampAll(); syncAll(); draw(); renderQueue();
+      };
+      img.onerror = () => { SS.toast('第 ' + (i + 1) + ' 張無法讀取，已跳過'); q.state = 'skip'; next(); };
+      img.src = q.url;
+    }
+    function addToQueue(list) { list.forEach((x) => { const u = URL.createObjectURL(x.blob); qUrls.push(u); queue.push(Object.assign({ url: u, state: '' }, x)); }); renderQueue(); }
+    function setQueue(list, opts2 = {}) {
+      queue = []; qOpts = opts2.textOpts || null; addToQueue(list);
+      if (opts2.frame && FRAMES[opts2.frame]) S.frame = opts2.frame;
+      loadQueueItem(0); SS.toast(`已匯入 ${list.length} 張，請逐張加工`);
+    }
+    function next() {
+      const n = queue.findIndex((q, i) => i > qi && !q.state); const m = n >= 0 ? n : queue.findIndex((q) => !q.state);
+      if (m >= 0) loadQueueItem(m); else { renderQueue(); SS.toast('這一批都處理完了 🎉'); }
+    }
+    $('#ed-queue', el).addEventListener('click', (e) => { const b = e.target.closest('[data-qi]'); if (b) loadQueueItem(+b.dataset.qi); });
+    let qBusy = false;
+    const qAct = async (kind) => {
+      if (qBusy || qi < 0) return; qBusy = true;
+      try {
+        const blob = await exportBlob(); const name = $('#ed-name', el).value.trim() || `sticker-${qi + 1}`;
+        if (kind === 'pack') await SS.pack.add([{ name, blob }]); else { await SS.saveSticker(blob, name, '批次加工'); SS.toast('已存到收藏'); }
+        queue[qi].state = 'done'; next();
+      } finally { qBusy = false; }
+    };
+    $('#ed-qpack', el).addEventListener('click', () => qAct('pack'));
+    $('#ed-qsave', el).addEventListener('click', () => qAct('save'));
+    $('#ed-qskip', el).addEventListener('click', () => { if (qi < 0) return; queue[qi].state = 'skip'; next(); });
+    const qAuto = async (kind) => {
+      if (qBusy) return; qBusy = true; const rm = $('#ed-qrm', el).checked; const out = [];
+      try {
+        for (const [i, q] of queue.entries()) {
+          if (q.state) continue;
+          const img = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = q.url; }).catch(() => null);
+          if (!img) { q.state = 'skip'; continue; }
+          let c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight; c.getContext('2d').drawImage(img, 0, 0);
+          if (rm) c = SS.removeColor(c, [255, 255, 255], 40, true).canvas;
+          c = SS.fitInto(c, 370, 320, 10, true).canvas;
+          if (q.text && qOpts) { const ls = SS.R.buildTextLayers(c.getContext('2d'), 370, 320, Object.assign({}, qOpts, { text: q.text })); c = await SS.R.renderToCanvas(370, 320, ls, null, c); }
+          out.push({ name: (q.name || `sticker-${i + 1}`).replace(/\.[^.]+$/, ''), blob: await SS.canvasToBlob(c) }); q.state = 'done';
+        }
+        if (!out.length) { SS.toast('沒有剩下的圖片'); return; }
+        if (kind === 'pack') await SS.pack.add(out); else { for (const f of out) await SS.saveSticker(f.blob, f.name, '批次加工'); SS.toast(`已存 ${out.length} 張到收藏`); }
+        renderQueue();
+      } finally { qBusy = false; }
+    };
+    $('#ed-qauto-pack', el).addEventListener('click', () => qAuto('pack'));
+    $('#ed-qauto-save', el).addEventListener('click', () => qAuto('save'));
     $('#ed-change', el).addEventListener('click', () => fileIn.click());
     function startBlank(text) {
       work = null; srcCanvas = null; const keep = S.layers.length ? S.layers : null;
@@ -311,6 +401,7 @@
       $$('#ed-main > .tab-panel', el).forEach((p) => { p.hidden = p.dataset.panel !== name; });
       pickTarget = null; $$('#ed-pickc, #ed-pickfill', el).forEach((b) => b.classList.remove('on'));
       cv.classList.toggle('erasing', name === 'erase');
+      if (name === 'size') ensureLine();
       const on = $(`.scroll-tabs > .tab[data-tab="${name}"]`, el); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       draw();
     }
@@ -615,7 +706,7 @@
 
     /* ================= 切圖與尺寸（整合 LINE 工具箱） ================= */
     let lineApi = null;
-    const ensureLine = () => { if (!lineApi) lineApi = SS.views.line.render($('#ed-linetool', el), { embedded: true }); return lineApi; };
+    const ensureLine = () => { if (!lineApi) lineApi = SS.views.line.render($('#ed-linetool', el), { embedded: true, onToEditor: (files, to) => { setQueue(files, { textOpts: to, frame: 'line' }); switchTab('crop'); window.scrollTo({ top: 0, behavior: 'smooth' }); } }); return lineApi; };
     $$('[data-qframe]', el).forEach((b) => b.addEventListener('click', () => { push(); S.frame = b.dataset.qframe; S.ox = S.oy = 0; if (work) S.scale = fitScale(false); clampAll(); syncAll(); draw(); SS.toast('已套用 ' + FRAMES[S.frame].label); }));
     $('#ed-tosplit', el).addEventListener('click', async () => { const api = ensureLine(); api.showTab('split'); await api.loadSplit(await exportBlob()); $('#ed-linetool', el).scrollIntoView({ behavior: 'smooth' }); });
     $('#ed-tocheck', el).addEventListener('click', async () => { const api = ensureLine(); api.showTab('check'); await api.addCheck([{ name: fname(), blob: await exportBlob() }]); $('#ed-linetool', el).scrollIntoView({ behavior: 'smooth' }); });
@@ -635,6 +726,7 @@
       try { await SS.saveSticker(await exportBlob(), $('#ed-name', el).value.trim() || '我的貼圖', opts.textMode || !work ? '文字貼圖' : '未分類'); SS.toast('已存到「我的貼圖收藏」💗'); }
       catch (e) { SS.toast('儲存失敗：' + e.message); }
     });
+    $('#ed-topack', el).addEventListener('click', async () => { await SS.pack.add([{ name: $('#ed-name', el).value.trim() || 'my-sticker', blob: await exportBlob() }]); });
     $('#ed-toline', el).addEventListener('click', async () => { switchTab('size'); const api = ensureLine(); api.showTab('check'); await api.addCheck([{ name: fname(), blob: await exportBlob() }]); SS.toast('已加入 LINE 規格檢查'); });
 
     /* 測試用：唯讀狀態快照 */
@@ -649,12 +741,15 @@
       S.layers = h.layers.map((l) => Object.assign({}, l)); S.nid = 1 + Math.max(0, ...S.layers.map((l) => l.id || 0)); S.sel = null;
       showMain(); clampAll(); syncAll(); draw(); tab = 'text';
       $('#ed-name', el).value = h.name || 'text-sticker';
+    } else if (SS.handoffEditor && SS.handoffEditor.files) {
+      const b = SS.handoffEditor; SS.handoffEditor = null;
+      setQueue(b.files, { textOpts: b.textOpts, frame: b.frame });
     } else if (SS.handoffEditor) {
       const b = SS.handoffEditor; SS.handoffEditor = null;
       const img = new Image(); const u = URL.createObjectURL(b.blob);
       img.onload = () => {
         loadSource(img); URL.revokeObjectURL(u); $('#ed-name', el).value = (b.name || 'my-sticker').replace(/\.[^.]+$/, '');
-        if (b.then === 'split') { switchTab('size'); const api = ensureLine(); api.showTab('split'); api.loadSplit(b.blob); SS.toast('已載入宮格圖，請確認切割方式'); }
+        if (b.then === 'split') { switchTab('size'); const api = ensureLine(); api.showTab('split'); api.loadSplit(b.blob); api.queueSheets(b.more || []); api.setTexts(b.texts, b.textOpts); SS.toast(b.more && b.more.length ? `已載入 ${b.more.length + 1} 張宮格圖，請確認切割方式` : '已載入宮格圖，請確認切割方式'); }
       }; img.src = u;
     } else if (opts.textMode) {
       $('#ed-name', el).value = 'text-sticker'; startBlank(pendText);
@@ -664,6 +759,7 @@
       SS.toast('已帶入文字「' + pendText + '」，請匯入圖片或用空白畫布');
     }
     switchTab(tab);
+    return () => qUrls.forEach((u) => URL.revokeObjectURL(u));
   }
   SS.mountEditor = mountEditor;
 

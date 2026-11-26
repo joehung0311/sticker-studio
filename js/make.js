@@ -168,6 +168,7 @@
         if (!applicable(t)) t += (t < prev ? -1 : 1);
         mk.step = Math.min(6, Math.max(1, t));
         save(); showStep(); window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (mk.step >= 5 && mk.count > 1 && mk.items.length !== mk.count) prepLang().then(fitItems).catch((er) => SS.toast(er.message));
       }
       function showStep() {
         $$('.mk-step', el).forEach((s) => { s.hidden = +s.dataset.step !== mk.step; });
@@ -195,7 +196,7 @@
       $('#mk-next', el).addEventListener('click', () => go(mk.step + 1));
 
       /* ---------- STEP 1 ---------- */
-      $$('input[name=mktype]', el).forEach((r) => r.addEventListener('change', () => { mk.type = r.value; if (isText()) { d.aiText = false; if (d.design.pos === 'bottom') { d.design.pos = 'mid'; fill(); } } save(); showStep(); }));
+      $$('input[name=mktype]', el).forEach((r) => r.addEventListener('change', () => { const wasText = isText(); mk.type = r.value; if (wasText && !isText() && mk.aiPrev !== undefined) { d.aiText = mk.aiPrev; fill(); } if (isText()) { if (!wasText) mk.aiPrev = d.aiText; d.aiText = false; if (d.design.pos === 'bottom') { d.design.pos = 'mid'; fill(); } } save(); showStep(); }));
       const fileIn = $('#mk-file', el);
       const showPhoto = () => { const img = $('#mk-photo-img', el); img.hidden = !photoURL; $('#mk-photo-empty', el).hidden = !!photoURL; $('#mk-photo-acts', el).hidden = !photoURL; if (photoURL) img.src = photoURL; else img.removeAttribute('src'); };
       $('#mk-photo-change', el).addEventListener('click', () => fileIn.click());
@@ -284,11 +285,11 @@
       }
       const cache = {};
       async function prepLang() { if (d.textLang === 'taigi') await SS.taigi.load(); if (!['zh', 'custom'].includes(d.textLang)) cache[d.textLang] = await SS.lang.load(d.textLang); buildThemes(); }
-      $('#mk-count', el).addEventListener('click', async (e) => { const b = e.target.closest('[data-n]'); if (!b) return; mk.count = +b.dataset.n; save(); showStep(); if (mk.count > 1) { await prepLang().catch((er) => SS.toast(er.message)); } });
+      $('#mk-count', el).addEventListener('click', async (e) => { const b = e.target.closest('[data-n]'); if (!b) return; mk.count = +b.dataset.n; save(); showStep(); if (mk.count > 1) { await prepLang().catch((er) => SS.toast(er.message)); await fitItems(); } });
       const kwUI = () => { $('#mk-kw-wrap', el).hidden = mk.theme !== 'zh|自訂主題'; $('#mk-kw', el).value = mk.keywords || ''; };
       $('#mk-theme', el).addEventListener('change', (e) => { mk.theme = e.target.value; save(); kwUI(); });
       $('#mk-kw', el).addEventListener('input', (e) => { mk.keywords = e.target.value; save(); });
-      async function genPlan() {
+      async function genPlan(quiet) {
         await prepLang();
         const [lg, th] = (mk.theme || '').split('|'); const n = mk.count;
         let items = [];
@@ -301,9 +302,22 @@
           if (pool.length < n) SS.toast(`這個詞庫只有 ${pool.length} 句，其餘請自行填寫`);
           items = Array.from({ length: n }, (_, i) => { const x = pool[i]; return { text: x ? x.text : '', zh: x ? (x.meaning !== x.text ? x.meaning : '') : '', lang: lg }; });
         }
+        /* STEP 3 選好的文字固定排第 1 張，不會被自動規劃蓋掉 */
+        if (lg !== 'custom' && !d.noText && d.text && items.length) {
+          const k = items.findIndex((x) => x.text === d.text);
+          const mine = k >= 0 ? items.splice(k, 1)[0] : { text: d.text, zh: d.textZh || '', lang: lg };
+          items.unshift(mine); items.length = n;
+        }
         const exps = shuffle(SS.EXPRESSIONS), acts = shuffle(SS.ACTIONS);
         items.forEach((it, i) => { it.expression = it.expression || exps[i % exps.length]; it.action = it.action || acts[i % acts.length]; it.prop = it.prop || '無'; it.composition = it.composition || SS.COMPOSITIONS[i % SS.COMPOSITIONS.length]; });
-        mk.items = items; save(); renderItems(); renderResult(); SS.toast(`已規劃 ${items.length} 張`);
+        mk.items = items; save(); renderItems(); renderResult(); if (!quiet) SS.toast(`已規劃 ${items.length} 張`);
+      }
+      /* 改張數時保留已編輯的企劃：多的刪掉、不夠的補新的 */
+      async function fitItems() {
+        if (mk.count <= 1) return;
+        if (!mk.items.length) return genPlan(true);
+        if (mk.items.length > mk.count) { mk.items.length = mk.count; save(); renderItems(); renderResult(); return; }
+        while (mk.items.length < mk.count) { mk.items.push({ text: '' }); await reroll(mk.items.length - 1); }
       }
       /* 單張重抽：只換這一張的文字、表情、動作、道具與構圖 */
       async function reroll(i) {
@@ -335,6 +349,8 @@
 
       /* ---------- STEP 6：結果 ---------- */
       const itemD = (it) => Object.assign({}, d, { text: it.text, noText: !it.text, textLang: it.lang || d.textLang, textZh: it.zh || '', expression: it.expression, action: it.action, prop: it.prop });
+      /* AI 不畫字時，匯入圖片後要由 App 放上的文字（依企劃順序） */
+      const appTexts = () => (d.aiText || d.noText) ? [] : textList().map((t) => t || '');
       const baseD = () => mk.type === 'photo' ? Object.assign({}, d, { charType: mk.subject === '寵物' ? '照片中的寵物' : '照片中的人物', name: '', appearance: '', hair: '', outfit: '', personality: '' }) : d;
       const popt = () => ({ source: mk.type === 'photo' ? 'photo' : 'character', subject: mk.subject === '我自己' ? '我本人' : mk.subject, keepNotes: mk.keepNotes, lang: mk.promptLang });
       function promptText() {
@@ -358,6 +374,7 @@
               <div class="grid2"><label>提示詞語言<select id="mk-plang"><option value="zh">繁體中文</option><option value="en">English</option></select></label>
               <label id="mk-show-wrap">顯示<select id="mk-show"></select></label></div>
               <p class="muted small">提示詞語言只影響給 AI 的說明文字；貼圖上的文字仍是「<span id="mk-tl"></span>」。</p>
+              <div class="note small" id="mk-textmode"></div>
               <textarea id="mk-prompt" class="prompt-text" rows="12" aria-label="提示詞"></textarea>
               <div class="btn-row"><button type="button" class="btn primary" data-pa="copy">📋 複製</button>
                 <a class="btn" data-pa="gpt" href="https://chatgpt.com/" target="_blank" rel="noopener">複製並開啟 ChatGPT</a>
@@ -365,8 +382,10 @@
                 <button type="button" class="btn ghost" data-pa="dl">⬇️ TXT</button></div>
               <p class="note small" id="mk-photo-tip" hidden>📷 到 ChatGPT／Gemini 時請<b>重新上傳同一張照片</b>，App 不會替你上傳。</p>
               <div class="import-box"><b>生成好了嗎？</b>
-                <div class="btn-row"><label class="btn sage">📥 匯入 AI 圖片到加工室<input type="file" id="mk-imp" accept="image/*" hidden></label>
-                <label class="btn">🧩 匯入宮格圖去切圖<input type="file" id="mk-impgrid" accept="image/*" hidden></label></div></div>`;
+                <p class="muted small">可以一次選多張。AI 不畫字時，匯入後會依企劃順序自動放上每張的文字。</p>
+                <div class="btn-row"><label class="btn sage">📥 匯入 AI 圖片到加工室<input type="file" id="mk-imp" accept="image/*" multiple hidden></label>
+                <label class="btn">🧩 匯入宮格圖去切圖<input type="file" id="mk-impgrid" accept="image/*" multiple hidden></label>
+                <a class="btn ghost" href="#pack">📦 打包上架包</a></div></div>`;
             $('#mk-plang', box).addEventListener('change', (e) => { mk.promptLang = e.target.value; save(); renderResult(); });
             $('#mk-show', box).addEventListener('change', (e) => { mk.show = e.target.value; save(); renderResult(); });
             box.addEventListener('click', (e) => {
@@ -375,8 +394,18 @@
               if (b.dataset.pa === 'gpt' || b.dataset.pa === 'gemini') SS.copy(t, '已複製，請在新分頁貼上提示詞');
               if (b.dataset.pa === 'dl') SS.downloadText(t, `sticker-prompt-${SS.ts()}.txt`);
             });
-            $('#mk-imp', box).addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; SS.handoffEditor = { blob: f, name: f.name }; location.hash = '#editor'; });
-            $('#mk-impgrid', box).addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; SS.handoffEditor = { blob: f, name: f.name, then: 'split' }; location.hash = '#editor'; });
+            $('#mk-imp', box).addEventListener('change', (e) => {
+              const fs = Array.from(e.target.files); e.target.value = ''; if (!fs.length) return;
+              const texts = appTexts();
+              SS.handoffEditor = { files: fs.map((f, i) => ({ blob: f, name: f.name, text: texts[i] || '' })), textOpts: texts.length ? tOpts('') : null, frame: 'line' };
+              location.hash = '#editor';
+            });
+            $('#mk-impgrid', box).addEventListener('change', (e) => {
+              const fs = Array.from(e.target.files); e.target.value = ''; if (!fs.length) return; const texts = appTexts();
+              SS.handoffEditor = { blob: fs[0], name: fs[0].name, then: 'split', more: fs.slice(1), texts, textOpts: texts.length ? tOpts('') : null };
+              location.hash = '#editor';
+            });
+            box.addEventListener('click', (e) => { const b = e.target.closest('[data-aitext]'); if (!b) return; d.aiText = b.dataset.aitext === '1'; save(); fill(); renderResult(); SS.toast(d.aiText ? '已改為：讓 AI 直接畫字' : '已改為：AI 不畫字，匯入後由 App 加字'); });
           }
           $('#mk-plang', box).value = mk.promptLang;
           const show = $('#mk-show', box); $('#mk-show-wrap', box).hidden = mk.count === 1 || !mk.items.length;
@@ -385,6 +414,10 @@
             if (![...show.options].some((o) => o.value === mk.show)) mk.show = 'all'; show.value = mk.show;
           }
           $('#mk-tl', box).textContent = SS.langLabel(d, false);
+          const tl = textList().filter(Boolean); const sample = tl.slice(0, 3).map((t) => `「${esc(t)}」`).join('') + (tl.length > 3 ? ` 等 ${tl.length} 句` : '');
+          $('#mk-textmode', box).innerHTML = !tl.length ? '📝 這次的貼圖<b>不放文字</b>。' : d.aiText
+            ? `📝 文字 ${sample}：<b>由 AI 直接畫在圖上</b>。<button type="button" class="btn xs" data-aitext="0">改成 App 加字（字最準）</button>`
+            : `📝 文字 ${sample}：提示詞會請 AI <b>先不要畫字、預留位置</b>；把 AI 畫好的圖匯入下方加工室後，App 會自動把文字放上去。<button type="button" class="btn xs" data-aitext="1">改成讓 AI 直接畫字</button>`;
           $('#mk-photo-tip', box).hidden = mk.type !== 'photo';
           const ta = $('#mk-prompt', box); if (document.activeElement !== ta) ta.value = promptText();
           if (mk.count > 1 && !mk.items.length) ta.value = (mk.promptLang === 'en' ? '(Go to STEP 5 and press 自動規劃 first)\n\n' : '（請先到 STEP 5 按「自動規劃」）\n\n') + SS.buildPrompt(baseD(), popt());
@@ -403,10 +436,11 @@
             <div class="grid2"><label>尺寸<select id="mk-frame">${Object.entries(FR).map(([k, v]) => `<option value="${k}">${v[2]}</option>`).join('')}</select></label>
             <label>背景<select id="mk-bg"><option value="">透明</option><option value="#FFFFFF">白色</option><option value="#FFF8EE">奶油白</option><option value="#FFE3D2">蜜桃粉</option><option value="#E6F0E2">鼠尾草綠</option></select></label></div>
             <div class="canvas-wrap checker"><canvas id="mk-cv" aria-label="文字貼圖預覽"></canvas></div>
-            <div class="btn-row"><button type="button" class="btn primary" id="mk-png">⬇️ 下載 PNG</button><button type="button" class="btn sage" id="mk-toeditor">✂️ 到加工室微調</button><button type="button" class="btn" id="mk-save">💗 存到收藏</button></div>
+            <div class="btn-row"><button type="button" class="btn primary" id="mk-png">⬇️ 下載 PNG</button><button type="button" class="btn sage" id="mk-toeditor">✂️ 到加工室微調</button><button type="button" class="btn" id="mk-save">💗 存到收藏</button><button type="button" class="btn ghost" id="mk-pack1">📦 加入上架包</button></div>
+            <p class="small"><a href="#pack">📦 查看上架包 →</a></p>
             <div id="mk-batch" hidden><div class="field-label">整套預覽</div><div class="tiles" id="mk-tiles"></div>
               <label class="ck"><input type="checkbox" id="mk-extra" checked> ZIP 內附主圖 main.png 與標籤圖 tab.png（用第 1 張）</label>
-              <div class="btn-row"><button type="button" class="btn primary" id="mk-zip">📦 全部下載 ZIP</button><button type="button" class="btn" id="mk-saveall">💗 全部存到收藏</button></div></div>
+              <div class="btn-row"><button type="button" class="btn primary" id="mk-zip">📦 全部下載 ZIP</button><button type="button" class="btn" id="mk-saveall">💗 全部存到收藏</button><button type="button" class="btn sage" id="mk-topack">📦 全部加入上架包</button></div></div>
             <p class="note small">純文字貼圖完全在你的裝置上產生，不需要外部 AI。</p>`;
           $('#mk-frame', box).addEventListener('change', (e) => { mk.frame = e.target.value; save(); renderResult(); });
           $('#mk-bg', box).addEventListener('change', (e) => { mk.bg = e.target.value; save(); renderResult(); });
@@ -421,6 +455,8 @@
             if ($('#mk-extra', box).checked && files[0]) { zip.file('main.png', await SS.canvasToBlob(SS.fitInto(files[0].cv, 240, 240, 10).canvas)); zip.file('tab.png', await SS.canvasToBlob(SS.fitInto(files[0].cv, 96, 74, 2).canvas)); }
             const blob = await zip.generateAsync({ type: 'blob' }); SS.download(blob, `text-stickers-${SS.ts()}.zip`); SS.toast(`已下載 ${files.length} 張`);
           });
+          $('#mk-topack', box).addEventListener('click', async () => { const files = await all(); await SS.pack.add(files.map((f, i) => ({ name: textList()[i] || f.name, blob: f.blob }))); });
+          $('#mk-pack1', box).addEventListener('click', async () => { const [w, h] = FR.line; await SS.pack.add([{ name: textList()[0] || 'text-sticker', blob: await SS.canvasToBlob(await SS.R.renderToCanvas(w, h, layersFor(textList()[0], w, h), mk.bg)) }]); });
           $('#mk-saveall', box).addEventListener('click', async () => { const files = await all(); for (const [i, f] of files.entries()) await SS.saveSticker(f.blob, textList()[i] || `文字貼圖 ${i + 1}`, '文字貼圖'); SS.toast(`已存 ${files.length} 張到收藏`); });
         }
         $('#mk-frame', box).value = mk.frame; $('#mk-bg', box).value = mk.bg;

@@ -43,7 +43,8 @@
 
       <section class="tab-panel" data-panel="split">
         <div class="card">
-          <label class="drop small-drop"><input type="file" id="sp-file" accept="image/*" hidden><div id="sp-empty"><div class="drop-ic">🧩</div><b>匯入宮格貼圖總表</b><small>例如 AI 一次畫好的 3×3 九宮格</small></div></label>
+          <label class="drop small-drop"><input type="file" id="sp-file" accept="image/*" multiple hidden><div id="sp-empty"><div class="drop-ic">🧩</div><b>匯入宮格貼圖總表</b><small>例如 AI 一次畫好的 3×3 九宮格・可一次選多張</small></div></label>
+          <p class="note small" id="sp-queue" hidden></p>
           <div id="sp-ui" hidden>
             <div class="field-label">切割方式</div>
             <div class="chips" id="sp-preset"><button class="chip" data-g="2,2">2×2 四宮格</button><button class="chip on" data-g="3,3">3×3 九宮格</button><button class="chip" data-g="4,4">4×4 十六宮格</button><button class="chip" data-g="custom">自訂</button></div>
@@ -61,6 +62,7 @@
             <div class="field-label">輸出設定</div>
             <label class="ck"><input type="checkbox" id="sp-line" checked> 轉成 LINE 貼圖尺寸（370×320、等比例縮放、四周留白 10px）</label>
             <label class="ck"><input type="checkbox" id="sp-rm"> 切割後做單色去背（移除與邊緣相連的白色）</label>
+            <label class="ck"><input type="checkbox" id="sp-append"> 接在上一次的切割結果後面（多張宮格合併成一套）</label>
             <button class="btn primary block" id="sp-go">✂️ 開始切割</button>
           </div>
         </div>
@@ -70,6 +72,7 @@
           <div class="tiles" id="sp-tiles"></div>
           <label class="ck"><input type="checkbox" id="sp-extra"> ZIP 內附主圖 main.png（240×240）與標籤圖 tab.png（96×74），使用第 <input type="number" id="sp-mainidx" min="1" value="1" class="tiny"> 張製作</label>
           <div class="btn-row"><button class="btn primary" id="sp-zip">📦 全部下載 ZIP</button><button class="btn sage" id="sp-save">💗 全部存到收藏</button><button class="btn ghost" id="sp-tocheck">📏 送去規格檢查</button></div>
+          <div class="btn-row"><button class="btn sage" id="sp-pack">📦 全部加入上架包</button>${opts.onToEditor ? '<button class="btn" id="sp-toed">✂️ 逐張到加工室加字／微調</button>' : ''}<button class="btn ghost" id="sp-clear">🗑️ 清除切割結果</button></div>
         </div>
       </section>
 
@@ -85,6 +88,7 @@
               <button class="btn" id="ck-main">🖼️ 用第 1 張製作主圖</button>
               <button class="btn" id="ck-tab">🏷️ 用第 1 張製作標籤圖</button>
               <button class="btn ghost" id="ck-zip">📦 全部下載 ZIP</button>
+              <button class="btn sage" id="ck-pack">📦 全部加入上架包</button>
             </div>
             <p class="muted small">調整一律保留原始長寬比例，不會拉伸變形。</p>
           </div>
@@ -145,7 +149,11 @@
           src = cv; $('#sp-empty', el).innerHTML = `<b>✅ 已載入 ${cv.width}×${cv.height}</b><small>點這裡更換圖片</small>`; $('#sp-ui', el).hidden = false; drawPreview();
         } catch (e) { SS.toast(e.message || '圖片讀取失敗'); }
       }
-      $('#sp-file', el).addEventListener('change', (e) => { if (e.target.files[0]) loadSplit(e.target.files[0]); e.target.value = ''; });
+      let pending = [], texts = [], textOpts = null;
+      const queueUI = () => { const q = $('#sp-queue', el); q.hidden = !pending.length; q.textContent = pending.length ? `還有 ${pending.length} 張宮格等著切：切好這張後會自動載入下一張，結果會接在後面。` : ''; };
+      function queueSheets(files) { pending = pending.concat(files || []); if (pending.length) $('#sp-append', el).checked = true; queueUI(); }
+      function setTexts(t, o) { texts = t || []; textOpts = o || null; }
+      $('#sp-file', el).addEventListener('change', (e) => { const fs = Array.from(e.target.files); e.target.value = ''; if (!fs.length) return; pending = []; loadSplit(fs[0]); queueSheets(fs.slice(1)); });
       $('#sp-preset', el).addEventListener('click', (e) => {
         const b = e.target.closest('[data-g]'); if (!b) return;
         $$('#sp-preset .chip', el).forEach((x) => x.classList.toggle('on', x === b));
@@ -162,16 +170,17 @@
         try {
         const cs = cells(); if (!cs.length) return SS.toast('切割範圍太小，請調整邊界');
         const toLine = $('#sp-line', el).checked, rm = $('#sp-rm', el).checked;
-        tiles = [];
+        if (!$('#sp-append', el).checked) tiles = [];
         for (let i = 0; i < cs.length; i++) {
           const c = cs[i]; let t = document.createElement('canvas'); t.width = c.w; t.height = c.h;
           t.getContext('2d').drawImage(src, c.x, c.y, c.w, c.h, 0, 0, c.w, c.h);
           if (rm) t = SS.removeColor(t, [255, 255, 255], 40, true).canvas;
           if (toLine) t = SS.fitInto(t, SPEC.sticker.w, SPEC.sticker.h, SPEC.margin, rm).canvas;
           const blob = await SS.canvasToBlob(t);
-          tiles.push({ name: String(i + 1).padStart(2, '0') + '.png', blob, canvas: t });
+          tiles.push({ name: String(tiles.length + 1).padStart(2, '0') + '.png', blob, canvas: t });
         }
         renderTiles();
+        if (pending.length) { const nx = pending.shift(); await loadSplit(nx); $('#sp-append', el).checked = true; queueUI(); SS.toast(`已切好，共 ${tiles.length} 張；已載入下一張宮格`); }
         } finally { splitting = false; $('#sp-go', el).disabled = false; }
       });
       function renderTiles() {
@@ -198,6 +207,16 @@
         for (const t of tiles) await SS.saveSticker(t.blob, t.name.replace('.png', ''), cat);
         SS.toast(`已存 ${tiles.length} 張到收藏`);
       });
+      $('#sp-pack', el).addEventListener('click', async () => {
+        if (!tiles.length) return;
+        if (texts.length && textOpts) {
+          const out = []; for (const [i, t] of tiles.entries()) { const tx = texts[i]; if (!tx) { out.push({ name: t.name, blob: t.blob }); continue; } const ls = SS.R.buildTextLayers(t.canvas.getContext('2d'), t.canvas.width, t.canvas.height, Object.assign({}, textOpts, { text: tx })); const c = await SS.R.renderToCanvas(t.canvas.width, t.canvas.height, ls, null, t.canvas); out.push({ name: tx, blob: await SS.canvasToBlob(c) }); }
+          return SS.pack.add(out);
+        }
+        SS.pack.add(tiles.map((t) => ({ name: t.name, blob: t.blob })));
+      });
+      if (opts.onToEditor) $('#sp-toed', el).addEventListener('click', () => { if (tiles.length) opts.onToEditor(tiles.map((t, i) => ({ name: t.name, blob: t.blob, text: texts[i] || '' })), textOpts); });
+      $('#sp-clear', el).addEventListener('click', () => { tiles = []; $('#sp-out', el).hidden = true; $('#sp-append', el).checked = false; SS.toast('已清除切割結果'); });
       $('#sp-tocheck', el).addEventListener('click', async () => { await addCheck(tiles.map((t) => ({ name: t.name, blob: t.blob }))); showTab('check'); });
 
       /* ============ 檢查與調整 ============ */
@@ -265,6 +284,7 @@
       });
       $('#ck-main', el).addEventListener('click', () => makeExtra('main'));
       $('#ck-tab', el).addEventListener('click', () => makeExtra('tab'));
+      if ($('#ck-pack', el)) $('#ck-pack', el).addEventListener('click', () => { if (!items.length) return SS.toast('清單是空的'); SS.pack.add(items.map((i) => ({ name: i.name, blob: i.blob }))); });
       $('#ck-zip', el).addEventListener('click', async () => {
         const blob = await zipAndDownload(items.map((i) => ({ name: i.name.replace(/\.[^.]+$/, '') + '.png', blob: i.blob })), `line-stickers-${SS.ts()}.zip`);
         if (blob && blob.size >= SPEC.maxZipBytes) SS.toast('⚠️ ZIP 超過 60MB，LINE 無法一次上傳');
@@ -273,7 +293,7 @@
       /* 從加工室交接過來的圖片 */
       if (SS.handoff) { const h = SS.handoff; SS.handoff = null; addCheck([h]); showTab('check'); SS.toast('已從加工室帶入圖片'); }
       if (SS.handoffSplit) { const b = SS.handoffSplit; SS.handoffSplit = null; loadSplit(b); }
-      return { showTab, loadSplit, addCheck };
+      return { showTab, loadSplit, addCheck, queueSheets, setTexts };
     }
   };
 })();

@@ -14,7 +14,7 @@
       <div class="warn small">💾 收藏只存在<b>目前這個瀏覽器</b>。清除瀏覽器資料、無痕模式或換裝置都可能遺失，請定期「匯出備份」（含作品、角色、常用文字與家鄉話）。</div>
       <div class="card">
         <div class="row gap wrap"><input id="co-q" type="search" placeholder="🔍 搜尋名稱" class="grow"><select id="co-cat"></select></div>
-        <div class="row gap wrap mt"><label class="btn ghost sm">📥 匯入備份<input type="file" id="co-import" accept=".json,application/json" hidden></label><button class="btn ghost sm" id="co-export">📤 匯出備份</button><a class="btn sm" href="#editor">＋ 新增貼圖</a></div>
+        <div class="row gap wrap mt"><label class="btn ghost sm">📥 匯入備份<input type="file" id="co-import" accept=".json,application/json" hidden></label><button class="btn ghost sm" id="co-export">📤 匯出備份</button><a class="btn sm" href="#editor">＋ 新增貼圖</a><a class="btn sm sage" href="#pack" id="co-pack">📦 LINE 上架包</a></div>
         <p class="muted small" id="co-usage"></p>
       </div>
       <div class="tiles coll" id="co-grid"></div>
@@ -86,11 +86,12 @@
           <label>名稱<input id="m-name" value="${esc(x.name)}" maxlength="40"></label>
           <label>分類<input id="m-cat" value="${esc(x.category || '未分類')}" maxlength="20" list="m-cats"></label>
           <datalist id="m-cats">${Array.from(new Set(all.map((i) => i.category))).map((c) => `<option value="${esc(c)}">`).join('')}</datalist>
-          <div class="btn-row"><button class="btn primary" id="m-save">💾 儲存修改</button><button class="btn" id="m-dl">⬇️ 下載</button><button class="btn" id="m-share">📤 分享</button><button class="btn" id="m-edit">✂️ 再加工</button><button class="btn danger" id="m-del">🗑️ 刪除</button></div>`, {
+          <div class="btn-row"><button class="btn primary" id="m-save">💾 儲存修改</button><button class="btn" id="m-dl">⬇️ 下載</button><button class="btn" id="m-share">📤 分享</button><button class="btn" id="m-edit">✂️ 再加工</button><button class="btn sage" id="m-pack">📦 加入上架包</button><button class="btn danger" id="m-del">🗑️ 刪除</button></div>`, {
           onOpen(b) {
             const fn = () => (x.name || 'sticker').replace(/[\\/:*?"<>|]/g, '_') + '.png';
             $('#m-save', b).onclick = async () => { x.name = $('#m-name', b).value.trim() || '我的貼圖'; x.category = $('#m-cat', b).value.trim() || '未分類'; await SS.idb.put(x); SS.closeModal(); SS.toast('已更新'); load(); };
             $('#m-dl', b).onclick = () => SS.download(x.blob, fn());
+            $('#m-pack', b).onclick = () => SS.pack.add([{ name: x.name, blob: x.blob }]);
             $('#m-share', b).onclick = () => SS.shareBlob(x.blob, fn());
             $('#m-edit', b).onclick = () => { SS.handoffEditor = { blob: x.blob, name: fn() }; SS.closeModal(); location.hash = '#editor'; };
             $('#m-del', b).onclick = async () => { if (!(await SS.confirmBox('確定刪除這張貼圖？刪除後無法復原。'))) return; await SS.idb.del(x.id); SS.closeModal(); SS.toast('已刪除'); load(); };

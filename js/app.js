@@ -12,7 +12,7 @@
     old.replaceWith(main);
     main.classList.remove('enter'); void main.offsetWidth; main.classList.add('enter');
     document.body.dataset.view = name;
-    const grp = { home: 'home', make: 'make', photo: 'make', character: 'make', phrases: 'make', taigi: 'make', blindbox: 'make', plan: 'make', textsticker: 'make', editor: 'edit', line: 'edit', collection: 'coll' }[name] || '';
+    const grp = { home: 'home', make: 'make', photo: 'make', character: 'make', phrases: 'make', taigi: 'make', blindbox: 'make', plan: 'make', textsticker: 'make', editor: 'edit', line: 'edit', collection: 'coll', pack: 'coll' }[name] || '';
     $$('#bottom-nav a').forEach((a) => a.classList.toggle('on', a.dataset.nav === grp));
     $('#topbar-title').textContent = view.title || '';
     $('#topbar').hidden = name === 'home' || !SS.views[name];
