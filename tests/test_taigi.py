@@ -25,7 +25,7 @@ with sync_playwright() as p:
         pg = ctx.new_page(); errs = []
         pg.on('pageerror', lambda e: errs.append(str(e))); pg.on('console', lambda m: errs.append(m.text) if m.type == 'error' else None)
         pg.goto(BASE); pg.wait_for_selector('.home-card')
-        if pg.locator('#modal:not([hidden])').count(): pg.click('.modal-close')
+        pg.wait_for_selector('#modal:not([hidden])', timeout=5000); pg.wait_for_timeout(250); pg.click('.modal-close'); pg.wait_for_timeout(250)
         check(P + '首頁有台語專區入口', pg.locator('a.tg-banner[href="#taigi"]').count() == 1)
         pg.click('a.tg-banner'); pg.wait_for_selector('.tg-item')
         check(P + '專區列出全部用語', pg.locator('.tg-item').count() == len(data['phrases']))

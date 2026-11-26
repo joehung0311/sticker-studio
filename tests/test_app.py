@@ -24,7 +24,9 @@ def run(p, label, viewport, mobile):
 
     page.goto(BASE); page.wait_for_selector('.home-card')
     check(P + '首頁 8 個入口', page.locator('.home-card').count() == 8)
-    page.click('.modal-close') if page.locator('#modal:not([hidden])').count() else None
+    page.wait_for_selector('#modal:not([hidden])', timeout=5000); page.wait_for_timeout(250)
+    check(P + '第一次開啟顯示歡迎視窗', '歡迎來到' in page.inner_text('#modal-body'))
+    page.click('.modal-close'); page.wait_for_timeout(250)
     page.wait_for_timeout(300)
     # 版面溢出
     def no_overflow(where):

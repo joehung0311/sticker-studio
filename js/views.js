@@ -32,6 +32,7 @@
       </div>
       <div id="install-cta"></div>
       <a class="tg-banner" href="#taigi"><span class="tg-b-ic">🧋</span><span><b>台語貼圖專區</b><small>超過 150 句台語生活用語・正字／諧音／華語／台華混搭</small></span><i>→</i></a>
+      <a class="tg-banner tx-banner" href="#textsticker"><span class="tg-b-ic">🔤</span><span><b>純文字貼圖</b><small>不用畫圖、不用 AI：選字體與裝飾，直接下載 PNG</small></span><i>→</i></a>
       <nav class="home-grid">
         ${HOME_CARDS.map(([r, ic, t, s, c]) => `<a class="home-card ${c}" href="#${r}"><span class="hc-ic">${ic}</span><b>${t}</b><small>${s}</small></a>`).join('')}
       </nav>
@@ -69,8 +70,9 @@
       ${dl('dl-exp', SS.EXPRESSIONS)}${dl('dl-act', SS.ACTIONS)}${dl('dl-prop', SS.PROPS)}${dl('dl-col', SS.PALETTES)}
       <p class="muted small">可直接輸入，或點欄位從建議清單挑選。</p>
       <label>貼圖文字 ${d.textLang === 'taigi' ? '<i class="tag">🧋 台語</i>' : ''}
-        <div class="row gap"><input id="f-text" value="${esc(d.text)}" placeholder="例如：早安" maxlength="20" ${d.noText ? 'disabled' : ''}><button type="button" class="btn ghost nowrap" id="f-pick">💬 挑用語</button><button type="button" class="btn ghost nowrap" id="f-rand" aria-label="隨機用語">🎲</button></div>
+        <div class="row gap"><textarea id="f-text" rows="1" placeholder="例如：早安（可換行）" maxlength="40" ${d.noText ? 'disabled' : ''}>${esc(d.text)}</textarea><button type="button" class="btn ghost nowrap" id="f-pick">💬 挑用語</button><button type="button" class="btn ghost nowrap" id="f-rand" aria-label="隨機用語">🎲</button></div>
       </label>
+      <label>第二組文字（選填，較小的字）<input id="f-text2" value="${esc(d.text2 || '')}" placeholder="例如：今天也辛苦了" maxlength="20"></label>
       <div class="checks">
         <label class="ck"><input type="checkbox" id="f-noText" ${d.noText ? 'checked' : ''}> 無文字模式</label>
         <label class="ck"><input type="checkbox" id="f-transparent" ${d.transparent ? 'checked' : ''}> 要求透明背景</label>
@@ -78,7 +80,19 @@
       <div class="seg" role="radiogroup" aria-label="文字處理方式">
         <label><input type="radio" name="aitext" value="1" ${d.aiText ? 'checked' : ''}><span>讓 AI 畫上文字</span></label>
         <label><input type="radio" name="aitext" value="0" ${!d.aiText ? 'checked' : ''}><span>之後在加工室加字（中文字最準）</span></label>
-      </div>`;
+      </div>
+      <details class="design-box" ${d.design ? 'open' : ''}><summary>🎨 文字與裝飾設計（加進 AI 提示詞）</summary>
+        <div class="grid2">
+          <label>字體風格<select id="f-dfont">${SS.DESIGN_FONTS.map(([k, n]) => `<option value="${k}" ${(d.design || {}).font === k ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+          <label>文字配色<select id="f-dcolor">${SS.DESIGN_COLORS.map(([k, n]) => `<option value="${k}" ${(d.design || {}).color === k ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+        </div>
+        <label>文字位置<select id="f-dpos"><option value="">不指定</option>${Object.entries({ top: '主角上方', bottom: '主角下方', left: '左側', right: '右側', tl: '左上角', tr: '右上角', bl: '左下角', br: '右下角' }).map(([k, n]) => `<option value="${k}" ${(d.design || {}).pos === k ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+        <div class="field-label">裝飾元素（可複選，建議 0～3 個）</div>
+        <div class="chips" id="f-ddeco">${SS.DECOS.map((x) => `<button type="button" class="chip ${((d.design || {}).decos || []).includes(x.id) ? 'on' : ''}" data-dd="${x.id}">${x.name}</button>`).join('')}</div>
+        <div class="field-label">🎲 隨機設計（鎖住的項目不會換；不會改動文字內容）</div>
+        <div class="lock-row" id="f-dlocks">${[['font', '字體'], ['color', '配色'], ['pos', '位置'], ['deco', '裝飾']].map(([k, n]) => `<button type="button" class="lock-chip" data-pl="${k}" aria-pressed="false">🔓 ${n}</button>`).join('')}</div>
+        <div class="row gap wrap"><select id="f-dcount" aria-label="裝飾數量"><option value="1">裝飾 1 個（簡約）</option><option value="2">裝飾 2 個（活潑）</option><option value="3">裝飾 3 個（豐富）</option><option value="0">不加裝飾</option><option value="r">隨機 1～3 個</option></select><button type="button" class="btn primary" id="f-drand">🎲 隨機設計提示詞</button><button type="button" class="btn ghost" id="f-dclear">清除設計</button></div>
+      </details>`;
   }
   function charFieldsHTML(d) {
     return `
@@ -96,7 +110,12 @@
   /* 讀取表單值 → 物件 */
   function readForm(root, d) {
     const v = (id) => { const e = $('#f-' + id, root); return e ? e.value.trim() : d[id]; };
-    ['name', 'customType', 'appearance', 'hair', 'outfit', 'personality', 'expression', 'action', 'prop', 'colors', 'text'].forEach((k) => { d[k] = v(k); });
+    ['name', 'customType', 'appearance', 'hair', 'outfit', 'personality', 'expression', 'action', 'prop', 'colors', 'text', 'text2'].forEach((k) => { d[k] = v(k); });
+    if ($('#f-dfont', root)) {
+      const decos = $$('#f-ddeco .chip.on', root).map((b) => b.dataset.dd);
+      const g = { font: $('#f-dfont', root).value, color: $('#f-dcolor', root).value, pos: $('#f-dpos', root).value, decos };
+      d.design = (g.font || g.color || g.pos || decos.length || d._designTouched) ? g : null;
+    }
     const nt = $('#f-noText', root); if (nt) d.noText = nt.checked;
     const tp = $('#f-transparent', root); if (tp) d.transparent = tp.checked;
     const ai = $('input[name=aitext]:checked', root); if (ai) d.aiText = ai.value === '1';
@@ -118,6 +137,28 @@
       if (d.textLang === 'taigi') { const r = $('input[name=aitext][value="0"]', root); if (r) r.checked = true; SS.toast('台語字容易被 AI 寫錯，已改為「之後在加工室加字」'); }
       fire();
     };
+    const ddeco = $('#f-ddeco', root);
+    if (ddeco) {
+      ddeco.addEventListener('click', (e) => { const b = e.target.closest('[data-dd]'); if (!b) return; b.classList.toggle('on'); d._designTouched = true; fire(); });
+      const plocks = SS.ls.get('promptDesignLocks', {});
+      const paintLocks = () => $$('#f-dlocks [data-pl]', root).forEach((b) => { const on = !!plocks[b.dataset.pl]; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); b.textContent = (on ? '🔒 ' : '🔓 ') + b.textContent.slice(3); });
+      paintLocks();
+      $('#f-dlocks', root).addEventListener('click', (e) => { const b = e.target.closest('[data-pl]'); if (!b) return; plocks[b.dataset.pl] = !plocks[b.dataset.pl]; SS.ls.set('promptDesignLocks', plocks); paintLocks(); });
+      $('#f-drand', root).addEventListener('click', () => {
+        const before = $('#f-text', root).value, before2 = $('#f-text2', root).value;
+        if (!plocks.font) $('#f-dfont', root).value = pick(SS.DESIGN_FONTS.slice(1))[0];
+        if (!plocks.color) $('#f-dcolor', root).value = pick(SS.DESIGN_COLORS.slice(1))[0];
+        if (!plocks.pos) $('#f-dpos', root).value = pick(['top', 'bottom', 'tl', 'tr', 'bl', 'br']);
+        if (!plocks.deco) {
+          const cv = $('#f-dcount', root).value; const n = cv === 'r' ? 1 + Math.floor(Math.random() * 3) : +cv;
+          const ids = shuffle(SS.DECOS.map((x) => x.id)).slice(0, n);
+          $$('#f-ddeco .chip', root).forEach((b) => b.classList.toggle('on', ids.includes(b.dataset.dd)));
+        }
+        $('#f-text', root).value = before; $('#f-text2', root).value = before2; // 不改動文字內容
+        d._designTouched = true; fire(); SS.toast('已隨機設計，提示詞已更新');
+      });
+      $('#f-dclear', root).addEventListener('click', () => { ['#f-dfont', '#f-dcolor', '#f-dpos'].forEach((s) => { $(s, root).value = ''; }); $$('#f-ddeco .chip', root).forEach((b) => b.classList.remove('on')); d._designTouched = false; fire(); });
+    }
     $('#f-pick', root).addEventListener('click', () => SS.pickPhrase(setText));
     $('#f-rand', root).addEventListener('click', () => setText(pick(SS.ALL_PHRASES)));
     $('#f-text', root).addEventListener('input', () => { if (!$('#f-text', root).value) { d.textLang = 'zh'; d.textZh = ''; } });
@@ -553,7 +594,11 @@
   SS.views.version = {
     title: '🏷️ 版本資訊',
     render(el) {
-      el.innerHTML = `<div class="card"><h2>v${SS.VERSION}（初次正式版）</h2><ul class="list">
+      el.innerHTML = `<div class="card"><h2>v${SS.VERSION}｜文字編輯與貼圖裝飾強化版</h2><ul class="list">
+        <li>加工室圖層化：底圖、多組文字、裝飾分開編輯、刪除與還原／重做</li><li>7 套開源字型、直排、旋轉、陰影、字距行距、9 個快速定位</li>
+        <li>消除工具：橡皮擦、填色筆刷、框選消除、周圍延伸填補、放大檢視</li><li>純文字貼圖、18 種裝飾素材、隨機設計（本機排版與 AI 提示詞）</li></ul>
+        <h2>v1.1｜台語貼圖專區</h2><ul class="list"><li>151 句台語用語、正字／諧音／華語／台華混搭、9 個台語企劃主題</li></ul>
+        <h2>v1.0（初次正式版）</h2><ul class="list">
         <li>照片變貼圖、原創角色、8 種畫風＋自訂畫風</li><li>64 句生活用語、貼圖盲盒（可鎖定）</li>
         <li>整套企劃 1～40 張、TXT／CSV／JSON 匯出、宮格提示詞</li><li>貼圖加工室：裁切、縮放、旋轉、翻轉、加字、單色去背、PNG 輸出</li>
         <li>LINE 工具：宮格切圖、ZIP 打包、尺寸調整、主圖與標籤圖、規格檢查</li><li>收藏管理、備份匯出匯入、PWA 離線使用、QR Code 分享</li></ul>

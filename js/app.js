@@ -48,8 +48,9 @@
           });
         });
       }).catch((err) => console.warn('SW 註冊失敗', err));
-      let reloaded = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => { if (!reloaded) { reloaded = true; location.reload(); } });
+      // 只有「從舊版更新」才重新載入；第一次安裝時不重新整理（避免歡迎視窗一閃即逝）
+      let reloaded = false; const hadController = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController && !reloaded) { reloaded = true; location.reload(); } });
     });
   }
   window.addEventListener('offline', () => SS.toast('目前離線：本機功能仍可使用，外部 AI 網站需要連線'));

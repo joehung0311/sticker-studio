@@ -335,3 +335,37 @@ details p { margin: 4px 0 10px; color: var(--brown-l); }
 /* 分段選擇鈕：隱藏的 radio 只覆蓋自己的選項 */
 .seg label { position: relative; }
 .seg input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+
+/* ---------- 加工室 v1.2 ---------- */
+.btn.xs { min-height: 34px; padding: 4px 10px; font-size: .8rem; border-radius: 10px; }
+.btn.xs.on { background: var(--peach-l); border-color: var(--peach); }
+.scroll-tabs { overflow-x: auto; flex-wrap: nowrap; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.scroll-tabs::-webkit-scrollbar { display: none; }
+.scroll-tabs .tab { flex: 0 0 auto; padding: 9px 12px; white-space: nowrap; scroll-snap-align: start; }
+.canvas-wrap.zoomed { display: block; overflow: auto; max-height: 62vh; place-items: initial; }
+.canvas-wrap.zoomed canvas { max-width: none; }
+.canvas-wrap.panning { outline: 3px solid var(--sage); }
+canvas.erasing { cursor: crosshair; }
+.zoom-btns { display: inline-flex; gap: 4px; }
+.canvas-info { align-items: center; gap: 6px; flex-wrap: wrap; }
+.layers { margin: 4px 0 10px; }
+.layer-list { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.layer-chip { flex: none; font: inherit; font-size: .82rem; border: 1.5px solid var(--line); background: #fff; color: var(--brown); border-radius: 10px; padding: 5px 10px; min-height: 36px; cursor: pointer; white-space: nowrap; }
+.layer-chip.on { border-color: var(--peach); background: var(--peach-l); font-weight: 700; }
+.layer-acts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.pos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.pos-grid .btn { width: 100%; }
+.deco-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; }
+.deco-btn { font: inherit; border: 1.5px solid var(--line); background: #fff; border-radius: 12px; padding: 6px 2px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--brown); }
+.deco-btn img { width: 36px; height: 36px; }
+.deco-btn small { font-size: .7rem; }
+.deco-btn:active { transform: scale(.94); }
+.lock-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.lock-chip { font: inherit; font-size: .86rem; font-weight: 700; border: 1.5px solid var(--line); background: #fff; color: var(--brown-l); border-radius: 999px; padding: 6px 12px; min-height: 38px; cursor: pointer; }
+.lock-chip.on { background: var(--sage-d); border-color: var(--sage-d); color: #fff; }
+.tx-intro p { margin: 4px 0 0; }
+.design-box { margin-top: 10px; background: #fff; border: 1.5px dashed var(--line); border-radius: 12px; padding: 8px 12px; }
+.design-box summary { font-weight: 700; cursor: pointer; }
+.design-sum { background: var(--lav-l); border-radius: 10px; padding: 8px 10px; font-size: .86rem; margin-top: 8px; }
+.tx-banner { background: linear-gradient(120deg, #FFF4D6, #FFE3D2 55%, #F1EBFA); border-color: #F3D7A6; }
+textarea#f-text { min-height: 44px; resize: vertical; }

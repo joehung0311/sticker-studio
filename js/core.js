@@ -98,6 +98,7 @@
   };
   SS.defaultDraft = () => ({
     name: '', charType: '貓咪', customType: '', appearance: '', hair: '', outfit: '', colors: '奶油白＋蜜桃橘',
+    text2: '', design: null,
     personality: '元氣滿滿', expression: '開心大笑', action: '揮手打招呼', prop: '無',
     style: 'qban', customStyle: '', text: '早安', noText: false, aiText: true, transparent: true
   });
@@ -218,6 +219,11 @@
       L.push(`・這張貼圖之後會另外加上${d.textLang === 'taigi' ? '台語' : ''}文字「${d.text}」，請不要在圖中畫任何文字，並在角色上方或旁邊預留放字的空間。`);
       L.push(`・畫面情境要能表達這句話的意思${d.textLang === 'taigi' && d.textZh ? '（意思是：' + d.textZh + '）' : ''}。`);
     }
+    if (d.text2 && !d.noText) {
+      L.push(d.aiText ? `・另外加一組較小的文字「${d.text2}」，與主要文字分開擺放，同樣必須字形正確。` : `・另外也預留一組小文字「${d.text2}」的位置（不要畫字）。`);
+    }
+    const dz = SS.designText(d.design);
+    if (dz.length) { L.push(''); L.push('【文字與裝飾設計】'); dz.forEach((x) => L.push(x)); }
     L.push('');
     L.push('【構圖與留白】');
     L.push(`・構圖：${opt.composition || '角色置中、全身或半身'}`);
@@ -238,6 +244,20 @@
     L.push('【原創與避免侵權】');
     L.push('・請設計原創角色與畫面，不要模仿任何知名動漫角色、吉祥物、品牌商標或特定藝術家的作品。');
     return L.join('\n');
+  };
+
+  /* 文字與裝飾設計（給 AI 的提示詞用，v1.2） */
+  SS.DESIGN_FONTS = [['', '不指定'], ['round', '可愛圓體'], ['hand', '手寫字'], ['kid', '童趣手寫'], ['comic', '搞笑漫畫字'], ['bold', '超粗黑體'], ['retro', '復古明體'], ['sans', '標準黑體']];
+  SS.DESIGN_COLORS = [['', '不指定'], ['wb', '白字＋咖啡色粗描邊'], ['po', '蜜桃橘字＋白色描邊'], ['wr', '白字＋紅色描邊'], ['bw', '深咖啡字＋白色描邊'], ['yb', '黃字＋咖啡色描邊'], ['blw', '天空藍字＋白色描邊'], ['pkw', '粉紅字＋白色描邊']];
+  SS.designText = function (g) {
+    if (!g) return [];
+    const L = [];
+    const f = SS.DESIGN_FONTS.find((x) => x[0] === g.font); if (g.font && f) L.push(`・文字字體風格：${f[1]}`);
+    const c = SS.DESIGN_COLORS.find((x) => x[0] === g.color); if (g.color && c) L.push(`・文字配色：${c[1]}`);
+    if (g.pos && SS.TEXT_POS && SS.TEXT_POS[g.pos]) L.push(`・文字位置：${SS.TEXT_POS[g.pos][0]}`);
+    if (g.decos && g.decos.length) L.push(`・裝飾元素：${g.decos.map((id) => SS.decoById[id] ? SS.decoById[id].name : id).join('、')}（小巧點綴，不要遮住角色臉部或文字）`);
+    else if (g.decos) L.push('・不要加任何裝飾元素');
+    return L;
   };
 
   /* 宮格合併提示詞（一次畫出多張，之後用切圖工具分割） */
