@@ -324,3 +324,4 @@ details p { margin: 4px 0 10px; color: var(--brown-l); }
 .install-cta b { display: block; font-size: 1.08rem; }
 .install-cta small { opacity: .95; }
 .install-cta i { font-style: normal; margin-left: auto; background: #fff; color: var(--peach-d); font-weight: 800; border-radius: 999px; padding: 6px 14px; white-space: nowrap; }
+.brand-by { margin: 6px 0 0; font-size: .82rem; font-weight: 700; color: var(--sage-d); letter-spacing: .04em; }

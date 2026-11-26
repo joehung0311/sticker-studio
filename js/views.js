@@ -24,6 +24,7 @@
           <h1>今天貼什麼？</h1>
           <p class="hero-en">Sticker Studio</p>
           <p class="slogan">生活有百種心情，貼圖不必只有一種。</p>
+          <p class="brand-by">白話實驗室 出品・baihua.tw</p>
         </div>
       </section>
       <div class="flow" aria-label="創作流程">
@@ -522,7 +523,7 @@
         <p class="slogan">生活有百種心情，貼圖不必只有一種。</p></div>
       <div class="card"><p>讓不會畫畫、不懂設計的人，也能輕鬆規劃、生成及加工個人專屬聊天貼圖。</p>
         <p>本 App 負責「規劃」與「加工」：幫你把想法整理成清楚的 AI 生圖提示詞，再把生成的圖片裁切、加字、去背、切成 LINE 貼圖尺寸。</p>
-        <p>品牌：白話實驗室（baihua.tw）</p>
+        <p>出品：<b>白話實驗室／baihua.tw</b></p>
         <p class="muted small">使用的開源套件：JSZip（MIT 授權）、qrcode-generator（MIT 授權），皆已內建，不需連線外部服務。</p></div>`;
     }
   };
@@ -550,7 +551,7 @@
         <li>照片變貼圖、原創角色、8 種畫風＋自訂畫風</li><li>64 句生活用語、貼圖盲盒（可鎖定）</li>
         <li>整套企劃 1～40 張、TXT／CSV／JSON 匯出、宮格提示詞</li><li>貼圖加工室：裁切、縮放、旋轉、翻轉、加字、單色去背、PNG 輸出</li>
         <li>LINE 工具：宮格切圖、ZIP 打包、尺寸調整、主圖與標籤圖、規格檢查</li><li>收藏管理、備份匯出匯入、PWA 離線使用、QR Code 分享</li></ul>
-        <p class="muted small">Made by baihua</p></div>`;
+        <p class="muted small">Made by 白話實驗室／baihua.tw</p></div>`;
     }
   };
   SS.views.share = {

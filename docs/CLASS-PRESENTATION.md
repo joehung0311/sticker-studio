@@ -1,7 +1,7 @@
 # 課堂作業專案簡介｜今天貼什麼？ Sticker Studio
 
 ## App 名稱
-**今天貼什麼？**（Sticker Studio）v1.1.0・品牌：白話實驗室 baihua
+**今天貼什麼？**（Sticker Studio）v1.1.2・品牌：白話實驗室／baihua.tw
 標語：生活有百種心情，貼圖不必只有一種。
 
 ## 開發動機
