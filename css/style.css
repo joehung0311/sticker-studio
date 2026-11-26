@@ -300,7 +300,7 @@ details p { margin: 4px 0 10px; color: var(--brown-l); }
 .tg-sub .tl { font-style: italic; }
 .tg-foot { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
 .tg-foot small { font-size: .72rem; }
-.ck-headword, .ck-example { color: var(--sage-d); } .ck-words { color: #7C8F6F; } .ck-manual { color: #B5651D; }
+.ck-headword, .ck-example, .ck-kinmen { color: var(--sage-d); } .ck-words { color: #7C8F6F; } .ck-manual { color: #B5651D; }
 .star { margin-left: auto; border: 0; background: transparent; font-size: 1.3rem; min-width: 40px; min-height: 36px; cursor: pointer; }
 .tg-sheet { position: sticky; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 15; background: var(--paper); border: 2px solid var(--peach); border-radius: 20px; padding: 12px 14px; box-shadow: 0 -6px 30px rgba(90, 62, 43, .18); margin-top: 12px; }
 .tg-sheet.pop { animation: enter .22s ease; }

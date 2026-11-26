@@ -4,7 +4,7 @@
   const STEPS = [[1, '類型'], [2, '角色畫風'], [3, '文字語言'], [4, '樣式裝飾'], [5, '張數'], [6, '產生結果']];
   const TYPES = [['photo', '📷', '使用照片', '用自己、家人或寵物的照片'], ['char', '🎨', '原創角色', '不用照片，自己設計角色'], ['text', '🔤', '純文字貼圖', '不用 AI，直接做出 PNG']];
   const defMk = () => ({ step: 1, type: 'char', count: 1, theme: '', items: [], promptLang: 'zh', show: 'all', frame: 'line', bg: '', subject: '我自己', keepNotes: '', decoCount: '1', locks: {}, dlocks: {} });
-  const FR = { line: [370, 320, 'LINE 貼圖 370×320'], main: [240, 240, 'LINE 主圖 240×240'], sq: [512, 512, '正方形 512×512'] };
+  const FR = { line: [370, 320, 'LINE 貼圖 370×320'], main: [240, 240, 'LINE 主圖 240×240'], sq: [512, 512, '正方形 512×512'], tab: [96, 74, 'LINE 標籤圖 96×74'] };
   let photoURL = null; // 照片只存在記憶體，不寫入儲存空間
 
   SS.views.make = {
@@ -28,6 +28,7 @@
             <div class="type-pick" role="radiogroup">${TYPES.map(([k, ic, n, s]) => `<label class="type-opt"><input type="radio" name="mktype" value="${k}"><span><i>${ic}</i><b>${n}</b><small>${s}</small></span></label>`).join('')}</div>
             <div id="mk-photo" class="mt">
               <label class="drop small-drop"><input type="file" id="mk-file" accept="image/*" hidden><div id="mk-photo-empty"><div class="drop-ic">🖼️</div><b>選擇照片</b><small>只在你的裝置顯示，不會上傳</small></div><img id="mk-photo-img" alt="照片預覽" hidden></label>
+              <div class="btn-row" id="mk-photo-acts" hidden><button type="button" class="btn sm ghost" id="mk-photo-change">🔄 更換照片</button><button type="button" class="btn sm ghost" id="mk-photo-clear">🗑️ 移除照片</button></div>
               <div class="grid2"><label>照片主角<select id="mk-subject"><option>我自己</option><option>家人</option><option>朋友</option><option>寵物</option></select></label>
               <label>特別保留的特徵<input id="mk-keep" placeholder="例如：圓框眼鏡、右耳白斑"></label></div>
             </div>
@@ -36,6 +37,7 @@
           <section class="card mk-step" data-step="2" hidden>
             <h2>STEP 2｜角色與畫風</h2>
             <div id="mk-charbox">
+              <label id="mk-saved-wrap">套用已儲存的角色<select id="mk-saved"><option value="">— 不套用（目前設定）—</option></select></label>
               <div class="field-label">角色類型</div>
               <div class="chips" id="mk-types">${SS.CHAR_TYPES.map((t) => `<button type="button" class="chip" data-ctype="${t}">${t}</button>`).join('')}</div>
               <label id="mk-ctype-wrap" hidden>自訂角色類型<input id="mk-customType" placeholder="例如：會飛的饅頭"></label>
@@ -57,7 +59,7 @@
             <div class="field-label">🎁 盲盒隨機搭配（鎖住的不會換）</div>
             <div class="lock-row" id="mk-locks">${[['ctype', '角色'], ['style', '畫風'], ['expression', '表情'], ['action', '動作'], ['prop', '道具'], ['colors', '配色']].map(([k, n]) => `<button type="button" class="lock-chip" data-mlock="${k}">🔓 ${n}</button>`).join('')}</div>
             <button type="button" class="btn sage block" id="mk-blind">🎁 隨機搭配角色與畫風</button>
-            <p class="muted small">已儲存的角色可到「我的貼圖收藏 › 角色設定」套用。</p>
+
           </section>
 
           <section class="card mk-step" data-step="3" hidden>
@@ -84,6 +86,7 @@
               <label>文字位置<select id="mk-pos">${Object.entries(SS.TEXT_POS).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join('')}</select></label>
               <label>排列<select id="mk-dir"><option value="h">橫排</option><option value="v">直排</option></select></label>
             </div>
+            <label class="ck ai-only"><input type="checkbox" id="mk-transparent"> 要求 AI 輸出透明背景（做不到時改用純白底，方便之後去背）</label>
             <div class="field-label">裝飾（最多 3 個）</div>
             <div class="chips" id="mk-decos">${SS.DECOS.map((x) => `<button type="button" class="chip deco-chip" data-dd="${x.id}"><img src="${SS.decoURL(x.id)}" alt="">${x.name}</button>`).join('')}</div>
             <details class="design-box" id="mk-sadv"><summary>進階樣式（自訂顏色、描邊、陰影、大小）</summary>
@@ -103,6 +106,8 @@
             <p class="muted small">標 LINE 的張數符合 LINE 靜態貼圖上架數量；1、4 張適合自用。</p>
             <div id="mk-plan" hidden>
               <div class="row gap wrap"><label class="grow">主題／情境<select id="mk-theme"></select></label><button type="button" class="btn primary" id="mk-gen">🪄 自動規劃</button></div>
+              <label id="mk-kw-wrap" hidden>自訂主題關鍵字（用逗號分隔，會變成貼圖文字）<input id="mk-kw" placeholder="例如：考試加油, 我讀不完, 放榜了"></label>
+              <div class="btn-row" id="mk-exports" hidden><span class="muted small">匯出企劃：</span><button type="button" class="btn sm" data-ex="txt">⬇️ TXT</button><button type="button" class="btn sm" data-ex="csv">⬇️ CSV</button><button type="button" class="btn sm" data-ex="json">⬇️ JSON</button></div>
               <div class="plan-list" id="mk-items"></div>
             </div>
           </section>
@@ -134,7 +139,7 @@
         const pal = SS.PALETTE[+(g.color || 'p0').slice(1)] || SS.PALETTE[0];
         $('#mk-cc', el).value = g.cc || pal[0]; $('#mk-cs', el).value = g.cs || pal[1]; $('#mk-sw', el).value = g.sw !== undefined ? g.sw : 7;
         $('#mk-custom-color', el).checked = !!g.custom; $('#mk-shadow', el).checked = !!g.shadow; $('#mk-size', el).value = Math.round((g.sizeRatio || 0.24) * 100);
-        $('#mk-dcount', el).value = mk.decoCount;
+        $('#mk-dcount', el).value = mk.decoCount; $('#mk-transparent', el).checked = d.transparent !== false;
         paintLocks();
       }
       function paintLocks() {
@@ -151,7 +156,7 @@
         g.decos = $$('#mk-decos .chip.on', el).map((b) => b.dataset.dd);
         g.custom = $('#mk-custom-color', el).checked; g.cc = $('#mk-cc', el).value; g.cs = $('#mk-cs', el).value; g.sw = +$('#mk-sw', el).value; g.shadow = $('#mk-shadow', el).checked; g.sizeRatio = +$('#mk-size', el).value / 100;
         mk.decoCount = $('#mk-dcount', el).value;
-        d.transparent = true;
+        d.transparent = $('#mk-transparent', el).checked;
         save();
       }
 
@@ -192,7 +197,9 @@
       /* ---------- STEP 1 ---------- */
       $$('input[name=mktype]', el).forEach((r) => r.addEventListener('change', () => { mk.type = r.value; if (isText()) { d.aiText = false; if (d.design.pos === 'bottom') { d.design.pos = 'mid'; fill(); } } save(); showStep(); }));
       const fileIn = $('#mk-file', el);
-      const showPhoto = () => { const img = $('#mk-photo-img', el); if (photoURL) { img.src = photoURL; img.hidden = false; $('#mk-photo-empty', el).hidden = true; } };
+      const showPhoto = () => { const img = $('#mk-photo-img', el); img.hidden = !photoURL; $('#mk-photo-empty', el).hidden = !!photoURL; $('#mk-photo-acts', el).hidden = !photoURL; if (photoURL) img.src = photoURL; else img.removeAttribute('src'); };
+      $('#mk-photo-change', el).addEventListener('click', () => fileIn.click());
+      $('#mk-photo-clear', el).addEventListener('click', () => { if (photoURL) URL.revokeObjectURL(photoURL); photoURL = null; fileIn.value = ''; showPhoto(); SS.toast('已移除照片'); });
       fileIn.addEventListener('change', async () => { const f = fileIn.files[0]; if (!f) return; try { const { url } = await SS.fileToImage(f); if (photoURL) URL.revokeObjectURL(photoURL); photoURL = url; showPhoto(); SS.toast('照片已載入（僅在本機）'); } catch (e) { SS.toast(e.message); } });
       showPhoto();
 
@@ -211,10 +218,17 @@
         save(); fill(); renderResult(); SS.toast('已隨機搭配（鎖住的項目沒有換）');
       });
 
+      const savedList = () => { const l = SS.chars.list(); $('#mk-saved-wrap', el).hidden = !l.length; $('#mk-saved', el).innerHTML = '<option value="">— 不套用（目前設定）—</option>' + l.map((c) => `<option value="${c.id}" ${c.id === d.charId ? 'selected' : ''}>${esc(c.name || '未命名角色')}・${esc(c.charType === '自訂角色' ? c.customType : c.charType)}</option>`).join(''); };
+      savedList();
+      $('#mk-saved', el).addEventListener('change', (e) => {
+        const c = SS.chars.list().find((x) => x.id === e.target.value); if (!c) { d.charId = null; save(); return; }
+        ['name', 'charType', 'customType', 'appearance', 'hair', 'outfit', 'colors', 'personality', 'style', 'customStyle'].forEach((k) => { d[k] = c[k] || ''; });
+        d.charId = c.id; save(); fill(); renderResult(); SS.toast('已套用角色：' + (c.name || '未命名'));
+      });
       $('#mk-savechar', el).addEventListener('click', () => {
         read(); const id = d.charId || SS.uid();
         SS.chars.save({ id, name: d.name, charType: d.charType, customType: d.customType, appearance: d.appearance, hair: d.hair, outfit: d.outfit, colors: d.colors, personality: d.personality, style: d.style, customStyle: d.customStyle, saved: Date.now() });
-        d.charId = id; save(); SS.toast('角色已儲存，可在「我的貼圖收藏 › 角色」套用');
+        d.charId = id; save(); savedList(); SS.toast('角色已儲存，下次可在上方「套用已儲存的角色」選擇');
       });
 
       /* ---------- STEP 3 ---------- */
@@ -266,16 +280,19 @@
           opts += `<option value="${d.textLang}|">${SS.langOf(d.textLang).short}：全部情境</option>` + cats.map((c) => `<option value="${d.textLang}|${c.id}">${SS.langOf(d.textLang).short}：${esc(c.name)}</option>`).join('');
         }
         sel.innerHTML = opts; if ([...sel.options].some((o) => o.value === mk.theme)) sel.value = mk.theme; else mk.theme = sel.value;
+        kwUI();
       }
       const cache = {};
       async function prepLang() { if (d.textLang === 'taigi') await SS.taigi.load(); if (!['zh', 'custom'].includes(d.textLang)) cache[d.textLang] = await SS.lang.load(d.textLang); buildThemes(); }
       $('#mk-count', el).addEventListener('click', async (e) => { const b = e.target.closest('[data-n]'); if (!b) return; mk.count = +b.dataset.n; save(); showStep(); if (mk.count > 1) { await prepLang().catch((er) => SS.toast(er.message)); } });
-      $('#mk-theme', el).addEventListener('change', (e) => { mk.theme = e.target.value; save(); });
+      const kwUI = () => { $('#mk-kw-wrap', el).hidden = mk.theme !== 'zh|自訂主題'; $('#mk-kw', el).value = mk.keywords || ''; };
+      $('#mk-theme', el).addEventListener('change', (e) => { mk.theme = e.target.value; save(); kwUI(); });
+      $('#mk-kw', el).addEventListener('input', (e) => { mk.keywords = e.target.value; save(); });
       async function genPlan() {
         await prepLang();
         const [lg, th] = (mk.theme || '').split('|'); const n = mk.count;
         let items = [];
-        if (lg === 'zh') items = SS.makePlan(th, n, '').map((x) => Object.assign(x, { lang: 'zh' }));
+        if (lg === 'zh') items = SS.makePlan(th, n, mk.keywords || '').map((x) => Object.assign(x, { lang: 'zh' }));
         else if (lg === 'taigi' && SS.taigi.data && SS.taigi.data.themes.some((t) => t.name === th)) items = SS.makeTaigiPlan(th, n, SS.taigi.mode() === 'custom' ? 'hanji' : SS.taigi.mode());
         else if (lg === 'custom') items = Array.from({ length: n }, (_, i) => ({ text: i === 0 ? d.text : '', lang: 'custom' }));
         else {
@@ -288,13 +305,32 @@
         items.forEach((it, i) => { it.expression = it.expression || exps[i % exps.length]; it.action = it.action || acts[i % acts.length]; it.prop = it.prop || '無'; it.composition = it.composition || SS.COMPOSITIONS[i % SS.COMPOSITIONS.length]; });
         mk.items = items; save(); renderItems(); renderResult(); SS.toast(`已規劃 ${items.length} 張`);
       }
+      /* 單張重抽：只換這一張的文字、表情、動作、道具與構圖 */
+      async function reroll(i) {
+        const used = new Set(mk.items.map((x) => x.text)); const lg = d.textLang; let cand = null;
+        if (lg === 'custom') cand = { text: mk.items[i].text, lang: 'custom' };
+        else if (lg === 'zh') { const c = SS.ALL_PHRASES.filter((p) => !used.has(p)); cand = { text: pick(c.length ? c : SS.ALL_PHRASES), lang: 'zh' }; }
+        else { const data = await SS.lang.load(lg); const c = data.items.filter((x) => !used.has(x.text)); const x = pick(c.length ? c : data.items); if (x) cand = { text: x.text, zh: x.meaning !== x.text ? x.meaning : '', lang: lg }; }
+        if (!cand) return;
+        mk.items[i] = Object.assign(cand, { expression: pick(SS.EXPRESSIONS), action: pick(SS.ACTIONS), prop: Math.random() < 0.3 ? pick(SS.PROPS.slice(1)) : '無', composition: pick(SS.COMPOSITIONS) });
+        save(); renderItems(); renderResult();
+      }
+      $('#mk-items', el).addEventListener('click', (e) => { const b = e.target.closest('[data-reroll]'); if (b) reroll(+b.dataset.reroll); });
+      $('#mk-exports', el).addEventListener('click', (e) => {
+        const b = e.target.closest('[data-ex]'); if (!b || !mk.items.length) return; const name = `sticker-plan-${SS.ts()}`;
+        if (b.dataset.ex === 'txt') { const keep = mk.show; mk.show = 'all'; const t = isAI() ? promptText() : mk.items.map((it, i) => `${i + 1}. ${it.text}${it.zh ? '（' + it.zh + '）' : ''}`).join('\n'); mk.show = keep; SS.downloadText(t, name + '.txt'); }
+        if (b.dataset.ex === 'json') SS.downloadText(JSON.stringify({ app: 'Sticker Studio', version: SS.VERSION, type: mk.type, theme: mk.theme, textLang: d.textLang, character: isAI() ? baseD() : null, design: d.design, items: mk.items }, null, 2), name + '.json', 'application/json');
+        if (b.dataset.ex === 'csv') { const q = (v) => '"' + String(v ?? '').replace(/"/g, '""') + '"'; const rows = [['編號', '文字', '語言', '華語意思', '表情', '動作', '道具', '構圖']].concat(mk.items.map((it, i) => [i + 1, it.text, SS.langOf(it.lang || d.textLang).short, it.zh || '', it.expression, it.action, it.prop, it.composition])); SS.downloadText(rows.map((r) => r.map(q).join(',')).join('\r\n'), name + '.csv', 'text/csv'); }
+      });
       $('#mk-gen', el).addEventListener('click', () => genPlan().catch((e) => SS.toast(e.message)));
       function renderItems() {
         $('#mk-items', el).innerHTML = mk.items.map((it, i) => `
-          <div class="plan-item" data-i="${i}"><div class="pi-head"><b>#${i + 1}</b>${it.zh ? `<small class="muted">意思：${esc(it.zh)}</small>` : ''}</div>
+          <div class="plan-item" data-i="${i}"><div class="pi-head"><b>#${i + 1}</b>${it.zh ? `<small class="muted">意思：${esc(it.zh)}</small>` : ''}<button type="button" class="btn sm ghost" data-reroll="${i}" aria-label="重抽第 ${i + 1} 張">🎲 重抽</button></div>
             <div class="grid2 tight"><label>文字<input data-f="text" value="${esc(it.text)}" placeholder="空白＝無文字"></label>
-            ${isAI() ? `<label>表情<input data-f="expression" list="mk-dl-exp" value="${esc(it.expression)}"></label><label>動作<input data-f="action" list="mk-dl-act" value="${esc(it.action)}"></label><label>道具<input data-f="prop" list="mk-dl-prop" value="${esc(it.prop)}"></label>` : ''}</div></div>`).join('');
+            ${isAI() ? `<label>表情<input data-f="expression" list="mk-dl-exp" value="${esc(it.expression)}"></label><label>動作<input data-f="action" list="mk-dl-act" value="${esc(it.action)}"></label><label>道具<input data-f="prop" list="mk-dl-prop" value="${esc(it.prop)}"></label><label>構圖<select data-f="composition">${SS.COMPOSITIONS.map((c) => `<option ${c === it.composition ? 'selected' : ''}>${c}</option>`).join('')}</select></label>` : ''}</div></div>`).join('');
+        $('#mk-exports', el).hidden = !mk.items.length;
       }
+      $('#mk-items', el).addEventListener('change', (e) => { const f = e.target.dataset.f, it = e.target.closest('.plan-item'); if (!f || !it) return; mk.items[+it.dataset.i][f] = e.target.value; save(); renderResult(); });
       $('#mk-items', el).addEventListener('input', (e) => { const f = e.target.dataset.f, it = e.target.closest('.plan-item'); if (!f || !it) return; mk.items[+it.dataset.i][f] = e.target.value; save(); renderResult(); });
 
       /* ---------- STEP 6：結果 ---------- */

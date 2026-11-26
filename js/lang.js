@@ -57,7 +57,7 @@
       }
       if (id === 'taigi') {
         const d = await SS.taigi.load(); const m = SS.taigi.mode() === 'custom' ? 'hanji' : SS.taigi.mode();
-        return { categories: d.categories, items: d.phrases.map((p) => { const t = SS.taigi.text(p, m); return { id: p.id, cat: p.cat, text: t.text, kind: t.kind, sub: t.kind !== 'hanji' ? '正字：' + p.hanji : '', meaning: p.zh, tl: p.tl, badge: t.kind === 'pun' ? '諧音・非標準台語' : '', check: p.check, hanji: p.hanji }; }), about: d.about };
+        return { categories: d.categories, items: d.phrases.map((p) => { const t = SS.taigi.text(p, m); return { id: p.id, cat: p.cat, text: t.text, kind: t.kind, sub: t.kind !== 'hanji' ? '正字：' + p.hanji : '', meaning: p.zh, tl: p.tl, badge: t.kind === 'pun' ? '諧音・非標準台語' : '', check: p.check, note: p.note, hanji: p.hanji }; }), about: d.about };
       }
       if (id === 'kinmen' || id === 'en' || id === 'ja' || id === 'ko') {
         if (!cache[id]) {
@@ -76,6 +76,7 @@
     }
   };
 
+  const CHECK = { headword: '✓ 辭典詞目', example: '✓ 辭典例句', words: '✓ 逐詞查核', manual: '⚠ 人工確認', kinmen: '✓ 教育部方言差' };
   /* ---------- 通用用語挑選器 ---------- */
   SS.phrasePicker = function (box, opts) {
     // opts: { lang, onPick(item, lang), compact }
@@ -94,6 +95,7 @@
         <div class="tg-item" data-id="${esc(x.id)}" role="button" tabindex="0">
           <div class="tg-main"><b>${esc(x.text)}</b>${x.badge ? `<i class="tag ${x.kind === 'pun' ? 'pun' : ''}">${esc(x.badge)}</i>` : ''}</div>
           <div class="tg-sub">${x.meaning && x.meaning !== x.text ? `<span>意思：${esc(x.meaning)}</span>` : ''}${x.sub ? `<span>${esc(x.sub)}</span>` : ''}${x.tl ? `<span class="tl">${esc(x.tl.trim())}</span>` : ''}</div>
+          ${CHECK[x.check] ? `<div class="tg-foot"><small class="ck-${x.check}">${CHECK[x.check]}</small>${x.note ? `<small class="muted">${esc(x.note)}</small>` : ''}</div>` : ''}
           ${lang === 'hometown' ? '' : `<button type="button" class="star" data-fav="${esc(x.id)}" aria-label="收藏">${fav.includes(x.id) ? '⭐' : '☆'}</button>`}
         </div>`).join('') : `<div class="empty">${cat === 'fav' ? '還沒有收藏，點 ☆ 收藏常用語' : (lang === 'hometown' ? '還沒有家鄉話，請在下方新增' : '找不到符合的用語')}</div>`;
     };

@@ -1,4 +1,4 @@
-# 今天貼什麼？ Sticker Studio v1.3.0
+# 今天貼什麼？ Sticker Studio v1.3.1
 
 > 生活有百種心情，貼圖不必只有一種。
 
