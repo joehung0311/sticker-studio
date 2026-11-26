@@ -1,0 +1,1075 @@
+{
+ "version": "1.0.0",
+ "updated": "2026-11-26",
+ "about": "金門話詞庫：全部取自教育部《臺灣台語常用詞辭典》「詞彙方言差」調查資料中「金門」點的說法。這是調查詞彙（單詞），不是整句；臺羅為金門腔讀音。",
+ "reference": {
+  "name": "教育部臺灣台語常用詞辭典・詞彙方言差",
+  "url": "https://sutian.moe.edu.tw/",
+  "checkedWith": "g0v/moedict-data-twblg raw/詞彙方言差.csv（CC BY-ND 3.0 TW）"
+ },
+ "categories": [
+  {
+   "id": "k1",
+   "name": "問候禮貌",
+   "emoji": "🙏"
+  },
+  {
+   "id": "k2",
+   "name": "回應語氣",
+   "emoji": "💬"
+  },
+  {
+   "id": "k3",
+   "name": "情緒反應",
+   "emoji": "😤"
+  },
+  {
+   "id": "k4",
+   "name": "吃喝日常",
+   "emoji": "🍚"
+  },
+  {
+   "id": "k5",
+   "name": "生活動作",
+   "emoji": "🛁"
+  },
+  {
+   "id": "k6",
+   "name": "時間地點",
+   "emoji": "🕒"
+  },
+  {
+   "id": "k7",
+   "name": "家人稱呼",
+   "emoji": "👨‍👩‍👧"
+  },
+  {
+   "id": "k8",
+   "name": "冷熱感覺",
+   "emoji": "🌡️"
+  }
+ ],
+ "phrases": [
+  {
+   "id": "km001",
+   "cat": "k1",
+   "hanji": "勞力",
+   "tl": "lóo-la̍t",
+   "zh": "謝謝",
+   "taipei": [
+    "多謝",
+    "勞力"
+   ],
+   "differs": false,
+   "code": "[方1]0556"
+  },
+  {
+   "id": "km002",
+   "cat": "k1",
+   "hanji": "多謝",
+   "tl": "to-siā",
+   "zh": "謝謝",
+   "taipei": [
+    "多謝",
+    "勞力"
+   ],
+   "differs": false,
+   "code": "[方1]0556"
+  },
+  {
+   "id": "km003",
+   "cat": "k1",
+   "hanji": "歹勢",
+   "tl": "phái-sè",
+   "zh": "不好意思",
+   "taipei": [
+    "歹勢"
+   ],
+   "differs": false,
+   "code": "[方1]0557"
+  },
+  {
+   "id": "km004",
+   "cat": "k2",
+   "hanji": "無愛",
+   "tl": "bô ài",
+   "zh": "不要",
+   "taipei": [
+    "莫"
+   ],
+   "differs": true,
+   "code": "[方1]0869"
+  },
+  {
+   "id": "km005",
+   "cat": "k2",
+   "hanji": "袂",
+   "tl": "buē",
+   "zh": "不會",
+   "taipei": [
+    "袂",
+    "袂曉"
+   ],
+   "differs": false,
+   "code": "[方1]0818"
+  },
+  {
+   "id": "km006",
+   "cat": "k2",
+   "hanji": "會使",
+   "tl": "ē-sái",
+   "zh": "可以",
+   "taipei": [
+    "會使",
+    "會當"
+   ],
+   "differs": false,
+   "code": "[方1]0819"
+  },
+  {
+   "id": "km007",
+   "cat": "k2",
+   "hanji": "會當",
+   "tl": "ē-tàng",
+   "zh": "可以",
+   "taipei": [
+    "會使",
+    "會當"
+   ],
+   "differs": false,
+   "code": "[方1]0819"
+  },
+  {
+   "id": "km008",
+   "cat": "k2",
+   "hanji": "袂使",
+   "tl": "buē sái",
+   "zh": "不可以",
+   "taipei": [
+    "袂使",
+    "袂當"
+   ],
+   "differs": false,
+   "code": "[方1]0820"
+  },
+  {
+   "id": "km009",
+   "cat": "k2",
+   "hanji": "毋是",
+   "tl": "m̄-sī",
+   "zh": "不是",
+   "taipei": [
+    "毋是"
+   ],
+   "differs": false,
+   "code": "[方1]0821"
+  },
+  {
+   "id": "km010",
+   "cat": "k2",
+   "hanji": "欲",
+   "tl": "beh",
+   "zh": "要",
+   "taipei": [
+    "欲"
+   ],
+   "differs": false,
+   "code": "[方1]0816"
+  },
+  {
+   "id": "km011",
+   "cat": "k2",
+   "hanji": "有",
+   "tl": "ū",
+   "zh": "有",
+   "taipei": [
+    "有"
+   ],
+   "differs": false,
+   "code": "[方1]0815"
+  },
+  {
+   "id": "km012",
+   "cat": "k2",
+   "hanji": "足",
+   "tl": "tsok",
+   "zh": "很",
+   "taipei": [
+    "真",
+    "誠"
+   ],
+   "differs": true,
+   "code": "[方1]0822"
+  },
+  {
+   "id": "km013",
+   "cat": "k2",
+   "hanji": "誠",
+   "tl": "tsiânn",
+   "zh": "很",
+   "taipei": [
+    "真",
+    "誠"
+   ],
+   "differs": false,
+   "code": "[方1]0822"
+  },
+  {
+   "id": "km014",
+   "cat": "k2",
+   "hanji": "會",
+   "tl": "uē; ē",
+   "zh": "會",
+   "taipei": [
+    "會",
+    "會曉"
+   ],
+   "differs": false,
+   "code": "[方1]0817"
+  },
+  {
+   "id": "km015",
+   "cat": "k3",
+   "hanji": "受氣",
+   "tl": "siū-khì",
+   "zh": "生氣",
+   "taipei": [
+    "受氣"
+   ],
+   "differs": false,
+   "code": "[方1]0849"
+  },
+  {
+   "id": "km016",
+   "cat": "k3",
+   "hanji": "吼",
+   "tl": "háu",
+   "zh": "哭",
+   "taipei": [
+    "吼",
+    "哭"
+   ],
+   "differs": false,
+   "code": "[方1]0720"
+  },
+  {
+   "id": "km017",
+   "cat": "k3",
+   "hanji": "笑",
+   "tl": "tshiò",
+   "zh": "笑",
+   "taipei": [
+    "笑"
+   ],
+   "differs": false,
+   "code": "[方1]0719"
+  },
+  {
+   "id": "km018",
+   "cat": "k3",
+   "hanji": "相罵",
+   "tl": "sann-mā",
+   "zh": "吵架",
+   "taipei": [
+    "相罵",
+    "冤家"
+   ],
+   "differs": false,
+   "code": "[方1]0840"
+  },
+  {
+   "id": "km019",
+   "cat": "k3",
+   "hanji": "相拍",
+   "tl": "sann-phah",
+   "zh": "打架",
+   "taipei": [
+    "相拍"
+   ],
+   "differs": false,
+   "code": "[方1]0839"
+  },
+  {
+   "id": "km020",
+   "cat": "k3",
+   "hanji": "白賊",
+   "tl": "pe̍h-tsha̍t",
+   "zh": "說謊",
+   "taipei": [
+    "白賊"
+   ],
+   "differs": false,
+   "code": "[方1]0084"
+  },
+  {
+   "id": "km021",
+   "cat": "k3",
+   "hanji": "呺六",
+   "tl": "hau-la̍k",
+   "zh": "說謊",
+   "taipei": [
+    "白賊"
+   ],
+   "differs": true,
+   "code": "[方1]0084"
+  },
+  {
+   "id": "km022",
+   "cat": "k3",
+   "hanji": "歕雞胿",
+   "tl": "pûn-kue-kui",
+   "zh": "吹牛、亂說",
+   "taipei": [
+    "歕雞胿"
+   ],
+   "differs": false,
+   "code": "[方1]0740"
+  },
+  {
+   "id": "km023",
+   "cat": "k3",
+   "hanji": "答喙鼓",
+   "tl": "tap-tshuì-kóo",
+   "zh": "聊天",
+   "taipei": [
+    "開講",
+    "敲虎𡳞"
+   ],
+   "differs": true,
+   "code": "[方1]0089"
+  },
+  {
+   "id": "km024",
+   "cat": "k3",
+   "hanji": "開講",
+   "tl": "khai-káng",
+   "zh": "聊天",
+   "taipei": [
+    "開講",
+    "敲虎𡳞"
+   ],
+   "differs": false,
+   "code": "[方1]0089"
+  },
+  {
+   "id": "km025",
+   "cat": "k4",
+   "hanji": "食",
+   "tl": "tsia̍h",
+   "zh": "吃",
+   "taipei": [
+    "囫",
+    "孝孤",
+    "食"
+   ],
+   "differs": false,
+   "code": "[方1]0697"
+  },
+  {
+   "id": "km026",
+   "cat": "k4",
+   "hanji": "囫",
+   "tl": "hut",
+   "zh": "吃",
+   "taipei": [
+    "囫",
+    "孝孤",
+    "食"
+   ],
+   "differs": false,
+   "code": "[方1]0697"
+  },
+  {
+   "id": "km027",
+   "cat": "k4",
+   "hanji": "喋",
+   "tl": "sah",
+   "zh": "吃",
+   "taipei": [
+    "囫",
+    "孝孤",
+    "食"
+   ],
+   "differs": true,
+   "code": "[方1]0697"
+  },
+  {
+   "id": "km028",
+   "cat": "k4",
+   "hanji": "啉",
+   "tl": "lim",
+   "zh": "喝",
+   "taipei": [
+    "啉"
+   ],
+   "differs": false,
+   "code": "[方1]0698"
+  },
+  {
+   "id": "km029",
+   "cat": "k4",
+   "hanji": "枵",
+   "tl": "iau",
+   "zh": "肚子餓",
+   "taipei": [
+    "枵",
+    "餓"
+   ],
+   "differs": false,
+   "code": "[方1]0706"
+  },
+  {
+   "id": "km030",
+   "cat": "k4",
+   "hanji": "餓",
+   "tl": "gō",
+   "zh": "肚子餓",
+   "taipei": [
+    "枵",
+    "餓"
+   ],
+   "differs": false,
+   "code": "[方1]0706"
+  },
+  {
+   "id": "km031",
+   "cat": "k4",
+   "hanji": "飯",
+   "tl": "pn̄g",
+   "zh": "飯",
+   "taipei": [
+    "飯"
+   ],
+   "differs": false,
+   "code": "[方1]0349"
+  },
+  {
+   "id": "km032",
+   "cat": "k4",
+   "hanji": "凊飯",
+   "tl": "tshìn-pn̄g",
+   "zh": "冷飯",
+   "taipei": [
+    "凊飯"
+   ],
+   "differs": false,
+   "code": "[方1]0350"
+  },
+  {
+   "id": "km033",
+   "cat": "k4",
+   "hanji": "滾水",
+   "tl": "kún-tsuí",
+   "zh": "開水",
+   "taipei": [
+    "白茶",
+    "滾水"
+   ],
+   "differs": false,
+   "code": "[方1]0365"
+  },
+  {
+   "id": "km034",
+   "cat": "k4",
+   "hanji": "茶心",
+   "tl": "tê-sim",
+   "zh": "茶葉",
+   "taipei": [
+    "茶心",
+    "茶米"
+   ],
+   "differs": false,
+   "code": "[方1]0364"
+  },
+  {
+   "id": "km035",
+   "cat": "k4",
+   "hanji": "食菜",
+   "tl": "tsia̍h-tshài",
+   "zh": "吃素",
+   "taipei": [
+    "食菜"
+   ],
+   "differs": false,
+   "code": "[方1]0368"
+  },
+  {
+   "id": "km036",
+   "cat": "k4",
+   "hanji": "高粱酒",
+   "tl": "kau-liâng-tsiú",
+   "zh": "高粱酒",
+   "taipei": [
+    "高粱酒"
+   ],
+   "differs": false,
+   "code": "[方1]0371"
+  },
+  {
+   "id": "km037",
+   "cat": "k4",
+   "hanji": "麥仔酒",
+   "tl": "be̍h-á-tsiú",
+   "zh": "啤酒",
+   "taipei": [
+    "ビール",
+    "麥仔酒"
+   ],
+   "differs": false,
+   "code": "[方1]0370"
+  },
+  {
+   "id": "km038",
+   "cat": "k4",
+   "hanji": "啤酒",
+   "tl": "pî-tsiú",
+   "zh": "啤酒",
+   "taipei": [
+    "ビール",
+    "麥仔酒"
+   ],
+   "differs": true,
+   "code": "[方1]0370"
+  },
+  {
+   "id": "km039",
+   "cat": "k4",
+   "hanji": "水果",
+   "tl": "tsuí-kó",
+   "zh": "水果",
+   "taipei": [
+    "水果",
+    "果子"
+   ],
+   "differs": false,
+   "code": "[方1]0304"
+  },
+  {
+   "id": "km040",
+   "cat": "k4",
+   "hanji": "果子",
+   "tl": "kér-tsí",
+   "zh": "水果",
+   "taipei": [
+    "水果",
+    "果子"
+   ],
+   "differs": false,
+   "code": "[方1]0304"
+  },
+  {
+   "id": "km041",
+   "cat": "k4",
+   "hanji": "貯飯",
+   "tl": "tué-pn̄g",
+   "zh": "裝飯",
+   "taipei": [
+    "添飯"
+   ],
+   "differs": true,
+   "code": "[方1]0717"
+  },
+  {
+   "id": "km042",
+   "cat": "k4",
+   "hanji": "添飯",
+   "tl": "thinn-pn̄g",
+   "zh": "裝飯",
+   "taipei": [
+    "添飯"
+   ],
+   "differs": false,
+   "code": "[方1]0717"
+  },
+  {
+   "id": "km043",
+   "cat": "k4",
+   "hanji": "斟茶",
+   "tl": "thîn-tê",
+   "zh": "倒茶",
+   "taipei": [
+    "倒茶",
+    "斟茶"
+   ],
+   "differs": false,
+   "code": "[方1]0730"
+  },
+  {
+   "id": "km044",
+   "cat": "k5",
+   "hanji": "歇睏",
+   "tl": "hioh-khùn",
+   "zh": "休息",
+   "taipei": [
+    "歇",
+    "歇睏"
+   ],
+   "differs": false,
+   "code": "[方1]0842"
+  },
+  {
+   "id": "km045",
+   "cat": "k5",
+   "hanji": "洗身軀",
+   "tl": "sué-sing-khu",
+   "zh": "洗澡",
+   "taipei": [
+    "洗身軀"
+   ],
+   "differs": false,
+   "code": "[方1]0838"
+  },
+  {
+   "id": "km046",
+   "cat": "k5",
+   "hanji": "盹瞌睡",
+   "tl": "tuh-ka-tsēr",
+   "zh": "打瞌睡",
+   "taipei": [
+    "盹瞌睡",
+    "啄龜",
+    "盹龜"
+   ],
+   "differs": false,
+   "code": "[方1]0773"
+  },
+  {
+   "id": "km047",
+   "cat": "k5",
+   "hanji": "哈唏",
+   "tl": "hah-hì",
+   "zh": "打哈欠",
+   "taipei": [
+    "哈唏"
+   ],
+   "differs": false,
+   "code": "[方1]0735"
+  },
+  {
+   "id": "km048",
+   "cat": "k5",
+   "hanji": "拍咳啾",
+   "tl": "phah-ka-tshiùnn",
+   "zh": "打噴嚏",
+   "taipei": [
+    "拍咳啾"
+   ],
+   "differs": false,
+   "code": "[方1]0738"
+  },
+  {
+   "id": "km049",
+   "cat": "k5",
+   "hanji": "吐呃",
+   "tl": "thóo-èr",
+   "zh": "打嗝",
+   "taipei": [
+    "吐呃"
+   ],
+   "differs": false,
+   "code": "[方1]0734"
+  },
+  {
+   "id": "km050",
+   "cat": "k5",
+   "hanji": "穿",
+   "tl": "tshīng",
+   "zh": "穿衣服",
+   "taipei": [
+    "穿"
+   ],
+   "differs": false,
+   "code": "[方1]0714"
+  },
+  {
+   "id": "km051",
+   "cat": "k5",
+   "hanji": "披",
+   "tl": "phi",
+   "zh": "晾衣服",
+   "taipei": [
+    "披",
+    "晾"
+   ],
+   "differs": false,
+   "code": "[方1]0745"
+  },
+  {
+   "id": "km052",
+   "cat": "k5",
+   "hanji": "晾",
+   "tl": "nî",
+   "zh": "晾衣服",
+   "taipei": [
+    "披",
+    "晾"
+   ],
+   "differs": false,
+   "code": "[方1]0745"
+  },
+  {
+   "id": "km053",
+   "cat": "k5",
+   "hanji": "頭路",
+   "tl": "thâu-lōo",
+   "zh": "工作",
+   "taipei": [
+    "頭路"
+   ],
+   "differs": false,
+   "code": "[方1]0571"
+  },
+  {
+   "id": "km054",
+   "cat": "k5",
+   "hanji": "工課",
+   "tl": "khang-khèr; khang-khìr",
+   "zh": "工作",
+   "taipei": [
+    "頭路"
+   ],
+   "differs": true,
+   "code": "[方1]0571"
+  },
+  {
+   "id": "km055",
+   "cat": "k5",
+   "hanji": "儉錢",
+   "tl": "khiām-tsînn",
+   "zh": "存錢",
+   "taipei": [
+    "儉錢"
+   ],
+   "differs": false,
+   "code": "[方1]0592"
+  },
+  {
+   "id": "km056",
+   "cat": "k5",
+   "hanji": "找錢",
+   "tl": "tsāu-tsînn",
+   "zh": "找錢",
+   "taipei": [
+    "找錢"
+   ],
+   "differs": false,
+   "code": "[方1]0593"
+  },
+  {
+   "id": "km057",
+   "cat": "k5",
+   "hanji": "做生理",
+   "tl": "tsuè-sing-lí",
+   "zh": "做生意",
+   "taipei": [
+    "做生理"
+   ],
+   "differs": false,
+   "code": "[方1]0657"
+  },
+  {
+   "id": "km058",
+   "cat": "k5",
+   "hanji": "相佮",
+   "tl": "sann-kap",
+   "zh": "一起",
+   "taipei": [
+    "鬥陣",
+    "做伙"
+   ],
+   "differs": true,
+   "code": "[方1]0870"
+  },
+  {
+   "id": "km059",
+   "cat": "k5",
+   "hanji": "顧囡仔",
+   "tl": "kòo-gín--á",
+   "zh": "帶小孩",
+   "taipei": [
+    "育飼"
+   ],
+   "differs": true,
+   "code": "[方1]0841"
+  },
+  {
+   "id": "km060",
+   "cat": "k6",
+   "hanji": "早頭",
+   "tl": "tsá-thâu",
+   "zh": "早上",
+   "taipei": [
+    "下早",
+    "早起時",
+    "早晡"
+   ],
+   "differs": true,
+   "code": "[方1]0219"
+  },
+  {
+   "id": "km061",
+   "cat": "k6",
+   "hanji": "此早起",
+   "tl": "tsiùnn-tsái-khí",
+   "zh": "早上",
+   "taipei": [
+    "下早",
+    "早起時",
+    "早晡"
+   ],
+   "differs": true,
+   "code": "[方1]0219"
+  },
+  {
+   "id": "km062",
+   "cat": "k6",
+   "hanji": "中晝",
+   "tl": "tiong-tàu",
+   "zh": "中午",
+   "taipei": [
+    "中晝",
+    "透中晝"
+   ],
+   "differs": false,
+   "code": "[方1]0113"
+  },
+  {
+   "id": "km063",
+   "cat": "k6",
+   "hanji": "此中晝",
+   "tl": "tsiùnn-tiong-tàu",
+   "zh": "中午",
+   "taipei": [
+    "中晝",
+    "透中晝"
+   ],
+   "differs": true,
+   "code": "[方1]0113"
+  },
+  {
+   "id": "km064",
+   "cat": "k6",
+   "hanji": "暗時",
+   "tl": "àm-sî",
+   "zh": "晚上",
+   "taipei": [
+    "下昏",
+    "下昏暗時",
+    "暗時",
+    "暗頭仔"
+   ],
+   "differs": false,
+   "code": "[方1]0220"
+  },
+  {
+   "id": "km065",
+   "cat": "k6",
+   "hanji": "下昏時",
+   "tl": "ing-sî",
+   "zh": "晚上",
+   "taipei": [
+    "下昏",
+    "下昏暗時",
+    "暗時",
+    "暗頭仔"
+   ],
+   "differs": true,
+   "code": "[方1]0220"
+  },
+  {
+   "id": "km066",
+   "cat": "k6",
+   "hanji": "昨昏",
+   "tl": "tsa-hng",
+   "zh": "昨天",
+   "taipei": [
+    "昨昏",
+    "昨暗"
+   ],
+   "differs": false,
+   "code": "[方1]0111"
+  },
+  {
+   "id": "km067",
+   "cat": "k6",
+   "hanji": "佗",
+   "tl": "tio̍h",
+   "zh": "哪裡",
+   "taipei": [
+    "佗位"
+   ],
+   "differs": true,
+   "code": "[方1]0227"
+  },
+  {
+   "id": "km068",
+   "cat": "k6",
+   "hanji": "遮",
+   "tl": "tsiô",
+   "zh": "這裡",
+   "taipei": [
+    "遮"
+   ],
+   "differs": false,
+   "code": "[方1]0827"
+  },
+  {
+   "id": "km069",
+   "cat": "k6",
+   "hanji": "日頭",
+   "tl": "li̍t-thâu",
+   "zh": "太陽",
+   "taipei": [
+    "日頭"
+   ],
+   "differs": false,
+   "code": "[方1]0165"
+  },
+  {
+   "id": "km070",
+   "cat": "k6",
+   "hanji": "月娘",
+   "tl": "ge̍rh-niû",
+   "zh": "月亮",
+   "taipei": [
+    "月娘"
+   ],
+   "differs": false,
+   "code": "[方1]0166"
+  },
+  {
+   "id": "km071",
+   "cat": "k6",
+   "hanji": "落雨",
+   "tl": "lo̍h-hōo",
+   "zh": "下雨",
+   "taipei": [
+    "落雨"
+   ],
+   "differs": false,
+   "code": "[方1]0171"
+  },
+  {
+   "id": "km072",
+   "cat": "k6",
+   "hanji": "霆雷",
+   "tl": "tân-luî",
+   "zh": "打雷",
+   "taipei": [
+    "霆雷"
+   ],
+   "differs": false,
+   "code": "[方1]0101"
+  },
+  {
+   "id": "km073",
+   "cat": "k7",
+   "hanji": "俺姊",
+   "tl": "án-tsé",
+   "zh": "姊姊",
+   "taipei": [
+    "阿姊"
+   ],
+   "differs": true,
+   "code": "[方1]0621"
+  },
+  {
+   "id": "km074",
+   "cat": "k7",
+   "hanji": "後生",
+   "tl": "hāu-sinn",
+   "zh": "兒子",
+   "taipei": [
+    "囝",
+    "後生"
+   ],
+   "differs": false,
+   "code": "[方1]0623"
+  },
+  {
+   "id": "km075",
+   "cat": "k7",
+   "hanji": "囝",
+   "tl": "kiánn",
+   "zh": "兒子",
+   "taipei": [
+    "囝",
+    "後生"
+   ],
+   "differs": false,
+   "code": "[方1]0623"
+  },
+  {
+   "id": "km076",
+   "cat": "k7",
+   "hanji": "查某囡仔",
+   "tl": "tsa-bóo-gín--á",
+   "zh": "女兒",
+   "taipei": [
+    "查某囝"
+   ],
+   "differs": true,
+   "code": "[方1]0495"
+  },
+  {
+   "id": "km077",
+   "cat": "k7",
+   "hanji": "囡仔",
+   "tl": "gín--á",
+   "zh": "小孩子",
+   "taipei": [
+    "囡仔"
+   ],
+   "differs": false,
+   "code": "[方1]0585"
+  },
+  {
+   "id": "km078",
+   "cat": "k7",
+   "hanji": "小叔",
+   "tl": "sió-tsik",
+   "zh": "丈夫的弟弟",
+   "taipei": [
+    "阿叔仔"
+   ],
+   "differs": true,
+   "code": "[方1]0510"
+  },
+  {
+   "id": "km079",
+   "cat": "k8",
+   "hanji": "燒",
+   "tl": "sio",
+   "zh": "熱",
+   "taipei": [
+    "燒"
+   ],
+   "differs": false,
+   "code": "[方1]0859"
+  },
+  {
+   "id": "km080",
+   "cat": "k8",
+   "hanji": "拉溫仔燒",
+   "tl": "ba-un-á-sio",
+   "zh": "不冷不熱",
+   "taipei": [
+    "半燒冷"
+   ],
+   "differs": true,
+   "code": "[方1]0860"
+  },
+  {
+   "id": "km081",
+   "cat": "k8",
+   "hanji": "交懍恂",
+   "tl": "ka-nńg-sún",
+   "zh": "發冷顫",
+   "taipei": [
+    "交懍恂"
+   ],
+   "differs": false,
+   "code": "[方1]0600"
+  }
+ ]
+}

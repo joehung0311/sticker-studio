@@ -1,7 +1,7 @@
 /* 今天貼什麼？ Sticker Studio — 內建資料 (Made by 白話實驗室／baihua.tw) */
 window.SS = window.SS || {};
 
-SS.VERSION = '1.2.0';
+SS.VERSION = '1.3.0';
 
 SS.LINKS = {
   chatgpt: 'https://chatgpt.com/',
@@ -25,21 +25,21 @@ SS.CHAR_TYPES = ['人物', '貓咪', '狗狗', '兔子', '幻想生物', '自訂
 
 SS.STYLES = [
   { id: 'qban', name: '可愛 Q 版', desc: '大頭小身體、圓滾滾，最百搭',
-    prompt: '可愛 Q 版（chibi）風格，2～2.5 頭身，大頭小身體，圓潤線條，表情誇張可愛，乾淨平塗上色' },
+    en: 'cute chibi style, 2–2.5 heads tall, big head and small body, rounded lines, exaggerated cute expressions, clean flat colors', prompt: '可愛 Q 版（chibi）風格，2～2.5 頭身，大頭小身體，圓潤線條，表情誇張可愛，乾淨平塗上色' },
   { id: 'jp', name: '日系手繪', desc: '柔和線條、手帳感插畫',
-    prompt: '日系手繪插畫風格，柔和的手繪線條，淡雅配色，帶有手帳與文具插畫的溫暖質感' },
+    en: 'Japanese hand-drawn illustration, soft hand-drawn lines, gentle colors, warm stationery / journal illustration feel', prompt: '日系手繪插畫風格，柔和的手繪線條，淡雅配色，帶有手帳與文具插畫的溫暖質感' },
   { id: 'comic', name: '復古漫畫', desc: '粗黑線、網點、動作線',
-    prompt: '復古美式／昭和漫畫風格，粗黑描邊，網點陰影，搭配速度線與漫畫效果字' },
+    en: 'retro comic style, bold black outlines, halftone shading, speed lines and comic sound effects', prompt: '復古美式／昭和漫畫風格，粗黑描邊，網點陰影，搭配速度線與漫畫效果字' },
   { id: 'water', name: '療癒水彩', desc: '暈染邊緣、溫柔療癒',
-    prompt: '療癒水彩風格，柔和暈染與自然水痕，低飽和溫柔色調，畫面輕盈透氣' },
+    en: 'healing watercolor, soft washes and natural water marks, low-saturation gentle tones, light and airy', prompt: '療癒水彩風格，柔和暈染與自然水痕，低飽和溫柔色調，畫面輕盈透氣' },
   { id: 'line', name: '極簡線條', desc: '少量線條、留白多',
-    prompt: '極簡線條插畫，單色或雙色細線勾勒，大量留白，造型簡潔但表情清楚' },
+    en: 'minimal line art, one or two colors of fine lines, lots of white space, simple shapes with clear expressions', prompt: '極簡線條插畫，單色或雙色細線勾勒，大量留白，造型簡潔但表情清楚' },
   { id: 'clay', name: '黏土公仔', desc: '立體 3D、軟萌質感',
-    prompt: '黏土公仔／3D 軟膠玩具風格，圓潤立體，柔和打光，表面帶有細微黏土質感' },
+    en: 'clay figure / soft 3D toy style, rounded volumes, soft lighting, subtle clay texture', prompt: '黏土公仔／3D 軟膠玩具風格，圓潤立體，柔和打光，表面帶有細微黏土質感' },
   { id: 'meme', name: '搞笑迷因', desc: '誇張表情、反差笑點',
-    prompt: '搞笑迷因貼圖風格，表情極度誇張、反差感強，粗體大字，節奏感強烈' },
+    en: 'funny meme sticker style, extremely exaggerated expressions, strong contrast, bold big lettering', prompt: '搞笑迷因貼圖風格，表情極度誇張、反差感強，粗體大字，節奏感強烈' },
   { id: 'pixel', name: '像素藝術', desc: '復古遊戲點陣感',
-    prompt: '像素藝術（pixel art）風格，復古遊戲點陣感，清晰方塊像素，有限色盤' }
+    en: 'pixel art, retro game look, crisp square pixels, limited palette', prompt: '像素藝術（pixel art）風格，復古遊戲點陣感，清晰方塊像素，有限色盤' }
 ];
 
 /* 畫風示意圖：全部為原創簡易 SVG */

@@ -23,7 +23,8 @@
     ['paw', '腳印', true, '#C49A7A', (c) => `<g fill="${c}" stroke="${O}" stroke-width="${W}"><path d="M50 50c14 0 26 14 26 26 0 10-8 14-14 14-5 0-8-3-12-3s-7 3-12 3c-6 0-14-4-14-14 0-12 12-26 26-26z"/><ellipse cx="22" cy="42" rx="9" ry="12" transform="rotate(-20 22 42)"/><ellipse cx="39" cy="22" rx="9" ry="12" transform="rotate(-8 39 22)"/><ellipse cx="61" cy="22" rx="9" ry="12" transform="rotate(8 61 22)"/><ellipse cx="78" cy="42" rx="9" ry="12" transform="rotate(20 78 42)"/></g>`],
     ['smile', '笑臉', true, '#FFD45E', (c) => `<circle cx="50" cy="50" r="42" fill="${c}" stroke="${O}" stroke-width="${W}"/><path d="M30 44q6-10 12 0M58 44q6-10 12 0" fill="none" stroke="${O}" stroke-width="5" stroke-linecap="round"/><path d="M30 58q20 26 40 0z" fill="#E86A5A" stroke="${O}" stroke-width="4" stroke-linejoin="round"/><ellipse cx="24" cy="58" rx="6" ry="4" fill="#F2707A" opacity=".6"/><ellipse cx="76" cy="58" rx="6" ry="4" fill="#F2707A" opacity=".6"/>`]
   ];
-  SS.DECOS = L.map(([id, name, colorable, color, svg]) => ({ id, name, colorable, color, svg }));
+  const EN = { heart: 'heart', bow: 'ribbon bow', star: 'star', sparkle: 'sparkles', flower: 'small flower', note: 'music note', sweat: 'sweat drop', tear: 'teardrops', anger: 'anger mark', question: 'question mark', exclaim: 'exclamation mark', bubble: 'speech bubble', ribbon: 'streamers', crown: 'little crown', fire: 'flame', cloud: 'cloud', paw: 'paw print', smile: 'smiley face' };
+  SS.DECOS = L.map(([id, name, colorable, color, svg]) => ({ id, name, colorable, color, svg, en: EN[id] }));
   SS.decoById = Object.fromEntries(SS.DECOS.map((d) => [d.id, d]));
   SS.decoSVG = (id, color) => { const d = SS.decoById[id]; return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="200" height="200">${d.svg(color || d.color)}</svg>`; };
   SS.decoURL = (id, color) => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(SS.decoSVG(id, color));

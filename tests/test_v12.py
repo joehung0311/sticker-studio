@@ -18,9 +18,11 @@ def to_page(pg, x, y):
     r = pg.evaluate("(()=>{const c=document.getElementById('ed-cv');const b=c.getBoundingClientRect();return [b.x,b.y,b.width/c.width,b.height/c.height]})()")
     return r[0] + x * r[2], r[1] + y * r[3]
 def drag(pg, a, b, steps=12):
+    if not pg.evaluate("document.getElementById('ed-wrap').classList.contains('zoomed')"):
+        pg.evaluate("document.getElementById('ed-cv').scrollIntoView({block:'center'})"); pg.wait_for_timeout(80)
     pg.mouse.move(*to_page(pg, *a)); pg.mouse.down(); pg.mouse.move(*to_page(pg, *b), steps=steps); pg.mouse.up(); pg.wait_for_timeout(80)
 def load(pg, path, frame='orig'):
-    pg.goto(BASE + '#home'); pg.wait_for_selector('.home-card'); pg.goto(BASE + '#editor'); pg.wait_for_selector('#ed-file', state='attached')
+    pg.goto(BASE + '#home'); pg.wait_for_selector('.main-cta'); pg.goto(BASE + '#editor'); pg.wait_for_selector('#ed-file', state='attached')
     pg.set_input_files('#ed-file', path); pg.wait_for_selector('#ed-main:not([hidden])')
     pg.click('[data-tab="crop"]'); pg.select_option('#ed-frame', frame); pg.click('#ed-fit'); pg.wait_for_timeout(100)
 
@@ -100,7 +102,7 @@ with sync_playwright() as p:
     check('4. 開源字型實際載入', all(loaded), loaded)
 
     # ===== 5. 字體、顏色、描邊、大小、樣式 =====
-    pg.goto(BASE + '#home'); pg.wait_for_selector('.home-card'); pg.goto(BASE + '#textsticker'); pg.wait_for_selector('#ed-main:not([hidden])'); pg.wait_for_timeout(300)
+    pg.goto(BASE + '#home'); pg.wait_for_selector('.main-cta'); pg.goto(BASE + '#textsticker'); pg.wait_for_selector('#ed-main:not([hidden])'); pg.wait_for_timeout(300)
     pg.fill('#ed-text', '早安測試'); pg.fill('#ed-tc', '#ff0000'); pg.fill('#ed-sw', '0'); pg.dispatch_event('#ed-sw', 'input'); pg.wait_for_timeout(200)
     base = png(pg)
     red = ((base[:, :, 0] > 200) & (base[:, :, 1] < 60) & (base[:, :, 2] < 60) & (base[:, :, 3] > 200)).sum()
@@ -132,9 +134,9 @@ with sync_playwright() as p:
     check('5. 快速定位（右上角）', s['x'] > 0.5 and s['y'] < 0.5, (s['x'], s['y']))
 
     # ===== 6. 純文字貼圖 =====
-    pg.goto(BASE + '#home'); pg.wait_for_selector('.home-card'); pg.goto(BASE + '#textsticker'); pg.wait_for_selector('#ed-main:not([hidden])'); pg.wait_for_timeout(300)
+    pg.goto(BASE + '#home'); pg.wait_for_selector('.main-cta'); pg.goto(BASE + '#textsticker'); pg.wait_for_selector('#ed-main:not([hidden])'); pg.wait_for_timeout(300)
     check('6. 純文字貼圖不需圖片即可編輯', len(st(pg)['layers']) == 1 and pg.is_hidden('#ed-empty'))
-    pg.select_option('#ed-lang', 'taigi'); pg.click('#ed-pick'); pg.wait_for_selector('#pp-tg .tg-item'); pg.fill('#pp-tg #tg-q', '好膽'); pg.click('#pp-tg .tg-item'); pg.wait_for_timeout(150)
+    pg.select_option('#ed-lang', 'taigi'); pg.click('#ed-pick'); pg.wait_for_selector('#pp-box .tg-item'); pg.fill('#pp-box .pp-q', '好膽'); pg.click('#pp-box .tg-item'); pg.wait_for_timeout(150)
     check('6. 純文字貼圖可用台語用語庫', st(pg)['layers'][0]['content'] == '好膽莫走')
     a = png(pg)
     check('6. 純文字貼圖 PNG 370×320、透明背景', a.shape[:2] == (320, 370) and a[2, 2, 3] == 0)
@@ -143,7 +145,7 @@ with sync_playwright() as p:
     pg.click('[data-tab="crop"]'); pg.select_option('#ed-frame', 'main'); a = png(pg)
     check('6. 可切換 LINE 主圖尺寸', a.shape[:2] == (240, 240))
     pg.click('[data-tab="text"]'); pg.select_option('#ed-lang', 'kinmen')
-    check('6. 金門話說明（未內建用語庫）', '金門話' in pg.inner_text('#ed-langnote') and '沒有' in pg.inner_text('#ed-langnote'))
+    check('6. 金門話說明（教育部詞彙方言差）', '金門' in pg.inner_text('#ed-langnote') and '教育部' in pg.inner_text('#ed-langnote'))
 
     # ===== 7. 裝飾 =====
     pg.click('[data-tab="crop"]'); pg.select_option('#ed-frame', 'line')
@@ -177,7 +179,7 @@ with sync_playwright() as p:
     # ===== 9. 隨機設計保留文字 =====
     pg.click('[data-tab="text"]'); pg.click('#ed-addtext'); pg.fill('#ed-text', '不能被改'); pg.wait_for_timeout(50)
     before = [l['content'] for l in st(pg)['layers'] if l['type'] == 'text']
-    pg.click('[data-tab="rand"]'); same = True; fonts = set()
+    pg.click('[data-tab="text"]'); pg.evaluate("document.getElementById('ed-randbox').open = true"); same = True; fonts = set()
     for _ in range(6):
         pg.click('#ed-random'); pg.wait_for_timeout(40); s = st(pg)
         same &= [l['content'] for l in s['layers'] if l['type'] == 'text'] == before; fonts.add(s['layers'][0]['font'] if s['layers'][0]['type'] == 'text' else '')
@@ -190,7 +192,7 @@ with sync_playwright() as p:
     pg.click('[data-dlock="font"]'); pg.click('[data-dlock="pos"]')
 
     # ===== 文字與裝飾限制在輸出範圍內 =====
-    pg.goto(BASE + '#home'); pg.wait_for_selector('.home-card'); pg.goto(BASE + '#textsticker'); pg.wait_for_selector('#ed-main:not([hidden])'); pg.wait_for_timeout(300)
+    pg.goto(BASE + '#home'); pg.wait_for_selector('.main-cta'); pg.goto(BASE + '#textsticker'); pg.wait_for_selector('#ed-main:not([hidden])'); pg.wait_for_timeout(300)
     l = st(pg)['layers'][0]; drag(pg, (l['x'] * 370, l['y'] * 320), (369, 319), 10)
     a = png(pg)
     check('6. 拖到邊緣仍完整留在輸出範圍內', a[:, -1, 3].max() == 0 and a[-1, :, 3].max() == 0, (a[:, -1, 3].max(), a[-1, :, 3].max()))
@@ -207,7 +209,7 @@ with sync_playwright() as p:
     pg.click('#f-dclear'); check('模式 A：清除設計', '【文字與裝飾設計】' not in pg.input_value('#prompt-out'))
 
     # ===== 13. 收藏與本機資料保留 =====
-    pg.goto(BASE + '#home'); pg.wait_for_selector('.home-card'); pg.goto(BASE + '#textsticker'); pg.wait_for_selector('#ed-main:not([hidden])'); pg.click('[data-tab="out"]'); pg.fill('#ed-name', 'v12收藏測試'); pg.click('#ed-save'); pg.wait_for_timeout(400)
+    pg.goto(BASE + '#home'); pg.wait_for_selector('.main-cta'); pg.goto(BASE + '#textsticker'); pg.wait_for_selector('#ed-main:not([hidden])'); pg.click('[data-tab="out"]'); pg.fill('#ed-name', 'v12收藏測試'); pg.click('#ed-save'); pg.wait_for_timeout(400)
     pg.goto(BASE + '#collection'); pg.reload(); pg.wait_for_selector('#co-grid'); pg.wait_for_timeout(600)
     check('13. 收藏寫入並在重新整理後保留', 'v12收藏測試' in pg.inner_text('#co-grid'))
     check('無主控台錯誤（電腦）', not errs, errs[:3])
@@ -217,7 +219,7 @@ with sync_playwright() as p:
     ctx = b.new_context(viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True, accept_downloads=True)
     ctx.add_init_script("localStorage.setItem('ss_welcomed','true')")
     pg = ctx.new_page(); errs = []; pg.on('pageerror', lambda e: errs.append(str(e)))
-    pg.goto(BASE + '#home'); pg.wait_for_selector('.home-card'); pg.goto(BASE + '#textsticker'); pg.wait_for_selector('#ed-main:not([hidden])'); pg.wait_for_timeout(300)
+    pg.goto(BASE + '#home'); pg.wait_for_selector('.main-cta'); pg.goto(BASE + '#textsticker'); pg.wait_for_selector('#ed-main:not([hidden])'); pg.wait_for_timeout(300)
     w = pg.evaluate('document.documentElement.scrollWidth'); check('11. 手機版無水平溢出', w <= 391, w)
     cdp = ctx.new_cdp_session(pg)
     def touch(kind, points):
@@ -244,7 +246,7 @@ with sync_playwright() as p:
     d2 = [l for l in st(pg)['layers'] if l['type'] == 'deco'][0]
     check('11. 雙指縮放／旋轉裝飾', d2['size'] != d['size'] and d2['rot'] != d['rot'], (d['size'], d2['size'], d2['rot']))
     tabs_w = pg.evaluate("document.querySelector('.scroll-tabs').scrollWidth > document.querySelector('.scroll-tabs').clientWidth")
-    check('11. 手機版 7 個分頁可橫向捲動', tabs_w and pg.locator('.scroll-tabs .tab').count() == 7)
+    check('11. 手機版 7 個分頁可橫向捲動', tabs_w and pg.locator('.scroll-tabs > .tab').count() == 7)
     pg.screenshot(path='/tmp/v12-mobile.png')
     check('無主控台錯誤（手機）', not errs, errs[:3])
     b.close()

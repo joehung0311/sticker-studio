@@ -22,8 +22,8 @@ def run(p, label, viewport, mobile):
     page.on('response', lambda r: failed_req.append(f'{r.status} {r.url}') if r.status >= 400 else None)
     P = f'[{label}] '
 
-    page.goto(BASE); page.wait_for_selector('.home-card')
-    check(P + '首頁 8 個入口', page.locator('.home-card').count() == 8)
+    page.goto(BASE); page.wait_for_selector('.main-cta')
+    check(P + '首頁 3 個主要入口', page.locator('.main-cta').count() == 1 and page.locator('.main-list a').count() == 2)
     page.wait_for_selector('#modal:not([hidden])', timeout=5000); page.wait_for_timeout(250)
     check(P + '第一次開啟顯示歡迎視窗', '歡迎來到' in page.inner_text('#modal-body'))
     page.click('.modal-close'); page.wait_for_timeout(250)
@@ -35,7 +35,7 @@ def run(p, label, viewport, mobile):
     no_overflow('首頁')
 
     # 每一頁渲染
-    for r in ['photo', 'character', 'phrases', 'blindbox', 'plan', 'editor', 'line', 'collection', 'guide', 'about', 'privacy', 'share', 'install', 'version']:
+    for r in ['make', 'photo', 'character', 'phrases', 'blindbox', 'plan', 'editor', 'line', 'collection', 'guide', 'about', 'privacy', 'share', 'install', 'version']:
         page.goto(BASE + '#/' + r); page.wait_for_timeout(250)
         check(P + f'頁面 {r} 有內容', len(page.inner_text('#view')) > 30)
         no_overflow(r)
@@ -189,7 +189,7 @@ def run(p, label, viewport, mobile):
         ctrl = page.evaluate('!!navigator.serviceWorker.controller')
         check(P + 'Service Worker 已控制頁面', ctrl)
         ctx.set_offline(True)
-        page.reload(); page.wait_for_selector('.home-card', timeout=8000)
+        page.reload(); page.wait_for_selector('.main-cta', timeout=8000)
         page.goto(BASE + '#/editor'); page.wait_for_timeout(300)
         page.set_input_files('#ed-file', '/tmp/grid.png'); page.wait_for_timeout(400)
         page.click('[data-tab="out"]')

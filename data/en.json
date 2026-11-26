@@ -1,0 +1,298 @@
+{
+ "version": "1.0.0",
+ "updated": "2026-11-26",
+ "lang": "en",
+ "name": "English",
+ "about": "English 聊天貼圖常用短句。由本專案編寫並逐句校對（口語、適合貼圖）；非官方詞典，建議重要用途請母語者再確認。",
+ "categories": [
+  {
+   "id": "g",
+   "name": "問候",
+   "emoji": "👋"
+  },
+  {
+   "id": "r",
+   "name": "回覆",
+   "emoji": "💬"
+  },
+  {
+   "id": "f",
+   "name": "情緒反應",
+   "emoji": "😳"
+  },
+  {
+   "id": "t",
+   "name": "感謝道歉",
+   "emoji": "🙏"
+  },
+  {
+   "id": "c",
+   "name": "鼓勵祝福",
+   "emoji": "💪"
+  },
+  {
+   "id": "e",
+   "name": "吃喝玩樂",
+   "emoji": "🍜"
+  },
+  {
+   "id": "h",
+   "name": "節日",
+   "emoji": "🎉"
+  }
+ ],
+ "phrases": [
+  {
+   "id": "en001",
+   "cat": "g",
+   "text": "Good morning!",
+   "zh": "早安"
+  },
+  {
+   "id": "en002",
+   "cat": "g",
+   "text": "Good night!",
+   "zh": "晚安"
+  },
+  {
+   "id": "en003",
+   "cat": "g",
+   "text": "Hi there!",
+   "zh": "哈囉"
+  },
+  {
+   "id": "en004",
+   "cat": "g",
+   "text": "Long time no see!",
+   "zh": "好久不見"
+  },
+  {
+   "id": "en005",
+   "cat": "g",
+   "text": "Bye-bye!",
+   "zh": "掰掰"
+  },
+  {
+   "id": "en006",
+   "cat": "g",
+   "text": "I'm home!",
+   "zh": "我回來了"
+  },
+  {
+   "id": "en007",
+   "cat": "g",
+   "text": "Welcome back!",
+   "zh": "你回來啦"
+  },
+  {
+   "id": "en008",
+   "cat": "r",
+   "text": "OK!",
+   "zh": "好喔"
+  },
+  {
+   "id": "en009",
+   "cat": "r",
+   "text": "Got it!",
+   "zh": "收到"
+  },
+  {
+   "id": "en010",
+   "cat": "r",
+   "text": "No problem!",
+   "zh": "沒問題"
+  },
+  {
+   "id": "en011",
+   "cat": "r",
+   "text": "Wait a sec!",
+   "zh": "等一下"
+  },
+  {
+   "id": "en012",
+   "cat": "r",
+   "text": "Really?",
+   "zh": "真的嗎？"
+  },
+  {
+   "id": "en013",
+   "cat": "r",
+   "text": "Me too!",
+   "zh": "我也是"
+  },
+  {
+   "id": "en014",
+   "cat": "r",
+   "text": "No way!",
+   "zh": "不要"
+  },
+  {
+   "id": "en015",
+   "cat": "f",
+   "text": "LOL",
+   "zh": "笑死"
+  },
+  {
+   "id": "en016",
+   "cat": "f",
+   "text": "I'm so tired…",
+   "zh": "好累"
+  },
+  {
+   "id": "en017",
+   "cat": "f",
+   "text": "I'm hungry!",
+   "zh": "好餓"
+  },
+  {
+   "id": "en018",
+   "cat": "f",
+   "text": "I'm so happy!",
+   "zh": "好開心"
+  },
+  {
+   "id": "en019",
+   "cat": "f",
+   "text": "I'm so sad…",
+   "zh": "好難過"
+  },
+  {
+   "id": "en020",
+   "cat": "f",
+   "text": "I'm mad!",
+   "zh": "生氣了"
+  },
+  {
+   "id": "en021",
+   "cat": "f",
+   "text": "OMG!",
+   "zh": "嚇死我了"
+  },
+  {
+   "id": "en022",
+   "cat": "t",
+   "text": "Thank you!",
+   "zh": "謝謝"
+  },
+  {
+   "id": "en023",
+   "cat": "t",
+   "text": "Thanks a lot!",
+   "zh": "非常感謝"
+  },
+  {
+   "id": "en024",
+   "cat": "t",
+   "text": "I'm sorry!",
+   "zh": "對不起"
+  },
+  {
+   "id": "en025",
+   "cat": "t",
+   "text": "Good job today!",
+   "zh": "辛苦了"
+  },
+  {
+   "id": "en026",
+   "cat": "t",
+   "text": "You're welcome!",
+   "zh": "不客氣"
+  },
+  {
+   "id": "en027",
+   "cat": "t",
+   "text": "Please!",
+   "zh": "拜託"
+  },
+  {
+   "id": "en028",
+   "cat": "c",
+   "text": "You got this!",
+   "zh": "加油"
+  },
+  {
+   "id": "en029",
+   "cat": "c",
+   "text": "You're the best!",
+   "zh": "你最棒"
+  },
+  {
+   "id": "en030",
+   "cat": "c",
+   "text": "Love you!",
+   "zh": "愛你"
+  },
+  {
+   "id": "en031",
+   "cat": "c",
+   "text": "Miss you!",
+   "zh": "想你"
+  },
+  {
+   "id": "en032",
+   "cat": "c",
+   "text": "Hugs!",
+   "zh": "抱抱"
+  },
+  {
+   "id": "en033",
+   "cat": "c",
+   "text": "Congrats!",
+   "zh": "恭喜"
+  },
+  {
+   "id": "en034",
+   "cat": "e",
+   "text": "Let's eat!",
+   "zh": "一起吃飯吧"
+  },
+  {
+   "id": "en035",
+   "cat": "e",
+   "text": "Yummy!",
+   "zh": "好好吃"
+  },
+  {
+   "id": "en036",
+   "cat": "e",
+   "text": "Let's go!",
+   "zh": "走吧"
+  },
+  {
+   "id": "en037",
+   "cat": "e",
+   "text": "Happy weekend!",
+   "zh": "週末愉快"
+  },
+  {
+   "id": "en038",
+   "cat": "e",
+   "text": "Off work!",
+   "zh": "下班了"
+  },
+  {
+   "id": "en039",
+   "cat": "h",
+   "text": "Happy birthday!",
+   "zh": "生日快樂"
+  },
+  {
+   "id": "en040",
+   "cat": "h",
+   "text": "Happy New Year!",
+   "zh": "新年快樂"
+  },
+  {
+   "id": "en041",
+   "cat": "h",
+   "text": "Merry Christmas!",
+   "zh": "聖誕快樂"
+  },
+  {
+   "id": "en042",
+   "cat": "h",
+   "text": "Happy Valentine's Day!",
+   "zh": "情人節快樂"
+  }
+ ]
+}

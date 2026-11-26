@@ -17,40 +17,31 @@
   SS.views.home = {
     title: '',
     render(el) {
+      const mk = SS.ls.get('make', null); const d = SS.draft.get();
+      const resume = mk && mk.step > 1 ? `<a class="resume" href="#make">↩️ 繼續上次的製作（步驟 ${mk.step}／6${d.text ? '・「' + esc(d.text.split('\n')[0].slice(0, 10)) + '」' : ''}）</a>` : '';
       el.innerHTML = `
-      <section class="hero">
-        <img src="assets/icons/icon-192.png" alt="今天貼什麼？App 圖示" class="hero-logo" width="96" height="96">
-        <div>
-          <h1>今天貼什麼？</h1>
-          <p class="hero-en">Sticker Studio</p>
-          <p class="slogan">生活有百種心情，貼圖不必只有一種。</p>
-          <p class="brand-by">白話實驗室 出品・baihua.tw</p>
-        </div>
+      <section class="hero-mini">
+        <img src="assets/icons/icon-192.png" alt="今天貼什麼？App 圖示" class="hero-logo-s" width="64" height="64">
+        <div><h1>今天貼什麼？</h1><p class="slogan">生活有百種心情，貼圖不必只有一種。</p><p class="brand-by">白話實驗室 出品・baihua.tw</p></div>
       </section>
-      <div class="flow" aria-label="創作流程">
-        <span>① 設計角色</span><i>→</i><span>② 產生提示詞</span><i>→</i><span>③ AI 生圖</span><i>→</i><span>④ 加工下載</span>
-      </div>
-      <div id="install-cta"></div>
-      <a class="tg-banner" href="#taigi"><span class="tg-b-ic">🧋</span><span><b>台語貼圖專區</b><small>超過 150 句台語生活用語・正字／諧音／華語／台華混搭</small></span><i>→</i></a>
-      <a class="tg-banner tx-banner" href="#textsticker"><span class="tg-b-ic">🔤</span><span><b>純文字貼圖</b><small>不用畫圖、不用 AI：選字體與裝飾，直接下載 PNG</small></span><i>→</i></a>
-      <nav class="home-grid">
-        ${HOME_CARDS.map(([r, ic, t, s, c]) => `<a class="home-card ${c}" href="#${r}"><span class="hc-ic">${ic}</span><b>${t}</b><small>${s}</small></a>`).join('')}
+      <a class="main-cta" href="#make"><span class="mc-num">01</span><span><b>開始製作貼圖</b><small>照片・原創角色・純文字｜華語・台語・金門話・英日韓</small></span><i>→</i></a>
+      ${resume}
+      <nav class="main-list" aria-label="主要功能">
+        <a href="#editor"><span class="mc-num">02</span><span><b>貼圖加工室</b><small>裁切・消除文字・加字・裝飾・去背・切圖・LINE 尺寸</small></span><i>→</i></a>
+        <a href="#collection"><span class="mc-num">03</span><span><b>我的貼圖收藏</b><small>作品・角色設定・常用文字・我的家鄉話</small></span><i>→</i></a>
       </nav>
-      <section class="more-links">
-        <a href="#guide">📘 新手使用教學</a>
-        <a href="#share">🔗 分享給朋友</a>
-        <a href="#install">📲 安裝至手機主畫面</a>
-        <a href="#privacy">🔒 隱私權與使用說明</a>
-        <a href="#about">🐾 關於本 App</a>
-        <a href="#version">🏷️ 版本資訊 v${SS.VERSION}</a>
-      </section>`;
+      <div id="install-cta"></div>
+      <section class="how"><b>三步完成</b><ol><li>設定角色、文字與樣式</li><li>複製提示詞去 AI 生圖（純文字免 AI）</li><li>回加工室調整、下載 PNG</li></ol></section>
+      <nav class="sub-links" aria-label="其他">
+        <a href="#guide">使用教學</a><a href="#share">分享 App</a><a href="#install">安裝至手機</a><a href="#about">關於本 App</a><a href="#privacy">隱私權說明</a><a href="#version">版本資訊 v${SS.VERSION}</a>
+      </nav>`;
       SS.renderInstallCTA();
       if (!SS.ls.get('welcomed', false)) {
         SS.ls.set('welcomed', true);
         setTimeout(() => SS.modal(`<h3>歡迎來到「今天貼什麼？」</h3>
-          <ol class="steps"><li><b>選角色與畫風</b>：用照片，或直接創造新角色。</li>
-          <li><b>複製提示詞</b>：一鍵貼到 ChatGPT 或 Gemini 生圖。</li>
-          <li><b>回來加工</b>：裁切、加字、去背、切宮格、下載 PNG。</li></ol>
+          <ol class="steps"><li><b>按「開始製作貼圖」</b>：選照片、原創角色或純文字。</li>
+          <li><b>照著步驟設定</b>：角色、文字語言、樣式與張數。</li>
+          <li><b>產生結果</b>：複製提示詞去 AI 生圖，或直接下載純文字貼圖。</li></ol>
           <p class="note">不用註冊、不用 API Key。照片只在你的瀏覽器處理，不會上傳。</p>
           <button class="btn primary block" onclick="SS.closeModal()">開始玩 ✨</button>`), 300);
       }
@@ -545,20 +536,23 @@
 
   /* ================= 說明類頁面 ================= */
   SS.views.guide = {
-    title: '📘 新手使用教學',
+    title: '📘 使用教學',
     render(el) {
-      el.innerHTML = `<div class="card"><ol class="steps big">
-        <li><b>決定角色</b><br>有照片 → 「📸 照片變貼圖」；沒照片 → 「🎨 創造新角色」；沒靈感 → 「🎁 貼圖盲盒」。</li>
-        <li><b>選畫風與一句話</b><br>8 種畫風任選，文字可從「💬 生活用語庫」挑。</li>
-        <li><b>複製提示詞去生圖</b><br>按「複製並開啟 ChatGPT／Gemini」，貼上後送出。用照片時記得在那邊也上傳照片。</li>
-        <li><b>回來加工</b><br>把生成的圖存到手機，再到「✂️ 貼圖加工室」裁切、加字、單色去背，輸出 PNG。</li>
-        <li><b>做成一整套</b><br>「🪄 整套貼圖企劃」一次規劃 8～40 張；用宮格提示詞生成後，到「📱 LINE 貼圖工具」切圖並打包 ZIP。</li>
-        <li><b>收藏與分享</b><br>完成的貼圖存到「💗 我的貼圖收藏」，可下載或用手機分享。</li></ol></div>
+      el.innerHTML = `<div class="card"><h2>只要跟著「開始製作貼圖」走</h2><ol class="steps big">
+        <li><b>STEP 1 選類型</b><br>📷 使用照片、🎨 原創角色，或 🔤 純文字貼圖（不用 AI）。</li>
+        <li><b>STEP 2 角色與畫風</b><br>選角色、8 種畫風、表情動作；沒靈感就按「🎁 隨機搭配」。純文字會自動略過這步。</li>
+        <li><b>STEP 3 文字與語言</b><br>繁中、台語、金門話、英日韓、我的家鄉話或自訂語言；可搜尋、分類、收藏、隨機。</li>
+        <li><b>STEP 4 樣式與裝飾</b><br>字體、配色、位置、直排與 0～3 個裝飾；「🎲 隨機設計」不會改你的文字。</li>
+        <li><b>STEP 5 張數</b><br>單張或 4～40 張整套，按「自動規劃」後可逐張修改。</li>
+        <li><b>STEP 6 產生結果</b><br>照片／角色：複製提示詞去 ChatGPT 或 Gemini，生成後按「匯入 AI 圖片到加工室」。純文字：直接下載 PNG 或整套 ZIP。</li></ol>
+        <a class="btn primary block" href="#make">開始製作 →</a></div>
+      <div class="card"><h2>加工室</h2><ul class="list"><li><b>裁切縮放</b>：LINE 尺寸、旋轉翻轉</li><li><b>消除工具</b>：擦掉 AI 寫錯的字（手動，非 AI）</li><li><b>文字編輯</b>：多組文字、字體、描邊、陰影、直排、隨機設計</li><li><b>裝飾素材</b>：18 種可移動縮放的裝飾</li><li><b>去除背景</b>：單色去背</li><li><b>切圖與尺寸</b>：宮格切圖、LINE 規格檢查、ZIP</li><li><b>輸出下載</b>：PNG、收藏、分享</li></ul></div>
       <div class="card"><h2>常見問題</h2>
-        <details><summary>為什麼 App 不直接幫我生圖？</summary><p>直接生圖需要付費 AI API 與金鑰，放在公開網站不安全。V1.0 讓你使用自己已有的 ChatGPT 或 Gemini，所以本 App 完全免費、不用註冊。</p></details>
-        <details><summary>AI 畫出來的中文字是錯的？</summary><p>這是生圖模型常見的限制。建議選「之後在加工室加字」，讓 AI 只畫角色，文字由本 App 用電腦字型加上，保證正確。</p></details>
-        <details><summary>背景不是透明的？</summary><p>部分工具無法輸出透明背景。提示詞已要求改用純白背景，你可以在加工室用「單色去背」處理。</p></details>
-        <details><summary>換手機後收藏不見了？</summary><p>收藏只存在目前這個瀏覽器。換裝置前請到收藏頁「匯出備份」，在新裝置「匯入備份」。</p></details>
+        <details><summary>為什麼 App 不直接幫我生圖？</summary><p>直接生圖需要付費 AI API 與金鑰，放在公開網站不安全。本 App 讓你使用自己已有的 ChatGPT 或 Gemini，所以完全免費、不用註冊。</p></details>
+        <details><summary>提示詞語言和貼圖文字語言有什麼不同？</summary><p>「提示詞語言」是給 AI 看的說明（繁中或英文）；「貼圖文字語言」是印在貼圖上的字。例如可以用繁中提示詞，做出日文字的貼圖。</p></details>
+        <details><summary>AI 畫出來的中文字是錯的？</summary><p>建議選「AI 不畫字，之後由 App 加」，或到加工室用「消除工具」擦掉錯字後重新加字。</p></details>
+        <details><summary>金門話資料從哪裡來？</summary><p>取自教育部《臺灣台語常用詞辭典》「詞彙方言差」中金門點的說法（單詞），附金門腔臺羅。「我的家鄉話」則是你自建的詞庫，App 不會查證。</p></details>
+        <details><summary>換手機後收藏不見了？</summary><p>收藏只存在目前的瀏覽器。換裝置前請到「我的貼圖收藏」匯出備份，在新裝置匯入。</p></details>
       </div>`;
     }
   };
@@ -594,7 +588,10 @@
   SS.views.version = {
     title: '🏷️ 版本資訊',
     render(el) {
-      el.innerHTML = `<div class="card"><h2>v${SS.VERSION}｜文字編輯與貼圖裝飾強化版</h2><ul class="list">
+      el.innerHTML = `<div class="card"><h2>v${SS.VERSION}｜介面與操作流程重構版</h2><ul class="list">
+        <li>首頁只留三個入口：開始製作、加工室、收藏；底部導覽列</li><li>六步驟製作流程：類型 → 角色畫風 → 文字語言 → 樣式裝飾 → 張數 → 產生結果</li>
+        <li>金門話詞庫（教育部詞彙方言差）、英日韓短句、我的家鄉話、自訂語言；提示詞可輸出繁中或英文</li><li>純文字貼圖整套批次輸出 ZIP；LINE 工具整合進加工室</li></ul>
+        <h2>v1.2｜文字編輯與貼圖裝飾強化版</h2><ul class="list">
         <li>加工室圖層化：底圖、多組文字、裝飾分開編輯、刪除與還原／重做</li><li>7 套開源字型、直排、旋轉、陰影、字距行距、9 個快速定位</li>
         <li>消除工具：橡皮擦、填色筆刷、框選消除、周圍延伸填補、放大檢視</li><li>純文字貼圖、18 種裝飾素材、隨機設計（本機排版與 AI 提示詞）</li></ul>
         <h2>v1.1｜台語貼圖專區</h2><ul class="list"><li>151 句台語用語、正字／諧音／華語／台華混搭、9 個台語企劃主題</li></ul>

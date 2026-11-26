@@ -178,11 +178,42 @@
     return parts;
   };
 
+  /* 內建選項的英文對照（提示詞英文輸出用；使用者自填內容原樣保留） */
+  SS.EN = {
+    '人物': 'person', '貓咪': 'cat', '狗狗': 'dog', '兔子': 'rabbit', '幻想生物': 'fantasy creature', '照片中的人物': 'the person in the photo', '照片中的寵物': 'the pet in the photo',
+    '開心大笑': 'laughing happily', '甜甜微笑': 'sweet smile', '害羞臉紅': 'shy and blushing', '傻眼': 'dumbfounded', '生氣鼓臉': 'pouting angrily', '哭哭': 'crying', '感動落淚': 'touched to tears', '愛心眼': 'heart eyes', '驚訝': 'surprised', '得意': 'smug', '疲累': 'exhausted', '無言': 'speechless', '眨眼': 'winking', '認真': 'serious', '想睡': 'sleepy', '崇拜發光': 'starry-eyed admiration', '心虛冒汗': 'nervous sweating', '崩潰吶喊': 'screaming in despair', '元氣滿滿': 'full of energy',
+    '揮手打招呼': 'waving hello', '比讚': 'thumbs up', '鞠躬': 'bowing', '躺平': 'lying flat', '奔跑': 'running', '張開雙手抱抱': 'arms open for a hug', '比愛心': 'making a heart sign', '雙手捧臉': 'cheeks in both hands', '雙手叉腰': 'hands on hips', '開心跳起來': 'jumping for joy', '撒花': 'throwing confetti', '敬禮': 'saluting', '從牆邊探頭': 'peeking from behind a wall', '趴在地上': 'lying on the floor', '雙手合十': 'palms together', '拍手': 'clapping', '指向前方': 'pointing forward', '抱頭': 'holding head', '舉牌': 'holding up a sign', '轉圈圈': 'spinning around',
+    '無': 'none', '愛心': 'heart', '咖啡杯': 'coffee cup', '手機': 'smartphone', '便當': 'lunch box', '枕頭': 'pillow', '花束': 'bouquet', '氣球': 'balloon', '筆電': 'laptop', '雨傘': 'umbrella', '錢包': 'wallet', '生日蛋糕': 'birthday cake', '紅包': 'red envelope', '珍珠奶茶': 'bubble tea', '小旗子': 'small flag', '星星': 'star',
+    '溫柔體貼': 'gentle', '傲嬌': 'tsundere', '慵懶': 'lazy', '搞笑': 'funny', '認真負責': 'responsible', '天然呆': 'airheaded', '愛撒嬌': 'clingy and cute',
+    '奶油白＋蜜桃橘': 'cream white and peach orange', '粉紅＋白': 'pink and white', '天空藍＋白': 'sky blue and white', '黑白配色': 'black and white', '橘虎斑': 'orange tabby', '灰白': 'grey and white', '抹茶綠＋米色': 'matcha green and beige', '淡紫＋奶油': 'lavender and cream',
+    '全身・置中': 'full body, centered', '半身・大頭特寫': 'half body, big-head close-up', '側身回頭': 'side view looking back', '從畫面邊緣探出頭': 'peeking in from the edge', '坐姿': 'sitting', '動態傾斜構圖': 'dynamic tilted composition', '搭配大型道具': 'with a large prop', '雙手舉牌': 'holding a sign with both hands',
+    '我本人': 'myself', '家人': 'a family member', '朋友': 'a friend', '寵物': 'a pet'
+  };
+  const en = (v) => (v && SS.EN[v]) || v;
+  SS.styleOf = (id) => SS.STYLES.find((s) => s.id === id);
+  SS.styleText = (d, lang) => d.style === 'custom' ? (d.customStyle || (lang === 'en' ? 'custom style' : '使用者自訂畫風')) : ((SS.styleOf(d.style) || SS.STYLES[0])[lang === 'en' ? 'en' : 'prompt']);
+  SS.styleName = (d) => d.style === 'custom' ? '自訂：' + (d.customStyle || '未填寫') : (SS.styleOf(d.style) || SS.STYLES[0]).name;
+
+  SS.charSummary = function (d, lang) {
+    const E = lang === 'en';
+    const type = d.charType === '自訂角色' ? (d.customType || (E ? 'original character' : '原創角色')) : (E ? en(d.charType) : d.charType);
+    const parts = [E ? `Character type: ${type}` : `角色類型：${type}`];
+    const f = (k, zh, eng) => { if (d[k]) parts.push(E ? `${eng}: ${en(d[k])}` : `${zh}：${d[k]}`); };
+    f('name', '角色名稱', 'Name'); f('appearance', '外貌特徵', 'Appearance'); f('hair', '髮型／毛色', 'Hair / fur'); f('outfit', '服裝', 'Outfit'); f('colors', '主要配色', 'Main colors'); f('personality', '個性', 'Personality');
+    return parts;
+  };
+  /* 文字語言的前綴（例：台語文字、日文文字） */
+  const textPrefix = (d, E) => {
+    if (!d.textLang || d.textLang === 'zh') return E ? 'Traditional Chinese ' : '';
+    return E ? SS.langLabel(d, true) + ' ' : ({ taigi: '台語', kinmen: '金門話', en: '英文', ja: '日文', ko: '韓文' }[d.textLang] || SS.langLabel(d, false));
+  };
+
   /**
    * 產生單張貼圖提示詞
-   * d: 角色與畫面設定；opt: { source:'photo'|'character', subject, keepNotes, index, total, series, composition }
+   * d: 角色與畫面設定；opt: { source:'photo'|'character', subject, keepNotes, index, total, series, composition, lang:'zh'|'en' }
    */
   SS.buildPrompt = function (d, opt = {}) {
+    if (opt.lang === 'en') return buildPromptEN(d, opt);
     const L = [];
     const head = opt.total > 1 ? `（第 ${opt.index} / ${opt.total} 張${opt.series ? '・' + opt.series : ''}）` : '';
     L.push(`請幫我畫一張聊天用的貼圖${head}。`);
@@ -209,15 +240,19 @@
     L.push('・表情與肢體要誇張、一眼看懂情緒。');
     L.push('');
     L.push('【貼圖文字】');
+    const pre = textPrefix(d, false);
+    const meaning = d.textLang && d.textLang !== 'zh' && d.textZh ? `（意思是：${d.textZh}）` : '';
     if (d.noText || !d.text) {
       L.push('・這張貼圖不放任何文字。');
     } else if (d.aiText) {
-      L.push(`・在畫面中加入${d.textLang === 'taigi' ? '台語漢字（教育部推薦用字）' : '繁體中文'}文字「${d.text}」，字數與字形必須完全正確，不可出現錯字、簡體字或亂碼。`);
-      if (d.textLang === 'taigi') L.push('・這是台語用字，請逐字照抄，不要改寫成華語用詞、同音字或簡體字。如果無法保證每個字都正確，請改為不畫文字並預留空間。');
+      const label = d.textLang === 'taigi' ? '台語漢字（教育部推薦用字）' : (pre ? pre : '繁體中文');
+      L.push(`・在畫面中加入${label}文字「${d.text}」${meaning}，字數與字形必須完全正確，不可出現錯字、簡體字或亂碼。`);
+      if (d.textLang === 'taigi' || d.textLang === 'kinmen') L.push(`・這是${pre}用字，請逐字照抄，不要改寫成華語用詞、同音字或簡體字。如果無法保證每個字都正確，請改為不畫文字並預留空間。`);
+      else if (pre) L.push(`・請照原樣書寫${pre}，不要翻譯成中文，也不要改變拼寫或標點。`);
       L.push('・文字使用粗圓、可愛的手寫字感，搭配白色外框，放在不遮住臉的位置。');
     } else {
-      L.push(`・這張貼圖之後會另外加上${d.textLang === 'taigi' ? '台語' : ''}文字「${d.text}」，請不要在圖中畫任何文字，並在角色上方或旁邊預留放字的空間。`);
-      L.push(`・畫面情境要能表達這句話的意思${d.textLang === 'taigi' && d.textZh ? '（意思是：' + d.textZh + '）' : ''}。`);
+      L.push(`・這張貼圖之後會另外加上${pre}文字「${d.text}」，請不要在圖中畫任何文字，並在角色上方或旁邊預留放字的空間。`);
+      L.push(`・畫面情境要能表達這句話的意思${meaning}。`);
     }
     if (d.text2 && !d.noText) {
       L.push(d.aiText ? `・另外加一組較小的文字「${d.text2}」，與主要文字分開擺放，同樣必須字形正確。` : `・另外也預留一組小文字「${d.text2}」的位置（不要畫字）。`);
@@ -232,11 +267,7 @@
     L.push('・畫面比例接近 370 × 320（橫式略寬）或正方形。');
     L.push('');
     L.push('【背景】');
-    if (d.transparent) {
-      L.push('・請輸出透明背景 PNG。若無法輸出透明背景，請改用純白色、無陰影、無漸層的單色背景，方便後續去背。');
-    } else {
-      L.push('・使用乾淨簡單的淺色背景。');
-    }
+    L.push(d.transparent ? '・請輸出透明背景 PNG。若無法輸出透明背景，請改用純白色、無陰影、無漸層的單色背景，方便後續去背。' : '・使用乾淨簡單的淺色背景。');
     L.push('');
     L.push('【角色一致性】');
     L.push('・若這是同系列貼圖，角色的臉型、比例、配色、服裝與畫風必須與前面每一張保持一致。');
@@ -246,44 +277,123 @@
     return L.join('\n');
   };
 
-  /* 文字與裝飾設計（給 AI 的提示詞用，v1.2） */
+  function buildPromptEN(d, opt) {
+    const L = [];
+    L.push(`Please draw one chat sticker${opt.total > 1 ? ` (sticker ${opt.index} of ${opt.total}${opt.series ? ', series: ' + opt.series : ''})` : ''}.`);
+    L.push('');
+    if (opt.source === 'photo') {
+      L.push('[Reference photo]');
+      L.push(`I will upload a photo of ${en(opt.subject) || 'a person'}. Use the main subject as the character model.`);
+      L.push('Keep recognizable features — face shape, hairstyle or fur pattern, skin or fur color, accessories and overall vibe — then convert into the art style below.');
+      if (opt.keepNotes) L.push(`Be sure to keep: ${opt.keepNotes}`);
+      L.push('Use only the main subject; do not copy the photo background or other people.');
+      L.push('');
+    }
+    L.push('[Character]');
+    SS.charSummary(d, 'en').forEach((p) => L.push('- ' + p));
+    L.push('');
+    L.push('[Art style & colors]');
+    L.push(`- Style: ${SS.styleText(d, 'en')}`);
+    if (d.colors) L.push(`- Main palette: ${en(d.colors)}; harmonious, high contrast, readable when small.`);
+    L.push('');
+    L.push('[Expression & pose]');
+    L.push(`- Expression: ${en(d.expression) || 'happy'}`);
+    L.push(`- Pose / action: ${en(d.action) || 'natural standing pose'}`);
+    if (d.prop && d.prop !== '無') L.push(`- Prop: ${en(d.prop)}`);
+    L.push('- Exaggerated, instantly readable emotion and body language.');
+    L.push('');
+    L.push('[Sticker text]');
+    const lang = SS.langLabel(d, true);
+    const meaning = d.textLang && d.textLang !== 'zh' && d.textZh ? ` (meaning: ${d.textZh})` : '';
+    if (d.noText || !d.text) L.push('- No text on this sticker.');
+    else if (d.aiText) {
+      L.push(`- Add the text "${d.text}" in ${lang}${meaning}. Reproduce every character exactly — no typos, no Simplified Chinese, no garbled glyphs, do not translate.`);
+      L.push('- Cute bold rounded hand-lettering with a white outline, placed where it does not cover the face.');
+    } else {
+      L.push(`- Do NOT draw any text. The ${lang} text "${d.text}"${meaning} will be added later; leave clear empty space above or beside the character.`);
+      L.push('- The scene should express the meaning of this phrase.');
+    }
+    if (d.text2 && !d.noText) L.push(d.aiText ? `- Also add a smaller second line "${d.text2}", placed separately, spelled exactly.` : `- Also leave space for a small second line "${d.text2}" (do not draw it).`);
+    const dz = SS.designText(d.design, 'en');
+    if (dz.length) { L.push(''); L.push('[Text & decoration design]'); dz.forEach((x) => L.push(x)); }
+    L.push('');
+    L.push('[Composition]');
+    L.push(`- Composition: ${en(opt.composition) || 'character centered, full or half body'}`);
+    L.push('- One character, one panel — not a comic strip.');
+    L.push('- Keep about 10px of empty margin around the character and text; nothing cropped.');
+    L.push('- Aspect ratio close to 370 × 320 (slightly landscape) or square.');
+    L.push('');
+    L.push('[Background]');
+    L.push(d.transparent ? '- Transparent PNG background. If transparency is not possible, use a plain flat white background with no shadow or gradient.' : '- Clean, simple light background.');
+    L.push('');
+    L.push('[Consistency]');
+    L.push('- For a series, keep the same face, proportions, colors, outfit and art style in every sticker.');
+    L.push('');
+    L.push('[Originality]');
+    L.push('- Original character and design only; do not imitate famous characters, mascots, brand logos or specific artists.');
+    return L.join('\n');
+  }
+
+  /* 文字與裝飾設計（給 AI 的提示詞用） */
   SS.DESIGN_FONTS = [['', '不指定'], ['round', '可愛圓體'], ['hand', '手寫字'], ['kid', '童趣手寫'], ['comic', '搞笑漫畫字'], ['bold', '超粗黑體'], ['retro', '復古明體'], ['sans', '標準黑體']];
   SS.DESIGN_COLORS = [['', '不指定'], ['wb', '白字＋咖啡色粗描邊'], ['po', '蜜桃橘字＋白色描邊'], ['wr', '白字＋紅色描邊'], ['bw', '深咖啡字＋白色描邊'], ['yb', '黃字＋咖啡色描邊'], ['blw', '天空藍字＋白色描邊'], ['pkw', '粉紅字＋白色描邊']];
-  SS.designText = function (g) {
+  SS.designText = function (g, lang) {
     if (!g) return [];
-    const L = [];
-    const f = SS.DESIGN_FONTS.find((x) => x[0] === g.font); if (g.font && f) L.push(`・文字字體風格：${f[1]}`);
-    const c = SS.DESIGN_COLORS.find((x) => x[0] === g.color); if (g.color && c) L.push(`・文字配色：${c[1]}`);
-    if (g.pos && SS.TEXT_POS && SS.TEXT_POS[g.pos]) L.push(`・文字位置：${SS.TEXT_POS[g.pos][0]}`);
-    if (g.decos && g.decos.length) L.push(`・裝飾元素：${g.decos.map((id) => SS.decoById[id] ? SS.decoById[id].name : id).join('、')}（小巧點綴，不要遮住角色臉部或文字）`);
-    else if (g.decos) L.push('・不要加任何裝飾元素');
+    const E = lang === 'en'; const L = [];
+    if (g.font) { const f = SS.fontOf ? SS.FONTS.find((x) => x.id === g.font) : null; const z = SS.DESIGN_FONTS.find((x) => x[0] === g.font); if (f || z) L.push(E ? `- Lettering style: ${f ? f.en : g.font}` : `・文字字體風格：${f ? f.prompt : z[1]}`); }
+    if (g.color) {
+      let name = null, nameEn = null;
+      const m = /^p(\d+)$/.exec(g.color); if (m && SS.PALETTE && SS.PALETTE[+m[1]]) { name = SS.PALETTE[+m[1]][2]; nameEn = SS.PALETTE[+m[1]][3]; }
+      else { const c = SS.DESIGN_COLORS.find((x) => x[0] === g.color); if (c) { name = c[1]; nameEn = c[1]; } }
+      if (name) L.push(E ? `- Text colors: ${nameEn}` : `・文字配色：${name}`);
+    }
+    if (g.shadow) L.push(E ? '- Soft drop shadow on the text' : '・文字加上柔和陰影');
+    if (g.vertical) L.push(E ? '- Vertical text layout' : '・文字直排');
+    if (g.pos && SS.TEXT_POS && SS.TEXT_POS[g.pos]) L.push(E ? `- Text position: ${SS.TEXT_POS[g.pos][3]}` : `・文字位置：${SS.TEXT_POS[g.pos][0]}`);
+    if (g.decos && g.decos.length) L.push(E ? `- Decorations: ${g.decos.map((id) => (SS.decoById[id] && SS.decoById[id].en) || id).join(', ')} (small accents, never covering the face or text)` : `・裝飾元素：${g.decos.map((id) => SS.decoById[id] ? SS.decoById[id].name : id).join('、')}（小巧點綴，不要遮住角色臉部或文字）`);
+    else if (g.decos) L.push(E ? '- No decorations' : '・不要加任何裝飾元素');
     return L;
   };
 
   /* 宮格合併提示詞（一次畫出多張，之後用切圖工具分割） */
   SS.buildGridPrompt = function (d, items, rows, cols, opt = {}) {
-    const L = [];
+    const E = opt.lang === 'en'; const L = [];
+    if (E) {
+      L.push(`Please draw a ${rows}×${cols} sticker sheet with ${items.length} cells${opt.series ? ' (' + opt.series + ')' : ''}. Each cell is a separate sticker of the same character, with clear equal gaps between cells for easy slicing.`);
+      L.push('');
+      if (opt.source === 'photo') { L.push('[Reference photo] I will upload a photo; keep the face shape, hairstyle or fur, and accessories.'); L.push(''); }
+      L.push('[Character]'); SS.charSummary(d, 'en').forEach((p) => L.push('- ' + p)); L.push(`- Style: ${SS.styleText(d, 'en')}`); L.push('');
+      L.push('[Cells] (left to right, top to bottom)');
+      items.forEach((it, i) => {
+        const mean = it.lang && it.lang !== 'zh' && it.zh ? ` (meaning: ${it.zh})` : '';
+        const txt = it.noText || !it.text ? 'no text' : (d.aiText ? `text "${it.text}"${mean}` : `no text (leave space for "${it.text}"${mean})`);
+        L.push(`${i + 1}. ${en(it.expression)} · ${en(it.action)}${it.prop && it.prop !== '無' ? ' · prop: ' + en(it.prop) : ''} · ${txt}`);
+      });
+      L.push(''); L.push('[Requirements]'); L.push('- Identical character design, proportions, colors and style in every cell.');
+      if (d.aiText) L.push(`- Text is ${SS.langLabel(d, true)}; copy every character exactly, add a white outline.`);
+      L.push(d.transparent ? '- Plain white background, no shadows, no grid lines.' : '- Clean flat background.');
+      L.push('- Character centered in each cell with margin; nothing crosses cell borders.'); L.push('- Original design; do not imitate famous characters or brands.');
+      return L.join('\n');
+    }
     L.push(`請幫我畫一張 ${rows}×${cols} 宮格的貼圖總表，共 ${items.length} 格${opt.series ? '（' + opt.series + '）' : ''}。`);
     L.push('每一格都是同一個角色的獨立貼圖，格與格之間保留明顯的等寬空白間距，方便之後平均切割。');
     L.push('');
-    if (opt.source === 'photo') {
-      L.push('【參考照片】我會上傳主角照片，請保留臉型、髮型或毛色、配件等可辨識特徵。');
-      L.push('');
-    }
+    if (opt.source === 'photo') { L.push('【參考照片】我會上傳主角照片，請保留臉型、髮型或毛色、配件等可辨識特徵。'); L.push(''); }
     L.push('【角色設定】');
     SS.charSummary(d).forEach((p) => L.push('・' + p));
     L.push(`・畫風：${SS.styleText(d)}`);
     L.push('');
     L.push('【各格內容】（由左到右、由上到下）');
+    const preName = { taigi: '台語', kinmen: '金門話', en: '英文', ja: '日文', ko: '韓文' };
     items.forEach((it, i) => {
-      const tg = it.lang === 'taigi' ? `（台語，意思是「${it.zh || ''}」）` : '';
+      const tg = it.lang && it.lang !== 'zh' ? `（${preName[it.lang] || SS.langLabel({ textLang: it.lang }, false)}，意思是「${it.zh || ''}」）` : '';
       const txt = it.noText || !it.text ? '無文字' : (d.aiText ? `文字「${it.text}」${tg}` : `不畫字（預留「${it.text}」的空間${tg}）`);
       L.push(`${i + 1}. ${it.expression}・${it.action}${it.prop && it.prop !== '無' ? '・道具：' + it.prop : ''}・${txt}`);
     });
     L.push('');
     L.push('【要求】');
     L.push('・所有格子的角色外貌、比例、配色、畫風完全一致。');
-    if (d.aiText) L.push(d.textLang === 'taigi' ? '・文字為台語漢字，請逐字照抄，不可改成華語、同音字或簡體字，加白色外框。' : '・文字一律使用繁體中文，字形正確、不可亂碼，加白色外框。');
+    if (d.aiText) L.push(d.textLang === 'taigi' ? '・文字為台語漢字，請逐字照抄，不可改成華語、同音字或簡體字，加白色外框。' : (d.textLang && d.textLang !== 'zh' ? `・文字為${SS.langLabel(d, false)}，請逐字照抄、不要翻譯，加白色外框。` : '・文字一律使用繁體中文，字形正確、不可亂碼，加白色外框。'));
     L.push(d.transparent ? '・背景使用純白色、無陰影、無格線，方便去背與切割。' : '・背景使用乾淨單色。');
     L.push('・每格角色置中，四周留白，不要超出格子。');
     L.push('・原創設計，不模仿任何知名角色或品牌。');
@@ -383,7 +493,7 @@
   SS.renderInstallCTA = function () {
     const box = document.getElementById('install-cta'); if (!box) return;
     if (SS.env().standalone || SS.ls.get('installed', false) && !SS.deferredInstall) { box.innerHTML = ''; return; }
-    box.innerHTML = `<button class="install-cta" id="install-btn" type="button"><span class="ic">📲</span><span><b>安裝 App 到手機</b><small>${SS.deferredInstall ? '一鍵安裝，像 App 一樣從主畫面開啟' : '加到主畫面，全螢幕使用・可離線'}</small></span><i>安裝</i></button>`;
+    box.innerHTML = `<button class="install-cta" id="install-btn" type="button"><span class="ic">📲</span><span><b>安裝 App 到手機</b><small>${SS.deferredInstall ? '一鍵安裝，從主畫面開啟' : '加到主畫面・可離線使用'}</small></span><i>安裝</i></button>`;
     $('#install-btn', box).addEventListener('click', SS.install);
   };
 

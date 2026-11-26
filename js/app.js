@@ -1,6 +1,6 @@
 /* 路由、PWA 註冊、啟動 */
 (function () {
-  const { $ } = SS;
+  const { $, $$ } = SS;
   let cleanup = null;
   function route() {
     const name = (location.hash.replace(/^#\/?/, '').split('?')[0]) || 'home';
@@ -12,6 +12,8 @@
     old.replaceWith(main);
     main.classList.remove('enter'); void main.offsetWidth; main.classList.add('enter');
     document.body.dataset.view = name;
+    const grp = { home: 'home', make: 'make', photo: 'make', character: 'make', phrases: 'make', taigi: 'make', blindbox: 'make', plan: 'make', textsticker: 'make', editor: 'edit', line: 'edit', collection: 'coll' }[name] || '';
+    $$('#bottom-nav a').forEach((a) => a.classList.toggle('on', a.dataset.nav === grp));
     $('#topbar-title').textContent = view.title || '';
     $('#topbar').hidden = name === 'home' || !SS.views[name];
     document.title = view.title ? `${view.title.replace(/^\S+\s/, '')}｜今天貼什麼？` : '今天貼什麼？｜AI 貼圖製造機 Sticker Studio';
@@ -21,7 +23,8 @@
   SS.router = { rerender: route };
   window.addEventListener('hashchange', route);
 
-  $('#back-btn').addEventListener('click', () => { location.hash = '#home'; });
+  let depth = 0; window.addEventListener('hashchange', () => { depth++; });
+  $('#back-btn').addEventListener('click', () => { if (depth > 0) { depth -= 2; history.back(); } else location.hash = '#home'; });
   $('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal' || e.target.closest('.modal-close')) SS.closeModal(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#modal').hidden) SS.closeModal(); });
 

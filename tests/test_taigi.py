@@ -24,10 +24,9 @@ with sync_playwright() as p:
         ctx = b.new_context(viewport=vp, is_mobile=mob, has_touch=mob, accept_downloads=True, permissions=['clipboard-read', 'clipboard-write'])
         pg = ctx.new_page(); errs = []
         pg.on('pageerror', lambda e: errs.append(str(e))); pg.on('console', lambda m: errs.append(m.text) if m.type == 'error' else None)
-        pg.goto(BASE); pg.wait_for_selector('.home-card')
+        pg.goto(BASE); pg.wait_for_selector('.main-cta')
         pg.wait_for_selector('#modal:not([hidden])', timeout=5000); pg.wait_for_timeout(250); pg.click('.modal-close'); pg.wait_for_timeout(250)
-        check(P + '首頁有台語專區入口', pg.locator('a.tg-banner[href="#taigi"]').count() == 1)
-        pg.click('a.tg-banner'); pg.wait_for_selector('.tg-item')
+        pg.goto(BASE + '#taigi'); pg.wait_for_selector('.tg-item')
         check(P + '專區列出全部用語', pg.locator('.tg-item').count() == len(data['phrases']))
         w = pg.evaluate('document.documentElement.scrollWidth'); check(P + '專區無水平溢出', w <= vp['width'] + 1, w)
         def first_text(): return pg.inner_text('.tg-item .tg-main b')
@@ -60,8 +59,8 @@ with sync_playwright() as p:
         pg.click('.seg label:nth-child(1)'); pr = pg.input_value('#prompt-out')
         check(P + 'AI 畫台語字的逐字照抄提醒', '台語漢字（教育部推薦用字）' in pr and '逐字照抄' in pr)
         # 角色頁挑用語對話框台語分頁
-        pg.click('#f-pick'); pg.click('.lang-seg input[value="taigi"]'); pg.wait_for_selector('#pp-tg .tg-item')
-        pg.fill('#pp-tg #tg-q', '歹勢'); pg.click('#pp-tg .tg-item'); pg.wait_for_timeout(150)
+        pg.click('#f-pick'); pg.select_option('#pp-lang', 'taigi'); pg.wait_for_selector('#pp-box .tg-item')
+        pg.fill('#pp-box .pp-q', '歹勢'); pg.click('#pp-box .tg-item'); pg.wait_for_timeout(150)
         check(P + '挑用語對話框可選台語', pg.input_value('#f-text') == '歹勢啦', pg.input_value('#f-text'))
         # 照片變貼圖
         pg.goto(BASE + '#taigi'); pg.wait_for_selector('.tg-item'); pg.fill('#tg-q', '足感心'); pg.click('.tg-item'); pg.click('#tg-sheet [data-go="photo"]'); pg.wait_for_selector('#prompt-out')

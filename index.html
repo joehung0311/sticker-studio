@@ -30,8 +30,14 @@
   <a href="#home" class="topbar-logo" aria-label="首頁"><img src="assets/icons/icon-48.png" width="32" height="32" alt=""></a>
 </header>
 <main id="view" class="view" tabindex="-1"></main>
+<nav class="bottom-nav" id="bottom-nav" aria-label="主要導覽">
+  <a href="#home" data-nav="home"><span aria-hidden="true">🏠</span>首頁</a>
+  <a href="#make" data-nav="make"><span aria-hidden="true">🪄</span>製作</a>
+  <a href="#editor" data-nav="edit"><span aria-hidden="true">✂️</span>加工</a>
+  <a href="#collection" data-nav="coll"><span aria-hidden="true">💗</span>收藏</a>
+</nav>
 <footer class="footer">
-  <p>今天貼什麼？ Sticker Studio v1.2.0</p>
+  <p>今天貼什麼？ Sticker Studio v1.3.0</p>
   <p>Made by 白話實驗室／baihua.tw・<a href="#privacy">隱私權</a>・<a href="#about">關於</a></p>
 </footer>
 <div id="update-bar" class="update-bar" hidden>有新版本 🎉 <button id="update-btn" class="btn sm primary">立即更新</button></div>
@@ -43,11 +49,14 @@
 <script src="js/data.js"></script>
 <script src="js/core.js"></script>
 <script src="js/taigi.js"></script>
+<script src="js/lang.js"></script>
 <script src="js/views.js"></script>
 <script src="js/decos.js"></script>
+<script src="js/render.js"></script>
 <script src="js/editor.js"></script>
 <script src="js/linetool.js"></script>
 <script src="js/collection.js"></script>
+<script src="js/make.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

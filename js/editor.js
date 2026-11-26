@@ -8,36 +8,13 @@
     main: { w: 240, h: 240, label: 'LINE 主圖 240×240' },
     sq: { w: 512, h: 512, label: '正方形 512×512' },
     orig: { w: 0, h: 0, label: '原圖比例' },
+    tab: { w: 96, h: 74, label: 'LINE 標籤圖 96×74' },
     custom: { w: 400, h: 400, label: '自訂尺寸' }
   };
-  /* 字型（皆為 OFL 開源授權，見 fonts/ 資料夾） */
-  const FB = '"PingFang TC","Noto Sans TC","Microsoft JhengHei","Apple SD Gothic Neo","Hiragino Sans","SS Huninn",sans-serif'; // 粉圓收錄罕用台語字（如 𪜶），作為缺字備援
-  SS.FONTS = [
-    { id: 'round', name: '可愛圓體（粉圓）', family: `"SS Huninn",${FB}`, weight: 400 },
-    { id: 'hand', name: '手寫字體（霞鶩文楷）', family: `"SS LXGW WenKai TC",${FB}`, weight: 400 },
-    { id: 'kid', name: '童趣手寫（芫荽）', family: `"SS Iansui",${FB}`, weight: 400 },
-    { id: 'comic', name: '搞笑漫畫（Chiron 粗圓）', family: `"SS Chiron GoRound TC",${FB}`, weight: 900 },
-    { id: 'bold', name: '粗體字（思源黑體 Black）', family: `"SS Noto Sans TC Black",${FB}`, weight: 900 },
-    { id: 'retro', name: '復古字體（仙人掌明體）', family: `"SS Cactus Classical Serif","Noto Serif TC","PMingLiU","SS Huninn",serif`, weight: 400 },
-    { id: 'sans', name: '標準黑體（系統字型）', family: FB, weight: 700 }
-  ];
-  const fontOf = (id) => SS.FONTS.find((f) => f.id === id) || SS.FONTS[0];
-  /* 隨機設計用的配色（文字色、描邊色），都經過對比挑選 */
-  const PALETTE = [['#FFFFFF', '#5A3E2B'], ['#F59E6C', '#FFFFFF'], ['#FFFFFF', '#E8484A'], ['#5A3E2B', '#FFFFFF'], ['#FFD45E', '#5A3E2B'], ['#7FA8E8', '#FFFFFF'], ['#FFFFFF', '#6F9466'], ['#F2707A', '#FFFFFF'], ['#3B2A1E', '#FFE3D2'], ['#FFFFFF', '#8D6FC4']];
-  const POS = {
-    tl: ['左上角', 0.22, 0.16], top: ['主角上方', 0.5, 0.15], tr: ['右上角', 0.78, 0.16],
-    left: ['左側', 0.2, 0.5], mid: ['中間', 0.5, 0.5], right: ['右側', 0.8, 0.5],
-    bl: ['左下角', 0.22, 0.85], bottom: ['主角下方', 0.5, 0.86], br: ['右下角', 0.78, 0.85]
-  };
-  SS.TEXT_POS = POS;
-  const LANGS = { zh: '華語', taigi: '台語', kinmen: '金門話', en: 'English', ja: '日本語', ko: '한국어' };
-  const SAMPLE = {
-    en: ['Good morning', 'Thank you!', 'OK!', 'LOL', 'Love you', 'Good night', 'Sorry', 'See you'],
-    ja: ['おはよう', 'ありがとう', 'おつかれさま', 'おやすみ', '了解！', 'ごめんね', 'がんばって', 'またね'],
-    ko: ['안녕', '고마워', '사랑해', '잘 자', '화이팅!', '미안해', '좋아요', '배고파']
-  };
-
-  const textDefaults = () => ({ type: 'text', content: '', font: 'round', size: 56, color: '#FFFFFF', stroke: '#5A3E2B', strokeW: 8, shadow: false, shadowColor: 'rgba(0,0,0,0.35)', rot: 0, ls: 0, lh: 1.15, vertical: false, x: 0.5, y: 0.85 });
+  const fontOf = SS.fontOf;
+  const PALETTE = SS.PALETTE;
+  const POS = SS.TEXT_POS;
+  const textDefaults = SS.textDefaults;
   const defaultState = () => ({ rot: 0, flip: false, scale: 1, ox: 0, oy: 0, frame: 'line', cw: 400, ch: 400, bg: 'transparent', bgColor: '#ffffff', layers: [], sel: null, nid: 1 });
 
   function mountEditor(el, opts = {}) {
@@ -70,7 +47,7 @@
       <div class="layers" id="ed-layers" aria-label="圖層"></div>
 
       <div class="tabs scroll-tabs" role="tablist">
-        ${[['crop', '✂️', '裁切縮放'], ['erase', '🧽', '消除工具'], ['text', '🔤', '文字編輯'], ['deco', '⭐', '裝飾素材'], ['bg', '🪄', '去除背景'], ['rand', '🎲', '隨機設計'], ['out', '💾', '輸出下載']]
+        ${[['crop', '✂️', '裁切縮放'], ['erase', '🧽', '消除工具'], ['text', '🔤', '文字編輯'], ['deco', '⭐', '裝飾素材'], ['bg', '🪄', '去除背景'], ['size', '📐', '切圖與尺寸'], ['out', '💾', '輸出下載']]
           .map(([k, ic, n]) => `<button class="tab" data-tab="${k}" role="tab">${ic} ${n}</button>`).join('')}
       </div>
 
@@ -102,7 +79,7 @@
       </div>
 
       <div class="card tab-panel" data-panel="text" hidden>
-        <div class="row gap wrap"><label class="grow">語言<select id="ed-lang">${Object.entries(LANGS).map(([k, n]) => `<option value="${k}" ${k === lang ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+        <div class="row gap wrap"><label class="grow">語言<select id="ed-lang">${SS.LANGS.map((g) => `<option value="${g.id}" ${g.id === lang ? 'selected' : ''}>${g.name}</option>`).join('')}</select></label>
           <button class="btn primary" id="ed-addtext">➕ 新增文字</button><button class="btn" id="ed-pick">💬 挑用語</button></div>
         <p class="muted small" id="ed-langnote"></p>
         <div id="ed-tprops">
@@ -128,6 +105,13 @@
           <div class="pos-grid">${Object.entries(POS).map(([k, [n]]) => `<button class="btn xs" data-pos="${k}">${n}</button>`).join('')}</div>
           <p class="muted small">「主角上方／下方」會依圖片中不透明的主角範圍定位；沒有透明背景時以整張圖為準。</p>
         </div>
+        <details class="design-box" id="ed-randbox"><summary>🎲 隨機設計（字體・大小・顏色・位置・裝飾）</summary>
+        <p class="small">一鍵隨機搭配字體、大小、顏色、位置與裝飾，<b>不會改動你輸入的文字內容</b>。鎖住喜歡的項目，再按一次只換其他項目。</p>
+        <div class="lock-row">${[['font', '字體'], ['size', '大小'], ['color', '顏色'], ['pos', '位置'], ['deco', '裝飾']].map(([k, n]) => `<button class="lock-chip ${locks[k] ? 'on' : ''}" data-dlock="${k}" aria-pressed="${!!locks[k]}">${locks[k] ? '🔒' : '🔓'} ${n}</button>`).join('')}</div>
+        <p class="muted small">裝飾數量依「裝飾素材」分頁的設定（目前：<span id="ed-dcount-label"></span>）。</p>
+        <button class="btn primary block" id="ed-random">🎲 隨機設計</button>
+        <p class="note small">這是<b>本機隨機排版</b>，不需要 AI。想讓 AI 依隨機設計直接畫，請到「開始製作」的 STEP 4。</p>
+              </details>
       </div>
 
       <div class="card tab-panel" data-panel="deco" hidden>
@@ -152,12 +136,12 @@
         <p class="muted small">「恢復原始底圖」也會復原消除工具做過的修改。</p>
       </div>
 
-      <div class="card tab-panel" data-panel="rand" hidden>
-        <p class="small">一鍵隨機搭配字體、大小、顏色、位置與裝飾，<b>不會改動你輸入的文字內容</b>。鎖住喜歡的項目，再按一次只換其他項目。</p>
-        <div class="lock-row">${[['font', '字體'], ['size', '大小'], ['color', '顏色'], ['pos', '位置'], ['deco', '裝飾']].map(([k, n]) => `<button class="lock-chip ${locks[k] ? 'on' : ''}" data-dlock="${k}" aria-pressed="${!!locks[k]}">${locks[k] ? '🔒' : '🔓'} ${n}</button>`).join('')}</div>
-        <p class="muted small">裝飾數量依「裝飾素材」分頁的設定（目前：<span id="ed-dcount-label"></span>）。</p>
-        <button class="btn primary block big-btn" id="ed-random">🎲 隨機設計</button>
-        <p class="note small">這是<b>本機隨機排版</b>，不需要 AI。想讓 AI 依隨機設計直接畫，請到「🎨 創造新角色」或「📸 照片變貼圖」使用「隨機設計提示詞」。</p>
+      <div class="card tab-panel" data-panel="size" hidden>
+        <div class="field-label">快速套用輸出尺寸</div>
+        <div class="btn-row"><button class="btn sm" data-qframe="line">LINE 貼圖 370×320</button><button class="btn sm" data-qframe="main">主圖 240×240</button><button class="btn sm" data-qframe="tab">標籤圖 96×74</button><button class="btn sm" data-qframe="sq">正方形 512</button></div>
+        <div class="btn-row"><button class="btn sage" id="ed-tosplit">🧩 用目前畫面切宮格</button><button class="btn" id="ed-tocheck">📏 目前畫面加入 LINE 規格檢查</button></div>
+        <p class="muted small">也可以在下方直接匯入其他圖片切圖或檢查；LINE 工具箱已整合在這裡。</p>
+        <div id="ed-linetool" class="embedded-line"></div>
       </div>
 
       <div class="card tab-panel" data-panel="out" hidden>
@@ -195,76 +179,16 @@
     }
     const selLayer = () => S.layers.find((l) => l.id === S.sel) || null;
 
-    /* ================= 文字排版 ================= */
-    const fontStr = (l, size = l.size) => { const f = fontOf(l.font); return `${f.weight} ${size}px ${f.family}`; };
-    const pendingFonts = new Set();
-    function ensureFont(l) {
-      if (!document.fonts || !document.fonts.load) return;
-      const key = l.font + '|' + l.content;
-      if (pendingFonts.has(key)) return; pendingFonts.add(key);
-      document.fonts.load(fontStr(l, 40), l.content || 'A').then(() => { clampAll(); draw(); }).catch(() => {});
-    }
-    function layoutText(l) {
-      ctx.save(); ctx.font = fontStr(l);
-      const lines = (l.content || '').split('\n'); const glyphs = []; const step = l.size * l.lh;
-      let w = 0, h = 0;
-      if (!l.vertical) {
-        const widths = lines.map((ln) => { const cs = Array.from(ln); return cs.reduce((s, c) => s + ctx.measureText(c).width, 0) + Math.max(0, cs.length - 1) * l.ls; });
-        w = Math.max(0, ...widths); h = lines.length * step;
-        lines.forEach((ln, i) => {
-          let x = -widths[i] / 2; const y = -h / 2 + step * (i + 0.5);
-          Array.from(ln).forEach((c) => { const cw = ctx.measureText(c).width; glyphs.push({ c, x: x + cw / 2, y }); x += cw + l.ls; });
-        });
-      } else {
-        const adv = l.size + l.ls; const cols = lines.map((ln) => Array.from(ln));
-        const maxLen = Math.max(0, ...cols.map((c) => c.length));
-        w = cols.length * step; h = maxLen * adv - (maxLen ? l.ls : 0);
-        cols.forEach((cs, i) => {
-          const x = w / 2 - step * (i + 0.5);
-          cs.forEach((c, j) => glyphs.push({ c, x, y: -h / 2 + adv * j + l.size / 2 }));
-        });
-      }
-      ctx.restore();
-      return { glyphs, w: Math.max(w, 1), h: Math.max(h, 1) };
-    }
-    function layerBox(l) {
-      if (l.type === 'text') { const L = layoutText(l); const pad = l.strokeW + 4; return { w: L.w + pad * 2, h: L.h + pad * 2, L }; }
-      return { w: l.size, h: l.size };
-    }
-    /* 讓圖層完整留在輸出範圍內（必要時縮小） */
-    function clampLayer(l) {
-      const [fw, fh] = frameSize();
-      for (let k = 0; k < 3; k++) {
-        const b = layerBox(l); const a = l.rot * Math.PI / 180;
-        const hw = (Math.abs(b.w * Math.cos(a)) + Math.abs(b.h * Math.sin(a))) / 2;
-        const hh = (Math.abs(b.w * Math.sin(a)) + Math.abs(b.h * Math.cos(a))) / 2;
-        const over = Math.max(hw * 2 / fw, hh * 2 / fh);
-        if (over > 1.001 && (l.content || l.type === 'deco')) { l.size = Math.max(8, Math.floor(l.size / over)); if (l.type === 'text') l.strokeW = Math.min(l.strokeW, Math.max(0, Math.round(l.size / 4))); continue; }
-        l.x = Math.min(Math.max(l.x, hw / fw), 1 - hw / fw); l.y = Math.min(Math.max(l.y, hh / fh), 1 - hh / fh);
-        break;
-      }
-    }
+    /* ================= 文字排版（共用引擎 js/render.js） ================= */
+    const fontStr = SS.R.fontStr;
+    const layoutText = (l) => SS.R.layout(ctx, l);
+    const layerBox = (l) => SS.R.box(ctx, l);
+    function clampLayer(l) { const [fw, fh] = frameSize(); SS.R.clamp(ctx, l, fw, fh); }
     const clampAll = () => S.layers.forEach(clampLayer);
 
     /* ================= 繪製 ================= */
     let rectDrag = null;
-    function drawLayer(l, fw, fh) {
-      ctx.save(); ctx.translate(l.x * fw, l.y * fh); ctx.rotate(l.rot * Math.PI / 180);
-      if (l.type === 'text') {
-        if (l.content) {
-          ensureFont(l);
-          const { glyphs } = layoutText(l);
-          ctx.font = fontStr(l); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; ctx.miterLimit = 2;
-          const sh = () => { if (l.shadow) { ctx.shadowColor = l.shadowColor; ctx.shadowBlur = l.size * 0.1; ctx.shadowOffsetX = l.size * 0.05; ctx.shadowOffsetY = l.size * 0.07; } };
-          if (l.strokeW > 0) { ctx.save(); sh(); ctx.strokeStyle = l.stroke; ctx.lineWidth = l.strokeW * 2; glyphs.forEach((g) => ctx.strokeText(g.c, g.x, g.y)); ctx.restore(); }
-          ctx.save(); if (l.strokeW <= 0) sh(); ctx.fillStyle = l.color; glyphs.forEach((g) => ctx.fillText(g.c, g.x, g.y)); ctx.restore();
-        }
-      } else {
-        const d = SS.decoById[l.kind]; const img = SS.decoImage(l.kind, d.colorable ? l.color : '', () => draw());
-        if (img) ctx.drawImage(img, -l.size / 2, -l.size / 2, l.size, l.size);
-      }
-      ctx.restore();
-    }
+    const drawLayer = (l, fw, fh) => SS.R.draw(ctx, l, fw, fh, () => { clampAll(); draw(); });
     function draw(forExport) {
       const [fw, fh] = frameSize();
       if (cv.width !== fw || cv.height !== fh) { cv.width = fw; cv.height = fh; }
@@ -322,8 +246,8 @@
     });
     function select(id) {
       S.sel = id; const l = selLayer();
-      if (l && l.type === 'text' && tab !== 'text' && tab !== 'rand') switchTab('text');
-      if (l && l.type === 'deco' && tab !== 'deco' && tab !== 'rand') switchTab('deco');
+      if (l && l.type === 'text' && tab !== 'text') switchTab('text');
+      if (l && l.type === 'deco' && tab !== 'deco') switchTab('deco');
       syncAll(); draw();
     }
 
@@ -383,14 +307,14 @@
     /* ================= 分頁 ================= */
     function switchTab(name) {
       tab = name;
-      $$('.tab', el).forEach((t) => t.classList.toggle('on', t.dataset.tab === name));
-      $$('.tab-panel', el).forEach((p) => { p.hidden = p.dataset.panel !== name; });
+      $$('.scroll-tabs > .tab', el).forEach((t) => t.classList.toggle('on', t.dataset.tab === name));
+      $$('#ed-main > .tab-panel', el).forEach((p) => { p.hidden = p.dataset.panel !== name; });
       pickTarget = null; $$('#ed-pickc, #ed-pickfill', el).forEach((b) => b.classList.remove('on'));
       cv.classList.toggle('erasing', name === 'erase');
-      const on = $(`.tab[data-tab="${name}"]`, el); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      const on = $(`.scroll-tabs > .tab[data-tab="${name}"]`, el); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       draw();
     }
-    $$('.tab', el).forEach((t) => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+    $$('.scroll-tabs > .tab', el).forEach((t) => t.addEventListener('click', () => switchTab(t.dataset.tab)));
 
     /* ================= 放大檢視 ================= */
     $$('[data-zoom]', el).forEach((b) => b.addEventListener('click', () => {
@@ -415,7 +339,7 @@
     $('#ed-flip', el).addEventListener('click', () => { push(); S.flip = !S.flip; draw(); });
 
     /* ================= 文字 ================= */
-    const sampleText = () => (lang === 'en' || lang === 'ja' || lang === 'ko') ? SAMPLE[lang][0] : (lang === 'zh' ? '早安' : '食飽未？');
+    const sampleText = () => ({ en: 'Good morning!', ja: 'おはよう！', ko: '좋은 아침!', taigi: '食飽未？', kinmen: '勞力', zh: '早安' }[lang] || '早安');
     function addText(content, over = {}, doPush = true) {
       if (doPush) push();
       const l = Object.assign(textDefaults(), over, { id: S.nid++, content });
@@ -433,27 +357,23 @@
       l.content = e.target.value; clampLayer(l); draw(); renderLayers(); checkText();
     });
     $('#ed-pick', el).addEventListener('click', () => {
-      if (SAMPLE[lang]) {
-        SS.modal(`<h3>${LANGS[lang]} 常用語</h3><div class="chips">${SAMPLE[lang].map((p) => `<button class="chip big" data-sp="${esc(p)}">${esc(p)}</button>`).join('')}</div>`, {
-          onOpen(b) { b.addEventListener('click', (e) => { const c = e.target.closest('[data-sp]'); if (c) { applyPicked(c.dataset.sp); SS.closeModal(); } }); }
-        });
-        return;
-      }
-      if (lang === 'taigi' || lang === 'kinmen') SS.ls.set('pickLang', 'taigi');
-      SS.pickPhrase((p) => applyPicked(p));
+      if (lang === 'custom') return SS.toast('自訂語言請直接在文字框輸入');
+      SS.pickPhrase((p) => applyPicked(p), lang);
     });
     function applyPicked(p) { const l = curText(false); if (l) { push(); l.content = p; clampLayer(l); } else addText(p); syncAll(); draw(); }
     $('#ed-lang', el).addEventListener('change', (e) => { lang = e.target.value; SS.ls.set('editorLang', lang); langNote(); });
     function langNote() {
       const n = {
         zh: '可直接輸入，或按「挑用語」從生活用語庫選。',
-        taigi: '支援台語漢字（如：媠、袂、𪜶、䆀）。按「挑用語」可從台語專區選擇。',
-        kinmen: '金門話屬閩南語，可用相同的漢字書寫並正常顯示。目前沒有金門話專屬用語庫（缺少可查核的開放資料），可參考台語用語後依金門說法修改。',
+        taigi: '支援台語漢字（如：媠、袂、𪜶、䆀）。可切換正字／諧音／華語／台華混搭。',
+        kinmen: '金門話詞庫取自教育部辭典「詞彙方言差」的金門點說法（單詞）。',
         en: '英文建議用「可愛圓體」或「搞笑漫畫」字體。',
         ja: '日文假名可正常顯示；部分字體缺少日文漢字時會自動改用系統字型。',
-        ko: '內建字型不含韓文，會自動使用手機或電腦的系統韓文字型。'
+        ko: '內建字型不含韓文，會自動使用手機或電腦的系統韓文字型。',
+        hometown: '使用你在「我的貼圖收藏 › 我的家鄉話」建立的詞庫（未經 App 查證）。',
+        custom: '任何語言都可以直接輸入；若出現方塊字代表此裝置缺少該語言字型。'
       }[lang];
-      $('#ed-langnote', el).textContent = n;
+      $('#ed-langnote', el).textContent = n || '';
     }
     $('#ed-font', el).addEventListener('change', (e) => { push(); T('font', e.target.value); checkText(); });
     $$('input[name=tdir]', el).forEach((r) => r.addEventListener('change', () => { push(); T('vertical', r.value === 'v'); }));
@@ -494,18 +414,7 @@
     }
 
     /* ================= 裝飾 ================= */
-    function freeSpot(size) {
-      const [fw, fh] = frameSize(); const boxes = S.layers.map((l) => { const b = layerBox(l); return { x: l.x * fw, y: l.y * fh, w: b.w, h: b.h }; });
-      const sb = subjectBox(); const cx = (sb.x0 + sb.x1) / 2, cy = (sb.y0 + sb.y1) / 2;
-      const cands = shuffle([[0.14, 0.16], [0.86, 0.16], [0.12, 0.5], [0.88, 0.5], [0.14, 0.84], [0.86, 0.84], [0.32, 0.12], [0.68, 0.12], [0.32, 0.9], [0.68, 0.9]]);
-      let best = [0.86, 0.16], bestScore = -Infinity;
-      cands.forEach(([x, y]) => {
-        const px = x * fw, py = y * fh; let score = Math.hypot(px - cx, py - cy) * 0.3;
-        boxes.forEach((b) => { const dx = Math.max(0, Math.abs(px - b.x) - (b.w + size) / 2), dy = Math.max(0, Math.abs(py - b.y) - (b.h + size) / 2); score += Math.min(200, Math.hypot(dx, dy)); if (!dx && !dy) score -= 500; });
-        if (score > bestScore) { bestScore = score; best = [x, y]; }
-      });
-      return best;
-    }
+    function freeSpot(size) { const [fw, fh] = frameSize(); return SS.R.freeSpot(ctx, S.layers, fw, fh, size, subjectBox()); }
     function addDeco(kind, over = {}) {
       const d = SS.decoById[kind]; const [fw, fh] = frameSize(); const size = Math.round(Math.min(fw, fh) * 0.2);
       const [x, y] = over.x !== undefined ? [over.x, over.y] : freeSpot(size);
@@ -704,6 +613,13 @@
     });
     $('#ed-restore', el).addEventListener('click', () => { if (!srcCanvas || work === srcCanvas) return; push(); work = srcCanvas; draw(); });
 
+    /* ================= 切圖與尺寸（整合 LINE 工具箱） ================= */
+    let lineApi = null;
+    const ensureLine = () => { if (!lineApi) lineApi = SS.views.line.render($('#ed-linetool', el), { embedded: true }); return lineApi; };
+    $$('[data-qframe]', el).forEach((b) => b.addEventListener('click', () => { push(); S.frame = b.dataset.qframe; S.ox = S.oy = 0; if (work) S.scale = fitScale(false); clampAll(); syncAll(); draw(); SS.toast('已套用 ' + FRAMES[S.frame].label); }));
+    $('#ed-tosplit', el).addEventListener('click', async () => { const api = ensureLine(); api.showTab('split'); await api.loadSplit(await exportBlob()); $('#ed-linetool', el).scrollIntoView({ behavior: 'smooth' }); });
+    $('#ed-tocheck', el).addEventListener('click', async () => { const api = ensureLine(); api.showTab('check'); await api.addCheck([{ name: fname(), blob: await exportBlob() }]); $('#ed-linetool', el).scrollIntoView({ behavior: 'smooth' }); });
+
     /* ================= 輸出 ================= */
     $('#ed-bg', el).addEventListener('change', (e) => { push(); S.bg = e.target.value; $('#ed-bgc-wrap', el).hidden = S.bg !== 'color'; draw(); });
     $('#ed-bgc', el).addEventListener('input', (e) => { S.bgColor = e.target.value; draw(); });
@@ -719,7 +635,7 @@
       try { await SS.saveSticker(await exportBlob(), $('#ed-name', el).value.trim() || '我的貼圖', opts.textMode || !work ? '文字貼圖' : '未分類'); SS.toast('已存到「我的貼圖收藏」💗'); }
       catch (e) { SS.toast('儲存失敗：' + e.message); }
     });
-    $('#ed-toline', el).addEventListener('click', async () => { SS.handoff = { blob: await exportBlob(), name: fname() }; location.hash = '#line'; });
+    $('#ed-toline', el).addEventListener('click', async () => { switchTab('size'); const api = ensureLine(); api.showTab('check'); await api.addCheck([{ name: fname(), blob: await exportBlob() }]); SS.toast('已加入 LINE 規格檢查'); });
 
     /* 測試用：唯讀狀態快照 */
     SS._editorState = () => JSON.parse(JSON.stringify(S));
@@ -727,10 +643,19 @@
     /* ================= 啟動 ================= */
     langNote(); updEraseUI(); updSwatch();
     const pendText = SS.ls.get('pendingText', ''); if (pendText) SS.ls.set('pendingText', '');
-    if (SS.handoffEditor) {
+    if (SS.handoffLayers) {
+      const h = SS.handoffLayers; SS.handoffLayers = null;
+      work = null; srcCanvas = null; S = defaultState(); S.frame = h.frame || 'line'; S.bg = h.bg ? 'color' : 'transparent'; if (h.bg) S.bgColor = h.bg;
+      S.layers = h.layers.map((l) => Object.assign({}, l)); S.nid = 1 + Math.max(0, ...S.layers.map((l) => l.id || 0)); S.sel = null;
+      showMain(); clampAll(); syncAll(); draw(); tab = 'text';
+      $('#ed-name', el).value = h.name || 'text-sticker';
+    } else if (SS.handoffEditor) {
       const b = SS.handoffEditor; SS.handoffEditor = null;
       const img = new Image(); const u = URL.createObjectURL(b.blob);
-      img.onload = () => { loadSource(img); URL.revokeObjectURL(u); $('#ed-name', el).value = (b.name || 'my-sticker').replace(/\.png$/, ''); }; img.src = u;
+      img.onload = () => {
+        loadSource(img); URL.revokeObjectURL(u); $('#ed-name', el).value = (b.name || 'my-sticker').replace(/\.[^.]+$/, '');
+        if (b.then === 'split') { switchTab('size'); const api = ensureLine(); api.showTab('split'); api.loadSplit(b.blob); SS.toast('已載入宮格圖，請確認切割方式'); }
+      }; img.src = u;
     } else if (opts.textMode) {
       $('#ed-name', el).value = 'text-sticker'; startBlank(pendText);
       if (!pendText) { const l = S.layers[0]; if (l) { const [c, s] = pick(PALETTE.slice(1, 6)); l.color = c; l.stroke = s; draw(); syncAll(); } }

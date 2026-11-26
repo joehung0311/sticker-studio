@@ -37,7 +37,7 @@
 
   SS.views.line = {
     title: '📱 LINE 貼圖工具箱',
-    render(el) {
+    render(el, opts = {}) {
       el.innerHTML = `
       <div class="tabs" role="tablist"><button class="tab on" data-tab="split">🧩 宮格切圖</button><button class="tab" data-tab="check">📏 尺寸與檢查</button><button class="tab" data-tab="spec">📘 官方規格</button></div>
 
@@ -272,6 +272,8 @@
 
       /* 從加工室交接過來的圖片 */
       if (SS.handoff) { const h = SS.handoff; SS.handoff = null; addCheck([h]); showTab('check'); SS.toast('已從加工室帶入圖片'); }
+      if (SS.handoffSplit) { const b = SS.handoffSplit; SS.handoffSplit = null; loadSplit(b); }
+      return { showTab, loadSplit, addCheck };
     }
   };
 })();
