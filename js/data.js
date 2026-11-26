@@ -1,7 +1,7 @@
 /* 今天貼什麼？ Sticker Studio — 內建資料 (Made by baihua) */
 window.SS = window.SS || {};
 
-SS.VERSION = '1.1.0';
+SS.VERSION = '1.1.1';
 
 SS.LINKS = {
   chatgpt: 'https://chatgpt.com/',

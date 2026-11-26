@@ -331,6 +331,42 @@
     });
   };
 
+  /* ---------- 安裝成 App（PWA） ---------- */
+  SS.env = () => {
+    const ua = navigator.userAgent || '';
+    return {
+      standalone: matchMedia('(display-mode: standalone)').matches || navigator.standalone === true,
+      ios: /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1),
+      android: /Android/i.test(ua),
+      inApp: /FBAN|FBAV|FB_IAB|Instagram|Line\/|MicroMessenger/i.test(ua),
+      iosSafari: /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS/i.test(ua)
+    };
+  };
+  SS.installSteps = function () {
+    const e = SS.env();
+    if (e.inApp) return `<p class="warn">你現在是在 Facebook／LINE 等 App 內建的瀏覽器裡，這裡<b>無法安裝</b>。</p>
+      <ol class="steps"><li>點右上角「⋯」或「⋮」</li><li>選「用瀏覽器開啟」（${e.ios ? 'Safari' : 'Chrome'}）</li><li>回到首頁按「📲 安裝 App」</li></ol>`;
+    if (e.ios) return `<ol class="steps"><li>點「分享」按鈕 <span aria-hidden="true">⬆️</span>（${e.iosSafari ? 'Safari 在畫面下方，iPad 在上方' : 'Chrome 在網址列右側'}）</li><li>往下滑，選「<b>加入主畫面</b>」</li><li>按右上角「<b>新增</b>」</li></ol>
+      ${e.iosSafari ? '' : '<p class="muted small">找不到這個選項時，請改用 Safari 開啟本網站再試（較舊的 iOS 只支援 Safari）。</p>'}`;
+    if (e.android) return `<ol class="steps"><li>點 Chrome 右上角「<b>⋮</b>」</li><li>選「<b>安裝應用程式</b>」或「<b>加到主畫面</b>」</li><li>按「<b>安裝</b>」</li></ol>
+      <p class="muted small">剛打開網站時選項可能還沒出現，在頁面上點幾下、稍等幾秒再試。</p>`;
+    return `<ol class="steps"><li>Chrome／Edge：點網址列右側的「安裝」圖示 <span aria-hidden="true">⊕</span></li><li>或從瀏覽器選單選「安裝今天貼什麼」</li></ol>`;
+  };
+  SS.install = async function () {
+    if (SS.deferredInstall) {
+      const ev = SS.deferredInstall; SS.deferredInstall = null;
+      try { ev.prompt(); const r = await ev.userChoice; if (r && r.outcome === 'accepted') SS.toast('安裝中…完成後主畫面會出現圖示'); } catch (err) { SS.modal('<h3>📲 安裝到手機</h3>' + SS.installSteps()); }
+      SS.renderInstallCTA(); return;
+    }
+    SS.modal(`<h3>📲 把「今天貼什麼」裝到手機</h3>${SS.installSteps()}<p class="note small">安裝後會像一般 App 一樣出現在主畫面，全螢幕開啟，加工室與收藏離線也能用。</p><button class="btn primary block" onclick="SS.closeModal()">知道了</button>`);
+  };
+  SS.renderInstallCTA = function () {
+    const box = document.getElementById('install-cta'); if (!box) return;
+    if (SS.env().standalone || SS.ls.get('installed', false) && !SS.deferredInstall) { box.innerHTML = ''; return; }
+    box.innerHTML = `<button class="install-cta" id="install-btn" type="button"><span class="ic">📲</span><span><b>安裝 App 到手機</b><small>${SS.deferredInstall ? '一鍵安裝，像 App 一樣從主畫面開啟' : '加到主畫面，全螢幕使用・可離線'}</small></span><i>安裝</i></button>`;
+    $('#install-btn', box).addEventListener('click', SS.install);
+  };
+
   /* 提示詞輸出區塊 */
   SS.promptBoxHTML = (id = 'prompt-out') => `
     <div class="prompt-box">

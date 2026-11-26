@@ -26,7 +26,8 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#modal').hidden) SS.closeModal(); });
 
   /* PWA 安裝提示 */
-  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); SS.deferredInstall = e; const b = $('#in-btn'); if (b) b.hidden = false; });
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); SS.deferredInstall = e; const b = $('#in-btn'); if (b) b.hidden = false; SS.renderInstallCTA(); });
+  window.addEventListener('appinstalled', () => { SS.deferredInstall = null; SS.ls.set('installed', true); SS.renderInstallCTA(); SS.toast('安裝完成 🎉 可以從主畫面開啟了'); });
 
   /* Service Worker：有新版時提示重新整理 */
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {

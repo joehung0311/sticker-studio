@@ -29,6 +29,7 @@
       <div class="flow" aria-label="創作流程">
         <span>① 設計角色</span><i>→</i><span>② 產生提示詞</span><i>→</i><span>③ AI 生圖</span><i>→</i><span>④ 加工下載</span>
       </div>
+      <div id="install-cta"></div>
       <a class="tg-banner" href="#taigi"><span class="tg-b-ic">🧋</span><span><b>台語貼圖專區</b><small>超過 150 句台語生活用語・正字／諧音／華語／台華混搭</small></span><i>→</i></a>
       <nav class="home-grid">
         ${HOME_CARDS.map(([r, ic, t, s, c]) => `<a class="home-card ${c}" href="#${r}"><span class="hc-ic">${ic}</span><b>${t}</b><small>${s}</small></a>`).join('')}
@@ -41,6 +42,7 @@
         <a href="#about">🐾 關於本 App</a>
         <a href="#version">🏷️ 版本資訊 v${SS.VERSION}</a>
       </section>`;
+      SS.renderInstallCTA();
       if (!SS.ls.get('welcomed', false)) {
         SS.ls.set('welcomed', true);
         setTimeout(() => SS.modal(`<h3>歡迎來到「今天貼什麼？」</h3>
@@ -583,15 +585,12 @@
     render(el) {
       const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
       el.innerHTML = `<div class="card">${standalone ? '<p class="ok">✅ 你已經是從主畫面開啟 App 了！</p>' : ''}
-        <button class="btn primary block" id="in-btn" ${SS.deferredInstall ? '' : 'hidden'}>📲 立即安裝</button>
+        <button class="btn primary block" id="in-btn">📲 立即安裝</button>
         <h2>Android（Chrome）</h2><ol class="steps"><li>用 Chrome 開啟本網站</li><li>點右上角「⋮」</li><li>選「安裝應用程式」或「加到主畫面」</li></ol>
         <h2>iPhone／iPad（Safari）</h2><ol class="steps"><li>用 Safari 開啟本網站</li><li>點下方「分享」按鈕 <span aria-hidden="true">⬆️</span></li><li>選「加入主畫面」→「新增」</li></ol>
         <h2>電腦（Chrome／Edge）</h2><ol class="steps"><li>網址列右側點「安裝」圖示</li></ol>
         <p class="note">安裝後，加工室、切圖、收藏等本機功能可離線使用；ChatGPT／Gemini 需要連線。</p></div>`;
-      $('#in-btn', el).addEventListener('click', async () => {
-        if (!SS.deferredInstall) return;
-        SS.deferredInstall.prompt(); await SS.deferredInstall.userChoice; SS.deferredInstall = null; $('#in-btn', el).hidden = true;
-      });
+      $('#in-btn', el).addEventListener('click', SS.install);
     }
   };
 })();
