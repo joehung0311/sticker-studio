@@ -315,6 +315,8 @@
       $('#bb-go', el).addEventListener('click', () => {
         if (slots.every(([k]) => locks[k])) return SS.toast('全部都鎖住了，先解鎖一些吧');
         slots.forEach(([k]) => { if (!locks[k]) st[k] = roll(k); });
+        const locked = slots.filter(([k]) => locks[k]).map(([, n]) => n);
+        if (locked.length) SS.toast(`「${locked.join('、')}」已鎖定所以沒換；點綠色卡片可解鎖`, 3200);
         const btn = $('#bb-go', el); btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
         render(true);
       });

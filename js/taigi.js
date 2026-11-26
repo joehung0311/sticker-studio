@@ -152,6 +152,7 @@
             const st = SS.ls.get('blindbox', {}) || {}; st.text = { label: text, lang: 'taigi', id: p.id };
             const locks = SS.ls.get('blindboxLocks', {}); locks.text = true;
             SS.ls.set('blindbox', st); SS.ls.set('blindboxLocks', locks); SS.ls.set('blindboxLang', 'taigi');
+            SS.toast('已放進盲盒並鎖定這句話；想換句子時點綠色卡片解鎖', 3500);
             location.hash = '#blindbox'; return;
           }
           SS.applyTaigiToDraft(p, text, kind);

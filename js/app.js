@@ -32,7 +32,12 @@
   /* Service Worker：有新版時提示重新整理 */
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').then((reg) => {
+      navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then((reg) => {
+        // 已安裝的 App 常常只是「切回前景」而不會重新載入，所以回到前景時主動檢查新版
+        const check = () => reg.update().catch(() => {});
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check(); });
+        setInterval(check, 30 * 60 * 1000);
+        if (reg.waiting && navigator.serviceWorker.controller) { const bar = $('#update-bar'); bar.hidden = false; $('#update-btn').onclick = () => reg.waiting.postMessage('skipWaiting'); }
         reg.addEventListener('updatefound', () => {
           const nw = reg.installing; if (!nw) return;
           nw.addEventListener('statechange', () => {
