@@ -1,5 +1,5 @@
 /* 今天貼什麼？ Service Worker — 更新版本時請修改 VERSION */
-const VERSION = 'v1.1.2';
+const VERSION = 'v1.1.3';
 const CACHE = 'sticker-studio-' + VERSION;
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './css/style.css',

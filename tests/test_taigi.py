@@ -34,13 +34,13 @@ with sync_playwright() as p:
         pg.fill('#tg-q', '古錐'); pg.wait_for_timeout(100)
         check(P + '關鍵字搜尋', pg.locator('.tg-item').count() >= 1 and '古錐' in first_text(), first_text())
         for mode, exp in [('pun', '金勾錐'), ('zh', '好可愛'), ('mix', '真的足古錐'), ('hanji', '足古錐')]:
-            pg.click(f'.mode-seg input[value="{mode}"] + span'); pg.wait_for_timeout(80)
+            pg.click(f'.mode-seg input[value="{mode}"]'); pg.wait_for_timeout(80)
             check(P + f'模式切換 {mode}', first_text() == exp, first_text())
-        pg.click('.mode-seg input[value="pun"] + span'); pg.fill('#tg-q', '問題')
+        pg.click('.mode-seg input[value="pun"]'); pg.fill('#tg-q', '問題')
         check(P + '諧音標示「諧音」', pg.locator('.tg-item .tag.pun').count() >= 1)
         pg.fill('#tg-q', '早安')
         check(P + '無諧音時退回正字', first_text() == '早安')
-        pg.click('.mode-seg input[value="hanji"] + span'); pg.fill('#tg-q', '')
+        pg.click('.mode-seg input[value="hanji"]'); pg.fill('#tg-q', '')
         cats = pg.locator('#tg-cats [data-cat^="c"]')
         pg.click('#tg-cats [data-cat="c05"]'); pg.wait_for_timeout(80)
         n5 = sum(1 for x in data['phrases'] if x['cat'] == 'c05')
@@ -60,7 +60,7 @@ with sync_playwright() as p:
         pg.click('.seg label:nth-child(1)'); pr = pg.input_value('#prompt-out')
         check(P + 'AI 畫台語字的逐字照抄提醒', '台語漢字（教育部推薦用字）' in pr and '逐字照抄' in pr)
         # 角色頁挑用語對話框台語分頁
-        pg.click('#f-pick'); pg.click('.lang-seg input[value="taigi"] + span'); pg.wait_for_selector('#pp-tg .tg-item')
+        pg.click('#f-pick'); pg.click('.lang-seg input[value="taigi"]'); pg.wait_for_selector('#pp-tg .tg-item')
         pg.fill('#pp-tg #tg-q', '歹勢'); pg.click('#pp-tg .tg-item'); pg.wait_for_timeout(150)
         check(P + '挑用語對話框可選台語', pg.input_value('#f-text') == '歹勢啦', pg.input_value('#f-text'))
         # 照片變貼圖

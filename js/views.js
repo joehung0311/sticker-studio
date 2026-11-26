@@ -277,7 +277,7 @@
       slots.forEach(([k]) => { if (!st[k]) st[k] = roll(k); });
       el.innerHTML = `
       <div class="card center">
-        <p class="muted">按下按鈕隨機組合一張貼圖點子。<br>喜歡的項目點 🔓 鎖住，再抽只會換其他項目。</p>
+        <p class="muted">按下按鈕隨機組合一張貼圖點子。<br>喜歡的項目<b>點一下卡片就能鎖定</b>，再點一次解鎖；鎖定的項目再抽也不會換。</p>
         <div class="seg lang-seg narrow" role="radiogroup" aria-label="用語語言"><label><input type="radio" name="bblang" value="zh" ${lang === 'zh' ? 'checked' : ''}><span>華語用語</span></label><label><input type="radio" name="bblang" value="taigi" ${lang === 'taigi' ? 'checked' : ''}><span>🧋 台語用語</span></label></div>
         <button class="btn primary big-btn" id="bb-go">🎁 抽一個！</button>
       </div>
@@ -299,15 +299,19 @@
       };
       const render = (anim) => {
         $('#bb-grid', el).innerHTML = slots.map(([k, n, ic]) => `
-          <div class="bb-slot ${locks[k] ? 'locked' : ''} ${anim && !locks[k] ? 'pop' : ''}">
-            <div class="bb-top"><span>${ic} ${n}</span><button class="lock" data-lock="${k}" aria-label="${locks[k] ? '解鎖' : '鎖定'}${n}">${locks[k] ? '🔒' : '🔓'}</button></div>
-            <b>${esc(st[k].label)}</b>${k === 'text' && st.text.lang === 'taigi' ? '<i class="tag">🧋 台語</i>' : ''}</div>`).join('');
+          <button type="button" class="bb-slot ${locks[k] ? 'locked' : ''} ${anim && !locks[k] ? 'pop' : ''}" data-lock="${k}" aria-pressed="${!!locks[k]}" aria-label="${n}：${esc(st[k].label)}，${locks[k] ? '已鎖定，點一下解鎖' : '點一下鎖定'}">
+            <div class="bb-top"><span>${ic} ${n}</span><span class="lock-pill">${locks[k] ? '🔒 已鎖定' : '🔓 可抽換'}</span></div>
+            <b>${esc(st[k].label)}</b>${k === 'text' && st.text.lang === 'taigi' ? '<i class="tag">🧋 台語</i>' : ''}</button>`).join('');
         const d = toDraft();
         $('#bb-idea', el).textContent = `一隻「${st.char.label}」，用${st.style.label}畫風，${st.expression.label}地${st.action.label}${st.prop.label !== '無' ? '，拿著' + st.prop.label : ''}，說：「${st.text.label}」`;
         pb.set(SS.buildPrompt(d, { source: 'character' }));
         SS.ls.set('blindbox', st); SS.ls.set('blindboxLocks', locks);
       };
-      $('#bb-grid', el).addEventListener('click', (e) => { const b = e.target.closest('[data-lock]'); if (!b) return; locks[b.dataset.lock] = !locks[b.dataset.lock]; render(false); });
+      $('#bb-grid', el).addEventListener('click', (e) => {
+        const b = e.target.closest('[data-lock]'); if (!b) return;
+        const k = b.dataset.lock; locks[k] = !locks[k]; render(false);
+        SS.toast(locks[k] ? '已鎖定，再抽也不會換' : '已解鎖，下次會重新抽');
+      });
       $('#bb-go', el).addEventListener('click', () => {
         if (slots.every(([k]) => locks[k])) return SS.toast('全部都鎖住了，先解鎖一些吧');
         slots.forEach(([k]) => { if (!locks[k]) st[k] = roll(k); });

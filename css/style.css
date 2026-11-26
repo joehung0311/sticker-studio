@@ -325,3 +325,13 @@ details p { margin: 4px 0 10px; color: var(--brown-l); }
 .install-cta small { opacity: .95; }
 .install-cta i { font-style: normal; margin-left: auto; background: #fff; color: var(--peach-d); font-weight: 800; border-radius: 999px; padding: 6px 14px; white-space: nowrap; }
 .brand-by { margin: 6px 0 0; font-size: .82rem; font-weight: 700; color: var(--sage-d); letter-spacing: .04em; }
+/* 盲盒鎖定 (v1.1.3)：整張卡可點、文字標示狀態 */
+.bb-slot { width: 100%; font: inherit; color: var(--brown); text-align: left; cursor: pointer; transition: transform .1s, border-color .15s, background .15s; }
+.bb-slot:active { transform: scale(.97); }
+.bb-slot:focus-visible { outline: 3px solid var(--peach-l); }
+.lock-pill { font-size: .72rem; font-weight: 700; border-radius: 999px; padding: 3px 8px; background: #F5EBDD; color: var(--brown-l); white-space: nowrap; }
+.bb-slot.locked .lock-pill { background: var(--sage-d); color: #fff; }
+.bb-slot.locked { border-color: var(--sage-d); }
+/* 分段選擇鈕：隱藏的 radio 只覆蓋自己的選項 */
+.seg label { position: relative; }
+.seg input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
