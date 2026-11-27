@@ -475,3 +475,7 @@ body[data-view="editor"] #ed-wrap, body[data-view="textsticker"] #ed-wrap { scro
 .ed-queue button.cur { border-color: var(--peach); }
 .ed-queue button.done::after { content: '✓'; position: absolute; right: 2px; bottom: 0; color: var(--sage-d, #5f7a4f); font-weight: 700; }
 .ed-queue button.skip { opacity: .4; }
+.autosave { margin: 2px 0 6px; min-height: 1em; }
+#ed-prev { margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.toolbar { flex-wrap: wrap; }
+.toolbar .btn { white-space: nowrap; flex: 1 1 auto; min-width: calc(33% - 6px); }

@@ -17,8 +17,26 @@
   const textDefaults = SS.textDefaults;
   const defaultState = () => ({ rot: 0, flip: false, scale: 1, ox: 0, oy: 0, frame: 'line', cw: 400, ch: 400, bg: 'transparent', bgColor: '#ffffff', layers: [], sel: null, nid: 1 });
 
+  /* 加工室作品暫存：獨立的本機資料庫，離開頁面再回來可以接著做 */
+  let sdb = null;
+  const sessDB = () => sdb || (sdb = new Promise((res, rej) => {
+    if (!('indexedDB' in window)) return rej(new Error('no idb'));
+    const r = indexedDB.open('sticker-studio-editor', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('session');
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }));
+  const sessTx = (mode, fn) => sessDB().then((d) => new Promise((res, rej) => { const t = d.transaction('session', mode); const o = fn(t.objectStore('session')); t.oncomplete = () => res(o && o.result); t.onerror = () => rej(t.error); }));
+  SS.edSession = {
+    get: (k) => sessTx('readonly', (s) => s.get(k)).catch(() => null),
+    put: (k, v) => sessTx('readwrite', (s) => s.put(v, k)).catch(() => null),
+    del: (k) => sessTx('readwrite', (s) => s.delete(k)).catch(() => null)
+  };
+
   function mountEditor(el, opts = {}) {
     let srcCanvas = null, work = null, S = defaultState();
+    const SKEY = opts.textMode ? 'text' : 'main';
+    let saveT = null, dirty = false, restoring = true, srcRef, srcBlob = null, collId = null, unsaved = false;
+    let queue = [], qi = -1, qOpts = null; const qUrls = [];
     const past = [], fut = [];
     let tab = opts.textMode ? 'text' : 'crop';
     let eraseMode = 'erase', brush = 24, fillColor = [255, 255, 255], rectFill = 'clear', pickTarget = null;
@@ -29,6 +47,7 @@
 
     el.innerHTML = `
     ${opts.textMode ? `<div class="card tx-intro"><b>🔤 純文字貼圖</b><p class="muted small">不用上傳圖片、也不用 AI 生圖：輸入文字、選字體和裝飾，就能直接下載 PNG。</p></div>` : ''}
+    <div class="note small" id="ed-prev" hidden>上一個還沒存到收藏的作品已暫存。<button class="btn xs" id="ed-prev-restore">↩️ 恢復上一個作品</button><button class="btn xs ghost" id="ed-prev-drop">不用了</button></div>
     <div class="card" id="ed-empty" ${opts.textMode ? 'hidden' : ''}>
       <label class="drop">
         <input type="file" id="ed-file" accept="image/png,image/jpeg,image/webp,image/*" multiple hidden>
@@ -57,7 +76,9 @@
       <div class="toolbar">
         <button class="btn sm" id="ed-undo">↩️ 還原</button><button class="btn sm" id="ed-redo">↪️ 重做</button>
         <button class="btn sm" id="ed-reset">🔄 重設</button><button class="btn sm ghost" id="ed-change">🖼️ ${opts.textMode ? '加底圖' : '換圖'}</button>
+        <button class="btn sm sage" id="ed-quicksave">💾 儲存</button><button class="btn sm ghost" id="ed-new">🆕 新作品</button>
       </div>
+      <p class="muted small autosave" id="ed-autosave" aria-live="polite"></p>
       <div class="layers" id="ed-layers" aria-label="圖層"></div>
 
       <div class="tabs scroll-tabs" role="tablist">
@@ -230,6 +251,7 @@
       $('#ed-size', el).textContent = `輸出 ${fw} × ${fh} px`;
       $('#ed-zv', el).textContent = Math.round(S.scale * 100) + '%';
       $('#ed-zoom', el).value = Math.max(5, Math.min(400, Math.round(S.scale * 100)));
+      if (!forExport) schedule();
     }
     const handleR = () => { const r = cv.getBoundingClientRect(); return Math.max(9, 14 * cv.width / Math.max(1, r.width)); };
 
@@ -302,14 +324,13 @@
       showMain(); clampAll(); syncAll(); draw();
     }
     async function loadFile(f) {
-      try { const { img, url } = await SS.fileToImage(f); loadSource(img); URL.revokeObjectURL(url); $('#ed-name', el).value = (f.name || 'my-sticker').replace(/\.[^.]+$/, '').slice(0, 40); SS.toast('圖片已載入（僅在本機）'); }
+      try { const { img, url } = await SS.fileToImage(f); collId = null; loadSource(img); URL.revokeObjectURL(url); $('#ed-name', el).value = (f.name || 'my-sticker').replace(/\.[^.]+$/, '').slice(0, 40); SS.toast('圖片已載入（僅在本機）'); }
       catch (e) { SS.toast(e.message); }
     }
     const fileIn = $('#ed-file', el);
     fileIn.addEventListener('change', () => { const fs = Array.from(fileIn.files); fileIn.value = ''; if (fs.length > 1) setQueue(fs.map((f) => ({ blob: f, name: f.name }))); else if (fs[0]) { if (queue.length) addToQueue([{ blob: fs[0], name: fs[0].name }]); else loadFile(fs[0]); } });
 
     /* ================= 批次佇列：一次匯入多張，逐張加工 ================= */
-    let queue = [], qi = -1, qOpts = null; const qUrls = [];
     function renderQueue() {
       $('#ed-qbox', el).hidden = !queue.length;
       if (!queue.length) return;
@@ -340,7 +361,7 @@
     }
     function addToQueue(list) { list.forEach((x) => { const u = URL.createObjectURL(x.blob); qUrls.push(u); queue.push(Object.assign({ url: u, state: '' }, x)); }); renderQueue(); }
     function setQueue(list, opts2 = {}) {
-      queue = []; qOpts = opts2.textOpts || null; addToQueue(list);
+      queue = []; collId = null; qOpts = opts2.textOpts || null; addToQueue(list);
       if (opts2.frame && FRAMES[opts2.frame]) S.frame = opts2.frame;
       loadQueueItem(0); SS.toast(`已匯入 ${list.length} 張，請逐張加工`);
     }
@@ -722,12 +743,81 @@
     const fname = () => ($('#ed-name', el).value.trim() || 'my-sticker').replace(/[\\/:*?"<>|]/g, '_') + '.png';
     $('#ed-dl', el).addEventListener('click', async () => { SS.download(await exportBlob(), fname()); });
     $('#ed-share', el).addEventListener('click', async () => { SS.shareBlob(await exportBlob(), fname()); });
-    $('#ed-save', el).addEventListener('click', async () => {
-      try { await SS.saveSticker(await exportBlob(), $('#ed-name', el).value.trim() || '我的貼圖', opts.textMode || !work ? '文字貼圖' : '未分類'); SS.toast('已存到「我的貼圖收藏」💗'); }
-      catch (e) { SS.toast('儲存失敗：' + e.message); }
-    });
+    /* 存到收藏：除了 PNG，也一起保存可再編輯的圖層與原圖；從收藏「再加工」打開的作品會直接更新原本那一張 */
+    async function projectData() {
+      return { src: srcCanvas ? await SS.canvasToBlob(srcCanvas) : null, work: work && work !== srcCanvas ? await SS.canvasToBlob(work) : null, S: JSON.parse(JSON.stringify(S)) };
+    }
+    let saving = false;
+    async function saveToCollection() {
+      if (saving) return; if (!work && !S.layers.length) return SS.toast('畫面是空的，請先匯入圖片或新增文字');
+      saving = true;
+      try {
+        const blob = await exportBlob(); const name = $('#ed-name', el).value.trim() || '我的貼圖'; const project = await projectData();
+        const old = collId ? await SS.idb.get(collId).catch(() => null) : null;
+        if (old) { Object.assign(old, { name, blob, type: blob.type, project, updated: Date.now() }); await SS.idb.put(old); SS.toast('已更新收藏裡的這張貼圖 💗'); }
+        else { const it = await SS.saveSticker(blob, name, opts.textMode || !work ? '文字貼圖' : '未分類'); it.project = project; await SS.idb.put(it); collId = it.id; SS.toast('已存到「我的貼圖收藏」💗，之後可再加工'); }
+        unsaved = false; dirty = true; persist();
+      } catch (e) { SS.toast('儲存失敗：' + e.message); }
+      finally { saving = false; }
+    }
+    $('#ed-save', el).addEventListener('click', saveToCollection);
+    $('#ed-quicksave', el).addEventListener('click', saveToCollection);
     $('#ed-topack', el).addEventListener('click', async () => { await SS.pack.add([{ name: $('#ed-name', el).value.trim() || 'my-sticker', blob: await exportBlob() }]); });
     $('#ed-toline', el).addEventListener('click', async () => { switchTab('size'); const api = ensureLine(); api.showTab('check'); await api.addCheck([{ name: fname(), blob: await exportBlob() }]); SS.toast('已加入 LINE 規格檢查'); });
+
+    /* ================= 自動暫存與恢復 ================= */
+    function schedule() { if (restoring) return; unsaved = true; dirty = true; clearTimeout(saveT); saveT = setTimeout(persist, 700); }
+    const hasContent = () => !!(work || S.layers.length || queue.length);
+    async function snapshot() {
+      if (srcCanvas !== srcRef) { srcRef = srcCanvas; srcBlob = srcCanvas ? await SS.canvasToBlob(srcCanvas) : null; }
+      return { src: srcBlob, work: work && work !== srcCanvas ? await SS.canvasToBlob(work) : null, S: JSON.parse(JSON.stringify(S)), tab, name: $('#ed-name', el).value,
+        queue: queue.map((q) => ({ blob: q.blob, name: q.name, text: q.text || '', state: q.state || '' })), qi, qOpts, collId, unsaved, time: Date.now() };
+    }
+    async function persist() {
+      clearTimeout(saveT); if (!dirty || restoring) return; dirty = false;
+      if (!hasContent()) { await SS.edSession.del(SKEY); $('#ed-autosave', el).textContent = ''; return; }
+      await SS.edSession.put(SKEY, await snapshot());
+      const t = new Date(); $('#ed-autosave', el).textContent = `✓ 已自動暫存在這台裝置（${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}）・離開再回來會接著做`;
+    }
+    const blobToImage = (b) => new Promise((res, rej) => { const u = URL.createObjectURL(b); const i = new Image(); i.onload = () => { res(i); URL.revokeObjectURL(u); }; i.onerror = rej; i.src = u; });
+    const imgToCanvas = (i) => { const c = document.createElement('canvas'); c.width = i.naturalWidth; c.height = i.naturalHeight; c.getContext('2d').drawImage(i, 0, 0); return c; };
+    /* 把暫存或收藏裡的作品還原到畫面上 */
+    async function applySnapshot(s) {
+      restoring = true;
+      try {
+        srcCanvas = s.src ? imgToCanvas(await blobToImage(s.src)) : null; srcRef = srcCanvas; srcBlob = s.src || null;
+        work = s.work ? imgToCanvas(await blobToImage(s.work)) : srcCanvas;
+        S = Object.assign(defaultState(), s.S || {}); past.length = 0; fut.length = 0;
+        queue = []; qUrls.forEach((u) => URL.revokeObjectURL(u));
+        (s.queue || []).forEach((q) => { const u = URL.createObjectURL(q.blob); qUrls.push(u); queue.push(Object.assign({ url: u }, q)); });
+        qi = queue.length ? Math.min(s.qi ?? 0, queue.length - 1) : -1; qOpts = s.qOpts || null; collId = s.collId || null;
+        if (s.name) $('#ed-name', el).value = s.name;
+        if (work) rmColor = Array.from(work.getContext('2d').getImageData(0, 0, 1, 1).data.slice(0, 3));
+        updSwatch(); showMain(); clampAll(); syncAll(); renderQueue(); updHist();
+        tab = s.tab || tab; switchTab(tab); draw();
+      } finally { restoring = false; }
+      unsaved = s.unsaved !== false;
+    }
+    $('#ed-new', el).addEventListener('click', async () => {
+      if (hasContent() && unsaved && !(await SS.confirmBox('目前的作品還沒存到收藏，確定要開新作品嗎？（目前的作品會被清除）'))) return;
+      await SS.edSession.del(SKEY); restoring = true; location.hash = opts.textMode ? '#textsticker' : '#editor'; SS.router.rerender();
+    });
+    /* 換成新內容前，先把還沒存到收藏的作品放到「上一個作品」 */
+    async function stashPrevious() {
+      const s = await SS.edSession.get(SKEY);
+      if (s && s.unsaved && (s.src || (s.S && s.S.layers && s.S.layers.length) || (s.queue && s.queue.length))) { await SS.edSession.put(SKEY + '_prev', s); $('#ed-prev', el).hidden = false; }
+    }
+    $('#ed-prev-restore', el).addEventListener('click', async () => {
+      const p = await SS.edSession.get(SKEY + '_prev'); if (!p) return;
+      if (hasContent()) { const cur = await snapshot(); await SS.edSession.put(SKEY + '_prev', cur); } else await SS.edSession.del(SKEY + '_prev');
+      await applySnapshot(p); dirty = true; persist(); SS.toast('已恢復上一個作品' + (hasContent() ? '（剛才的作品改放到「上一個作品」）' : ''));
+    });
+    $('#ed-prev-drop', el).addEventListener('click', async () => { await SS.edSession.del(SKEY + '_prev'); $('#ed-prev', el).hidden = true; });
+    $('#ed-name', el).addEventListener('input', schedule);
+    const flush = () => { if (dirty) persist(); };
+    const onVis = () => { if (document.visibilityState === 'hidden') flush(); };
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('pagehide', flush);
 
     /* 測試用：唯讀狀態快照 */
     SS._editorState = () => JSON.parse(JSON.stringify(S));
@@ -735,6 +825,21 @@
     /* ================= 啟動 ================= */
     langNote(); updEraseUI(); updSwatch();
     const pendText = SS.ls.get('pendingText', ''); if (pendText) SS.ls.set('pendingText', '');
+    const incoming = SS.handoffLayers || SS.handoffEditor || pendText;
+    const startDone = () => { restoring = false; if (hasContent()) { unsaved = true; dirty = true; persist(); } };
+    if (SS.handoffEditor && SS.handoffEditor.project) {
+      const b = SS.handoffEditor; SS.handoffEditor = null;
+      stashPrevious().then(() => applySnapshot(Object.assign({}, b.project, { name: b.name, collId: b.collId, unsaved: false, tab: 'crop' }))).then(() => { dirty = true; persist(); SS.toast('已打開收藏裡的作品，可繼續編輯圖層'); });
+    } else if (incoming) { const st = stashPrevious(); startFresh(); st.then(startDone); }
+    else {
+      SS.edSession.get(SKEY).then(async (s) => {
+        if (s && (s.src || (s.S && s.S.layers && s.S.layers.length) || (s.queue && s.queue.length))) { await applySnapshot(s); SS.toast('已恢復上次的加工進度'); $('#ed-autosave', el).textContent = '✓ 已恢復上次的進度（自動暫存在這台裝置）' + (s.unsaved ? '・還沒存到收藏，按「💾 儲存」保留到收藏' : ''); }
+        else { startFresh(); startDone(); }
+        if (await SS.edSession.get(SKEY + '_prev')) $('#ed-prev', el).hidden = false;
+      });
+    }
+    switchTab(tab);
+    function startFresh() {
     if (SS.handoffLayers) {
       const h = SS.handoffLayers; SS.handoffLayers = null;
       work = null; srcCanvas = null; S = defaultState(); S.frame = h.frame || 'line'; S.bg = h.bg ? 'color' : 'transparent'; if (h.bg) S.bgColor = h.bg;
@@ -759,7 +864,8 @@
       SS.toast('已帶入文字「' + pendText + '」，請匯入圖片或用空白畫布');
     }
     switchTab(tab);
-    return () => qUrls.forEach((u) => URL.revokeObjectURL(u));
+    }
+    return () => { flush(); document.removeEventListener('visibilitychange', onVis); window.removeEventListener('pagehide', flush); qUrls.forEach((u) => URL.revokeObjectURL(u)); };
   }
   SS.mountEditor = mountEditor;
 

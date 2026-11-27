@@ -93,7 +93,7 @@
             $('#m-dl', b).onclick = () => SS.download(x.blob, fn());
             $('#m-pack', b).onclick = () => SS.pack.add([{ name: x.name, blob: x.blob }]);
             $('#m-share', b).onclick = () => SS.shareBlob(x.blob, fn());
-            $('#m-edit', b).onclick = () => { SS.handoffEditor = { blob: x.blob, name: fn() }; SS.closeModal(); location.hash = '#editor'; };
+            $('#m-edit', b).onclick = () => { SS.handoffEditor = x.project ? { project: x.project, name: x.name, collId: x.id } : { blob: x.blob, name: fn() }; SS.closeModal(); location.hash = '#editor'; };
             $('#m-del', b).onclick = async () => { if (!(await SS.confirmBox('確定刪除這張貼圖？刪除後無法復原。'))) return; await SS.idb.del(x.id); SS.closeModal(); SS.toast('已刪除'); load(); };
           }
         });

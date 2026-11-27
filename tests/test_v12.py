@@ -192,7 +192,8 @@ with sync_playwright() as p:
     pg.click('[data-dlock="font"]'); pg.click('[data-dlock="pos"]')
 
     # ===== 文字與裝飾限制在輸出範圍內 =====
-    pg.goto(BASE + '#home'); pg.wait_for_selector('.main-cta'); pg.goto(BASE + '#textsticker'); pg.wait_for_selector('#ed-main:not([hidden])'); pg.wait_for_timeout(300)
+    pg.goto(BASE + '#home'); pg.wait_for_selector('.main-cta'); pg.evaluate("SS.edSession.del('text')")  # v1.4.1 起會恢復上次作品，這裡要從新畫布開始
+    pg.goto(BASE + '#textsticker'); pg.wait_for_selector('#ed-main:not([hidden])'); pg.wait_for_timeout(300)
     l = st(pg)['layers'][0]; drag(pg, (l['x'] * 370, l['y'] * 320), (369, 319), 10)
     a = png(pg)
     check('6. 拖到邊緣仍完整留在輸出範圍內', a[:, -1, 3].max() == 0 and a[-1, :, 3].max() == 0, (a[:, -1, 3].max(), a[-1, :, 3].max()))
